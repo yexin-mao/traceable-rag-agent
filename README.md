@@ -111,11 +111,11 @@ That gives the portfolio two connected but distinct projects:
 
 ### Milestone 1 — Minimal RAG pipeline
 
-- [ ] Load documents
-- [ ] Chunk documents
+- [x] Load in-memory documents
+- [x] Chunk documents with source-preserving chunk IDs
 - [ ] Embed chunks
-- [ ] Retrieve top-k evidence
-- [ ] Generate answer
+- [x] Retrieve top-k evidence with a deterministic lexical baseline
+- [x] Generate citation-grounded answer skeleton
 
 ### Milestone 2 — Citation-grounded answers
 
