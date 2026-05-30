@@ -91,21 +91,16 @@ Citation Checker / Faithfulness Evaluator
 Trace Dashboard
 ```
 
-## Relationship to Agent Flight Recorder
+## Portfolio context
 
-This project will focus on **RAG capability**. Agent Flight Recorder focuses on **agent observability**.
-
-The long-term plan is to connect them:
+This project is the portfolio's **knowledge/evidence agent**. It pairs with **Deep Agent Workbench**, the separate action/workflow agent project:
 
 ```text
-Traceable RAG Agent produces traces
-Agent Flight Recorder visualizes and evaluates those traces
+Traceable RAG Agent -> proves reliable knowledge grounding, citations, and RAG evaluation
+Deep Agent Workbench -> proves planning, tool use, state, approval, recovery, and task evaluation
 ```
 
-That gives the portfolio two connected but distinct projects:
-
-1. **Traceable RAG Agent** — proves RAG and agent workflow ability.
-2. **Agent Flight Recorder** — proves observability and debugging infrastructure ability.
+Together they show two sides of AI Agent engineering: trustworthy answers from evidence, and safe multi-step action workflows.
 
 ## Roadmap
 
