@@ -1,5 +1,12 @@
 from traceable_rag_agent.models import Evidence
-from traceable_rag_agent.pipeline import Document, answer_question, check_answer_claims, chunk_documents, retrieve
+from traceable_rag_agent.pipeline import (
+    Document,
+    answer_question,
+    check_answer_claims,
+    check_evidence_sufficiency,
+    chunk_documents,
+    retrieve,
+)
 
 
 def test_chunk_documents_preserves_source_ids_and_ordered_chunk_ids() -> None:
@@ -70,3 +77,37 @@ def test_check_answer_claims_flags_claims_without_supporting_evidence() -> None:
     assert [check.status for check in checks] == ["supported", "unsupported"]
     assert checks[0].supporting_source_ids == ["agentic-rag"]
     assert checks[1].supporting_source_ids == []
+
+
+def test_check_evidence_sufficiency_marks_supported_answers_sufficient() -> None:
+    evidence = [
+        Evidence(
+            source_id="agentic-rag",
+            text="Agentic RAG checks retrieved evidence before answering.",
+            score=1.0,
+        )
+    ]
+    claim_checks = check_answer_claims(
+        "Agentic RAG checks retrieved evidence before answering.",
+        evidence,
+    )
+
+    result = check_evidence_sufficiency(evidence, claim_checks)
+
+    assert result.status == "sufficient"
+    assert result.supported_claim_count == 1
+    assert result.unsupported_claim_count == 0
+    assert result.evidence_count == 1
+    assert result.reason == "All answer claims are supported by retrieved evidence."
+
+
+def test_answer_question_marks_trace_insufficient_when_no_evidence_is_retrieved() -> None:
+    trace = answer_question(
+        "What does Agentic RAG check before answering?",
+        [Document(source_id="unrelated", text="Workflow agents call tools and inspect results.")],
+        top_k=1,
+    )
+
+    assert trace.evidence == []
+    assert trace.evidence_sufficiency.status == "insufficient"
+    assert trace.evidence_sufficiency.reason == "No evidence was retrieved for this question."

@@ -127,7 +127,7 @@ That gives the portfolio two connected but distinct projects:
 
 - [ ] Decompose complex question into sub-queries
 - [ ] Run multi-query retrieval
-- [ ] Add evidence sufficiency check
+- [x] Add evidence sufficiency check
 - [ ] Retry retrieval with rewritten query when evidence is weak
 
 ### Milestone 4 — Evaluation
@@ -148,6 +148,8 @@ That gives the portfolio two connected but distinct projects:
 
 ### 2026-05-30
 
+- Added deterministic evidence sufficiency summaries to each `RagTrace`, including retrieved evidence count, supported claim count, unsupported claim count, and a plain-English reason.
+- Added regression tests for sufficient traces and no-evidence insufficient traces.
 - Added deterministic claim-level support checks that classify answer sentences as `supported` or `unsupported` against retrieved evidence.
 - The pipeline now stores `claim_checks` directly in `RagTrace`, making every answer easier to inspect and evaluate.
 - Verified with pytest regression tests for citation-grounded traces and unsupported-claim detection.

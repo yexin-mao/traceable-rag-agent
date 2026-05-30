@@ -25,6 +25,16 @@ class ClaimCheck(BaseModel):
     supporting_source_ids: list[str] = Field(default_factory=list)
 
 
+class EvidenceSufficiency(BaseModel):
+    """Summary of whether retrieved evidence is enough to trust an answer."""
+
+    status: str
+    reason: str
+    evidence_count: int = Field(ge=0)
+    supported_claim_count: int = Field(ge=0)
+    unsupported_claim_count: int = Field(ge=0)
+
+
 class RagTrace(BaseModel):
     """A minimal trace shape for one RAG run."""
 
@@ -33,3 +43,4 @@ class RagTrace(BaseModel):
     evidence: list[Evidence]
     answer: str
     claim_checks: list[ClaimCheck] = Field(default_factory=list)
+    evidence_sufficiency: EvidenceSufficiency | None = None

@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 
-from traceable_rag_agent.models import ClaimCheck, Evidence, RagTrace, RetrievalQuery
+from traceable_rag_agent.models import ClaimCheck, Evidence, EvidenceSufficiency, RagTrace, RetrievalQuery
 
 
 @dataclass(frozen=True)
@@ -80,6 +80,7 @@ def answer_question(question: str, documents: list[Document], top_k: int = 3) ->
     evidence = retrieve(question, chunks, top_k=top_k)
     answer = _synthesize_answer(evidence)
     claim_checks = check_answer_claims(answer, evidence)
+    evidence_sufficiency = check_evidence_sufficiency(evidence, claim_checks)
     return RagTrace(
         question=question,
         planned_queries=[
@@ -88,6 +89,7 @@ def answer_question(question: str, documents: list[Document], top_k: int = 3) ->
         evidence=evidence,
         answer=answer,
         claim_checks=claim_checks,
+        evidence_sufficiency=evidence_sufficiency,
     )
 
 
@@ -112,6 +114,32 @@ def check_answer_claims(answer: str, evidence: list[Evidence]) -> list[ClaimChec
             )
         )
     return checks
+
+
+def check_evidence_sufficiency(
+    evidence: list[Evidence], claim_checks: list[ClaimCheck]
+) -> EvidenceSufficiency:
+    """Summarize whether retrieved evidence is enough for the current answer."""
+
+    supported_count = sum(check.status == "supported" for check in claim_checks)
+    unsupported_count = sum(check.status == "unsupported" for check in claim_checks)
+    if not evidence:
+        status = "insufficient"
+        reason = "No evidence was retrieved for this question."
+    elif unsupported_count:
+        status = "insufficient"
+        reason = "Some answer claims are not supported by retrieved evidence."
+    else:
+        status = "sufficient"
+        reason = "All answer claims are supported by retrieved evidence."
+
+    return EvidenceSufficiency(
+        status=status,
+        reason=reason,
+        evidence_count=len(evidence),
+        supported_claim_count=supported_count,
+        unsupported_claim_count=unsupported_count,
+    )
 
 
 def _synthesize_answer(evidence: list[Evidence]) -> str:
