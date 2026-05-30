@@ -1,4 +1,5 @@
-from traceable_rag_agent.pipeline import Document, answer_question, chunk_documents, retrieve
+from traceable_rag_agent.models import Evidence
+from traceable_rag_agent.pipeline import Document, answer_question, check_answer_claims, chunk_documents, retrieve
 
 
 def test_chunk_documents_preserves_source_ids_and_ordered_chunk_ids() -> None:
@@ -48,3 +49,24 @@ def test_answer_question_returns_citation_grounded_skeleton_trace() -> None:
     assert trace.evidence[0].source_id == "agentic-rag"
     assert "Agentic RAG checks evidence before answering." in trace.answer
     assert "[agentic-rag]" in trace.answer
+    assert trace.claim_checks[0].status == "supported"
+    assert trace.claim_checks[0].supporting_source_ids == ["agentic-rag"]
+
+
+def test_check_answer_claims_flags_claims_without_supporting_evidence() -> None:
+    evidence = [
+        Evidence(
+            source_id="agentic-rag",
+            text="Agentic RAG checks retrieved evidence before answering.",
+            score=1.0,
+        )
+    ]
+
+    checks = check_answer_claims(
+        "Agentic RAG checks retrieved evidence before answering. It guarantees perfect answers.",
+        evidence,
+    )
+
+    assert [check.status for check in checks] == ["supported", "unsupported"]
+    assert checks[0].supporting_source_ids == ["agentic-rag"]
+    assert checks[1].supporting_source_ids == []

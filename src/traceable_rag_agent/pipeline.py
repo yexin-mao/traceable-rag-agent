@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 
-from traceable_rag_agent.models import Evidence, RagTrace, RetrievalQuery
+from traceable_rag_agent.models import ClaimCheck, Evidence, RagTrace, RetrievalQuery
 
 
 @dataclass(frozen=True)
@@ -79,6 +79,7 @@ def answer_question(question: str, documents: list[Document], top_k: int = 3) ->
     chunks = chunk_documents(documents)
     evidence = retrieve(question, chunks, top_k=top_k)
     answer = _synthesize_answer(evidence)
+    claim_checks = check_answer_claims(answer, evidence)
     return RagTrace(
         question=question,
         planned_queries=[
@@ -86,7 +87,31 @@ def answer_question(question: str, documents: list[Document], top_k: int = 3) ->
         ],
         evidence=evidence,
         answer=answer,
+        claim_checks=claim_checks,
     )
+
+
+
+
+def check_answer_claims(answer: str, evidence: list[Evidence]) -> list[ClaimCheck]:
+    """Flag answer sentences that are not supported by retrieved evidence."""
+
+    checks: list[ClaimCheck] = []
+    for claim in _sentences(answer):
+        claim_terms = _terms(claim)
+        supporting_sources = [
+            item.source_id
+            for item in evidence
+            if claim_terms and claim_terms.issubset(_terms(item.text))
+        ]
+        checks.append(
+            ClaimCheck(
+                claim=claim,
+                status="supported" if supporting_sources else "unsupported",
+                supporting_source_ids=supporting_sources,
+            )
+        )
+    return checks
 
 
 def _synthesize_answer(evidence: list[Evidence]) -> str:
@@ -95,6 +120,10 @@ def _synthesize_answer(evidence: list[Evidence]) -> str:
 
     cited_sentences = [f"{item.text} [{item.source_id}]" for item in evidence]
     return " ".join(cited_sentences)
+
+
+def _sentences(text: str) -> list[str]:
+    return [sentence.strip() for sentence in re.split(r"(?<=[.!?])\s+", text) if sentence.strip()]
 
 
 def _terms(text: str) -> set[str]:

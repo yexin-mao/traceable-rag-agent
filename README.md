@@ -119,9 +119,9 @@ That gives the portfolio two connected but distinct projects:
 
 ### Milestone 2 — Citation-grounded answers
 
-- [ ] Return answer with source citations
+- [x] Return answer with source citations
 - [ ] Show retrieved evidence snippets
-- [ ] Add structured output format
+- [x] Add structured output format
 
 ### Milestone 3 — Agentic retrieval
 
@@ -135,7 +135,7 @@ That gives the portfolio two connected but distinct projects:
 - [ ] Create benchmark questions
 - [ ] Measure retrieval coverage
 - [ ] Check citation support
-- [ ] Flag unsupported claims
+- [x] Flag unsupported claims with deterministic claim checks
 
 ### Milestone 5 — Observability dashboard
 
@@ -143,6 +143,14 @@ That gives the portfolio two connected but distinct projects:
 - [ ] Visualize retrieval steps
 - [ ] Visualize evidence and citations
 - [ ] Show latency, errors, and evaluation metrics
+
+## Development log
+
+### 2026-05-30
+
+- Added deterministic claim-level support checks that classify answer sentences as `supported` or `unsupported` against retrieved evidence.
+- The pipeline now stores `claim_checks` directly in `RagTrace`, making every answer easier to inspect and evaluate.
+- Verified with pytest regression tests for citation-grounded traces and unsupported-claim detection.
 
 ## Tech stack target
 
