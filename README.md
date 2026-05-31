@@ -134,7 +134,8 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 
 ### Milestone 5 — Observability dashboard
 
-- [ ] Store every run as a trace
+- [x] Store per-query retrieval steps in each trace
+- [ ] Store every run as a persisted trace
 - [ ] Visualize retrieval steps
 - [ ] Visualize evidence and citations
 - [ ] Show latency, errors, and evaluation metrics
@@ -143,6 +144,8 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 
 ### 2026-05-31
 
+- Added per-query retrieval step records to `RagTrace`, including the planned query, retrieved source IDs, and retrieved chunk IDs for each retrieval action.
+- Added a regression test proving multi-query runs keep a readable step-by-step retrieval trail for future observability/debugging UI work.
 - Added deterministic retrieval planning for complex `and` questions, splitting one broad question into focused sub-queries before retrieval.
 - Updated `answer_question` to run retrieval for every planned sub-query and deduplicate repeated chunks in the trace evidence list.
 - Added regression tests for focused sub-query planning and multi-query evidence collection.

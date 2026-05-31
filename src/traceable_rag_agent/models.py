@@ -17,6 +17,14 @@ class Evidence(BaseModel):
     metadata: dict[str, str] = Field(default_factory=dict)
 
 
+class RetrievalStep(BaseModel):
+    """Evidence retrieved for one planned query."""
+
+    query: str
+    retrieved_source_ids: list[str] = Field(default_factory=list)
+    retrieved_chunk_ids: list[str] = Field(default_factory=list)
+
+
 class ClaimCheck(BaseModel):
     """Support status for one answer claim."""
 
@@ -40,6 +48,7 @@ class RagTrace(BaseModel):
 
     question: str
     planned_queries: list[RetrievalQuery]
+    retrieval_steps: list[RetrievalStep] = Field(default_factory=list)
     evidence: list[Evidence]
     answer: str
     claim_checks: list[ClaimCheck] = Field(default_factory=list)

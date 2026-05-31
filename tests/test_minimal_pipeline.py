@@ -91,6 +91,32 @@ def test_answer_question_retrieves_evidence_for_each_planned_subquery() -> None:
     assert [item.source_id for item in trace.evidence] == ["decomposition", "sufficiency"]
 
 
+def test_answer_question_records_retrieval_steps_for_each_planned_query() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+
+    assert [step.query for step in trace.retrieval_steps] == [
+        "How does Agentic RAG decompose questions?",
+        "How does Agentic RAG check evidence sufficiency?",
+    ]
+    assert [step.retrieved_source_ids for step in trace.retrieval_steps] == [
+        ["decomposition"],
+        ["sufficiency"],
+    ]
+    assert [step.retrieved_chunk_ids for step in trace.retrieval_steps] == [
+        ["decomposition#0"],
+        ["sufficiency#0"],
+    ]
+
+
 def test_check_answer_claims_flags_claims_without_supporting_evidence() -> None:
     evidence = [
         Evidence(

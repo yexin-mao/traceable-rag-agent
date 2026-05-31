@@ -1,7 +1,14 @@
 import re
 from dataclasses import dataclass
 
-from traceable_rag_agent.models import ClaimCheck, Evidence, EvidenceSufficiency, RagTrace, RetrievalQuery
+from traceable_rag_agent.models import (
+    ClaimCheck,
+    Evidence,
+    EvidenceSufficiency,
+    RagTrace,
+    RetrievalQuery,
+    RetrievalStep,
+)
 
 
 @dataclass(frozen=True)
@@ -109,17 +116,26 @@ def answer_question(question: str, documents: list[Document], top_k: int = 3) ->
 
     chunks = chunk_documents(documents)
     planned_queries = plan_retrieval_queries(question)
-    evidence = _deduplicate_evidence(
-        item
-        for planned_query in planned_queries
-        for item in retrieve(planned_query.query, chunks, top_k=top_k)
-    )
+    retrieval_steps: list[RetrievalStep] = []
+    retrieved_items: list[Evidence] = []
+    for planned_query in planned_queries:
+        query_evidence = retrieve(planned_query.query, chunks, top_k=top_k)
+        retrieved_items.extend(query_evidence)
+        retrieval_steps.append(
+            RetrievalStep(
+                query=planned_query.query,
+                retrieved_source_ids=[item.source_id for item in query_evidence],
+                retrieved_chunk_ids=[item.metadata["chunk_id"] for item in query_evidence],
+            )
+        )
+    evidence = _deduplicate_evidence(retrieved_items)
     answer = _synthesize_answer(evidence)
     claim_checks = check_answer_claims(answer, evidence)
     evidence_sufficiency = check_evidence_sufficiency(evidence, claim_checks)
     return RagTrace(
         question=question,
         planned_queries=planned_queries,
+        retrieval_steps=retrieval_steps,
         evidence=evidence,
         answer=answer,
         claim_checks=claim_checks,
