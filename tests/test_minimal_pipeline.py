@@ -5,6 +5,7 @@ from traceable_rag_agent.pipeline import (
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
+    plan_retrieval_queries,
     retrieve,
 )
 
@@ -43,6 +44,17 @@ def test_retrieve_ranks_chunks_by_query_term_overlap() -> None:
     assert evidence[0].score > 0
 
 
+def test_plan_retrieval_queries_splits_complex_and_question_into_focused_subqueries() -> None:
+    queries = plan_retrieval_queries("How does Agentic RAG decompose questions and check evidence?")
+
+    assert [query.query for query in queries] == [
+        "How does Agentic RAG decompose questions?",
+        "How does Agentic RAG check evidence?",
+    ]
+    assert queries[0].reason == "Retrieve evidence for one focused part of the complex question."
+    assert queries[1].reason == "Retrieve evidence for one focused part of the complex question."
+
+
 def test_answer_question_returns_citation_grounded_skeleton_trace() -> None:
     documents = [
         Document(source_id="agentic-rag", text="Agentic RAG checks evidence before answering."),
@@ -58,6 +70,25 @@ def test_answer_question_returns_citation_grounded_skeleton_trace() -> None:
     assert "[agentic-rag]" in trace.answer
     assert trace.claim_checks[0].status == "supported"
     assert trace.claim_checks[0].supporting_source_ids == ["agentic-rag"]
+
+
+def test_answer_question_retrieves_evidence_for_each_planned_subquery() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+
+    assert [query.query for query in trace.planned_queries] == [
+        "How does Agentic RAG decompose questions?",
+        "How does Agentic RAG check evidence sufficiency?",
+    ]
+    assert [item.source_id for item in trace.evidence] == ["decomposition", "sufficiency"]
 
 
 def test_check_answer_claims_flags_claims_without_supporting_evidence() -> None:

@@ -44,6 +44,37 @@ def chunk_documents(documents: list[Document], max_words: int = 120) -> list[Chu
     return chunks
 
 
+def plan_retrieval_queries(question: str) -> list[RetrievalQuery]:
+    """Create focused retrieval queries from a complex user question."""
+
+    cleaned_question = question.strip()
+    if " and " not in cleaned_question.lower():
+        return [
+            RetrievalQuery(
+                query=cleaned_question,
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ]
+
+    prefix_match = re.match(r"^(?P<prefix>.+?\bRAG\b)\s+(?P<first>.+?)\s+and\s+(?P<second>.+?)\?$", cleaned_question, re.IGNORECASE)
+    if not prefix_match:
+        return [
+            RetrievalQuery(
+                query=cleaned_question,
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ]
+
+    prefix = prefix_match.group("prefix")
+    return [
+        RetrievalQuery(
+            query=f"{prefix} {prefix_match.group(part)}?",
+            reason="Retrieve evidence for one focused part of the complex question.",
+        )
+        for part in ("first", "second")
+    ]
+
+
 def retrieve(query: str, chunks: list[Chunk], top_k: int = 3) -> list[Evidence]:
     """Rank chunks by simple lexical overlap and return evidence objects."""
 
@@ -77,15 +108,18 @@ def answer_question(question: str, documents: list[Document], top_k: int = 3) ->
     """Run a minimal local RAG pipeline and return a traceable answer skeleton."""
 
     chunks = chunk_documents(documents)
-    evidence = retrieve(question, chunks, top_k=top_k)
+    planned_queries = plan_retrieval_queries(question)
+    evidence = _deduplicate_evidence(
+        item
+        for planned_query in planned_queries
+        for item in retrieve(planned_query.query, chunks, top_k=top_k)
+    )
     answer = _synthesize_answer(evidence)
     claim_checks = check_answer_claims(answer, evidence)
     evidence_sufficiency = check_evidence_sufficiency(evidence, claim_checks)
     return RagTrace(
         question=question,
-        planned_queries=[
-            RetrievalQuery(query=question, reason="Use the original user question for first-pass retrieval.")
-        ],
+        planned_queries=planned_queries,
         evidence=evidence,
         answer=answer,
         claim_checks=claim_checks,
@@ -140,6 +174,18 @@ def check_evidence_sufficiency(
         supported_claim_count=supported_count,
         unsupported_claim_count=unsupported_count,
     )
+
+
+def _deduplicate_evidence(evidence_items) -> list[Evidence]:
+    unique_items: list[Evidence] = []
+    seen_chunk_ids: set[str] = set()
+    for item in evidence_items:
+        dedupe_key = item.metadata.get("chunk_id", item.source_id)
+        if dedupe_key in seen_chunk_ids:
+            continue
+        seen_chunk_ids.add(dedupe_key)
+        unique_items.append(item)
+    return unique_items
 
 
 def _synthesize_answer(evidence: list[Evidence]) -> str:

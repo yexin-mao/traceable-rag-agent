@@ -120,8 +120,8 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 
 ### Milestone 3 — Agentic retrieval
 
-- [ ] Decompose complex question into sub-queries
-- [ ] Run multi-query retrieval
+- [x] Decompose complex question into sub-queries
+- [x] Run multi-query retrieval
 - [x] Add evidence sufficiency check
 - [ ] Retry retrieval with rewritten query when evidence is weak
 
@@ -140,6 +140,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-05-31
+
+- Added deterministic retrieval planning for complex `and` questions, splitting one broad question into focused sub-queries before retrieval.
+- Updated `answer_question` to run retrieval for every planned sub-query and deduplicate repeated chunks in the trace evidence list.
+- Added regression tests for focused sub-query planning and multi-query evidence collection.
 
 ### 2026-05-30
 
