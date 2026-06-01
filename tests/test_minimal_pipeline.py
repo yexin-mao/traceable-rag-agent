@@ -2,6 +2,7 @@ from traceable_rag_agent.models import Evidence
 from traceable_rag_agent.pipeline import (
     Document,
     answer_question,
+    build_evidence_table,
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
@@ -156,6 +157,39 @@ def test_check_evidence_sufficiency_marks_supported_answers_sufficient() -> None
     assert result.unsupported_claim_count == 0
     assert result.evidence_count == 1
     assert result.reason == "All answer claims are supported by retrieved evidence."
+
+
+
+
+def test_build_evidence_table_exposes_ranked_snippets_for_dashboard() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+
+    table = build_evidence_table(trace)
+
+    assert table == [
+        {
+            "rank": 1,
+            "source_id": "decomposition",
+            "chunk_id": "decomposition#0",
+            "score": trace.evidence[0].score,
+            "snippet": "Agentic RAG decomposes questions into focused retrieval queries.",
+        },
+        {
+            "rank": 2,
+            "source_id": "sufficiency",
+            "chunk_id": "sufficiency#0",
+            "score": trace.evidence[1].score,
+            "snippet": "Agentic RAG checks evidence sufficiency before final synthesis.",
+        },
+    ]
 
 
 def test_answer_question_marks_trace_insufficient_when_no_evidence_is_retrieved() -> None:

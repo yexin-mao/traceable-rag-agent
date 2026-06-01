@@ -115,7 +115,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 ### Milestone 2 — Citation-grounded answers
 
 - [x] Return answer with source citations
-- [ ] Show retrieved evidence snippets
+- [x] Show retrieved evidence snippets
 - [x] Add structured output format
 
 ### Milestone 3 — Agentic retrieval
@@ -141,6 +141,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-01
+
+- Added `build_evidence_table(trace)`, a dashboard-ready view of ranked evidence snippets with rank, source ID, chunk ID, retrieval score, and snippet text.
+- Added a regression test proving multi-query traces can be rendered into a simple evidence table without losing citation/source metadata.
+- Verified the full test suite: `11 passed`.
 
 ### 2026-05-31
 

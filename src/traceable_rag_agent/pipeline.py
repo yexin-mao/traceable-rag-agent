@@ -145,6 +145,21 @@ def answer_question(question: str, documents: list[Document], top_k: int = 3) ->
 
 
 
+def build_evidence_table(trace: RagTrace) -> list[dict[str, object]]:
+    """Return ranked evidence snippets for dashboard/report rendering."""
+
+    return [
+        {
+            "rank": rank,
+            "source_id": item.source_id,
+            "chunk_id": item.metadata.get("chunk_id", ""),
+            "score": item.score,
+            "snippet": item.text,
+        }
+        for rank, item in enumerate(trace.evidence, start=1)
+    ]
+
+
 def check_answer_claims(answer: str, evidence: list[Evidence]) -> list[ClaimCheck]:
     """Flag answer sentences that are not supported by retrieved evidence."""
 
