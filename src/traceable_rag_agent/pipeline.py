@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from pathlib import Path
 
 from traceable_rag_agent.models import (
     ClaimCheck,
@@ -158,6 +159,15 @@ def build_evidence_table(trace: RagTrace) -> list[dict[str, object]]:
         }
         for rank, item in enumerate(trace.evidence, start=1)
     ]
+
+
+def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
+    """Persist one RAG run trace as readable JSON for later observability."""
+
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(trace.model_dump_json(indent=2), encoding="utf-8")
+    return path
 
 
 def check_answer_claims(answer: str, evidence: list[Evidence]) -> list[ClaimCheck]:

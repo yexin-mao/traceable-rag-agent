@@ -1,4 +1,7 @@
+import json
+
 from traceable_rag_agent.models import Evidence
+
 from traceable_rag_agent.pipeline import (
     Document,
     answer_question,
@@ -8,6 +11,7 @@ from traceable_rag_agent.pipeline import (
     chunk_documents,
     plan_retrieval_queries,
     retrieve,
+    save_trace_json,
 )
 
 
@@ -202,3 +206,20 @@ def test_answer_question_marks_trace_insufficient_when_no_evidence_is_retrieved(
     assert trace.evidence == []
     assert trace.evidence_sufficiency.status == "insufficient"
     assert trace.evidence_sufficiency.reason == "No evidence was retrieved for this question."
+
+
+def test_save_trace_json_persists_run_for_later_observability(tmp_path) -> None:
+    trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    output_path = tmp_path / "trace.json"
+
+    saved_path = save_trace_json(trace, output_path)
+
+    assert saved_path == output_path
+    saved_trace = json.loads(output_path.read_text(encoding="utf-8"))
+    assert saved_trace["question"] == "How does Agentic RAG check evidence sufficiency?"
+    assert saved_trace["retrieval_steps"][0]["retrieved_chunk_ids"] == ["sufficiency#0"]
+    assert saved_trace["evidence_sufficiency"]["status"] == "sufficient"

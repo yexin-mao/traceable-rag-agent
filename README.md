@@ -135,12 +135,18 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 ### Milestone 5 — Observability dashboard
 
 - [x] Store per-query retrieval steps in each trace
-- [ ] Store every run as a persisted trace
+- [x] Store every run as a persisted trace
 - [ ] Visualize retrieval steps
 - [ ] Visualize evidence and citations
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-01
+
+- Added `save_trace_json(trace, output_path)` to persist one full RAG run as readable JSON for later trace inspection and dashboard work.
+- Added a regression test proving saved traces preserve the question, retrieval-step chunk IDs, and evidence sufficiency status.
+- Verified the full test suite: `12 passed`; `ruff check .` passed.
 
 ### 2026-06-01
 
