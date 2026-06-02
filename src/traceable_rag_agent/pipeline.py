@@ -181,6 +181,23 @@ def measure_retrieval_coverage(
     }
 
 
+def measure_citation_support(trace: RagTrace) -> dict[str, object]:
+    """Measure whether answer citations point to retrieved evidence sources."""
+
+    cited_source_ids = list(dict.fromkeys(re.findall(r"\[([^\]]+)\]", trace.answer)))
+    evidence_source_ids = list(dict.fromkeys(item.source_id for item in trace.evidence))
+    supported_cited_source_ids = [source_id for source_id in cited_source_ids if source_id in evidence_source_ids]
+    unsupported_cited_source_ids = [source_id for source_id in cited_source_ids if source_id not in evidence_source_ids]
+    citation_support_ratio = len(supported_cited_source_ids) / len(cited_source_ids) if cited_source_ids else 1.0
+    return {
+        "cited_source_ids": cited_source_ids,
+        "evidence_source_ids": evidence_source_ids,
+        "supported_cited_source_ids": supported_cited_source_ids,
+        "unsupported_cited_source_ids": unsupported_cited_source_ids,
+        "citation_support_ratio": citation_support_ratio,
+    }
+
+
 def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
     """Persist one RAG run trace as readable JSON for later observability."""
 

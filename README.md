@@ -129,7 +129,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 
 - [ ] Create benchmark questions
 - [x] Measure retrieval coverage
-- [ ] Check citation support
+- [x] Check citation support
 - [x] Flag unsupported claims with deterministic claim checks
 
 ### Milestone 5 — Observability dashboard
@@ -141,6 +141,13 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-02
+
+- Added `measure_citation_support(trace)` to verify that answer citations point back to retrieved evidence sources.
+- The helper reports cited sources, evidence sources, supported/unsupported citation IDs, and a citation-support ratio, making citation accuracy easier to evaluate before a dashboard exists.
+- Added a regression test proving an answer with one valid citation and one missing citation reports a `0.5` support ratio and identifies the unsupported source.
+- Verified the full test suite: `14 passed`; `ruff check .` passed.
 
 ### 2026-06-02
 

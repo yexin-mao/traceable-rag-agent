@@ -9,6 +9,7 @@ from traceable_rag_agent.pipeline import (
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
+    measure_citation_support,
     measure_retrieval_coverage,
     plan_retrieval_queries,
     retrieve,
@@ -248,4 +249,23 @@ def test_measure_retrieval_coverage_reports_found_missing_and_ratio() -> None:
         "found_source_ids": ["decomposition"],
         "missing_source_ids": ["sufficiency"],
         "coverage_ratio": 0.5,
+    }
+
+
+def test_measure_citation_support_reports_unsupported_answer_citations() -> None:
+    trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    trace.answer = f"{trace.answer} Unsupported extra claim [missing-source]"
+
+    support = measure_citation_support(trace)
+
+    assert support == {
+        "cited_source_ids": ["sufficiency", "missing-source"],
+        "evidence_source_ids": ["sufficiency"],
+        "supported_cited_source_ids": ["sufficiency"],
+        "unsupported_cited_source_ids": ["missing-source"],
+        "citation_support_ratio": 0.5,
     }
