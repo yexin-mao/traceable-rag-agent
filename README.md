@@ -128,7 +128,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 ### Milestone 4 — Evaluation
 
 - [ ] Create benchmark questions
-- [ ] Measure retrieval coverage
+- [x] Measure retrieval coverage
 - [ ] Check citation support
 - [x] Flag unsupported claims with deterministic claim checks
 
@@ -141,6 +141,13 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-02
+
+- Added `measure_retrieval_coverage(trace, expected_source_ids)` to compare retrieved evidence sources against an expected source set.
+- The helper reports expected sources, retrieved sources, found sources, missing sources, and a coverage ratio, creating a small deterministic evaluation signal for RAG quality checks.
+- Added a regression test proving partial retrieval coverage is reported as `0.5` with the missing source identified.
+- Verified the full test suite: `13 passed`; `ruff check .` passed.
 
 ### 2026-06-01
 

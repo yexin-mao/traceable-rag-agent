@@ -9,6 +9,7 @@ from traceable_rag_agent.pipeline import (
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
+    measure_retrieval_coverage,
     plan_retrieval_queries,
     retrieve,
     save_trace_json,
@@ -223,3 +224,28 @@ def test_save_trace_json_persists_run_for_later_observability(tmp_path) -> None:
     assert saved_trace["question"] == "How does Agentic RAG check evidence sufficiency?"
     assert saved_trace["retrieval_steps"][0]["retrieved_chunk_ids"] == ["sufficiency#0"]
     assert saved_trace["evidence_sufficiency"]["status"] == "sufficient"
+
+
+def test_measure_retrieval_coverage_reports_found_missing_and_ratio() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions?",
+        documents,
+        top_k=1,
+    )
+
+    coverage = measure_retrieval_coverage(
+        trace,
+        expected_source_ids=["decomposition", "sufficiency"],
+    )
+
+    assert coverage == {
+        "expected_source_ids": ["decomposition", "sufficiency"],
+        "retrieved_source_ids": ["decomposition"],
+        "found_source_ids": ["decomposition"],
+        "missing_source_ids": ["sufficiency"],
+        "coverage_ratio": 0.5,
+    }

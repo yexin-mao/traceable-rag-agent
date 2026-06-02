@@ -161,6 +161,26 @@ def build_evidence_table(trace: RagTrace) -> list[dict[str, object]]:
     ]
 
 
+def measure_retrieval_coverage(
+    trace: RagTrace, expected_source_ids: list[str]
+) -> dict[str, object]:
+    """Compare retrieved evidence sources against expected sources for evaluation."""
+
+    retrieved_source_ids = list(dict.fromkeys(item.source_id for item in trace.evidence))
+    found_source_ids = [source_id for source_id in expected_source_ids if source_id in retrieved_source_ids]
+    missing_source_ids = [
+        source_id for source_id in expected_source_ids if source_id not in retrieved_source_ids
+    ]
+    coverage_ratio = len(found_source_ids) / len(expected_source_ids) if expected_source_ids else 1.0
+    return {
+        "expected_source_ids": expected_source_ids,
+        "retrieved_source_ids": retrieved_source_ids,
+        "found_source_ids": found_source_ids,
+        "missing_source_ids": missing_source_ids,
+        "coverage_ratio": coverage_ratio,
+    }
+
+
 def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
     """Persist one RAG run trace as readable JSON for later observability."""
 
