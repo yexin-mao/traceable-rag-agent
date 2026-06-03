@@ -3,6 +3,7 @@ import json
 from traceable_rag_agent.models import Evidence
 
 from traceable_rag_agent.pipeline import (
+    BenchmarkQuestion,
     Document,
     answer_question,
     build_evidence_table,
@@ -11,6 +12,7 @@ from traceable_rag_agent.pipeline import (
     chunk_documents,
     measure_citation_support,
     measure_retrieval_coverage,
+    run_retrieval_coverage_benchmark,
     plan_retrieval_queries,
     retrieve,
     save_trace_json,
@@ -268,4 +270,46 @@ def test_measure_citation_support_reports_unsupported_answer_citations() -> None
         "supported_cited_source_ids": ["sufficiency"],
         "unsupported_cited_source_ids": ["missing-source"],
         "citation_support_ratio": 0.5,
+    }
+
+
+def test_run_retrieval_coverage_benchmark_summarizes_question_level_results() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    benchmark = [
+        BenchmarkQuestion(
+            question="How does Agentic RAG decompose questions?",
+            expected_source_ids=["decomposition"],
+        ),
+        BenchmarkQuestion(
+            question="How does Agentic RAG check evidence sufficiency?",
+            expected_source_ids=["sufficiency", "decomposition"],
+        ),
+    ]
+
+    report = run_retrieval_coverage_benchmark(benchmark, documents, top_k=1)
+
+    assert report == {
+        "question_count": 2,
+        "average_coverage_ratio": 0.75,
+        "results": [
+            {
+                "question": "How does Agentic RAG decompose questions?",
+                "expected_source_ids": ["decomposition"],
+                "retrieved_source_ids": ["decomposition"],
+                "found_source_ids": ["decomposition"],
+                "missing_source_ids": [],
+                "coverage_ratio": 1.0,
+            },
+            {
+                "question": "How does Agentic RAG check evidence sufficiency?",
+                "expected_source_ids": ["sufficiency", "decomposition"],
+                "retrieved_source_ids": ["sufficiency"],
+                "found_source_ids": ["sufficiency"],
+                "missing_source_ids": ["decomposition"],
+                "coverage_ratio": 0.5,
+            },
+        ],
     }

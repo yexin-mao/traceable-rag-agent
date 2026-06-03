@@ -127,7 +127,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 
 ### Milestone 4 — Evaluation
 
-- [ ] Create benchmark questions
+- [x] Create benchmark questions
 - [x] Measure retrieval coverage
 - [x] Check citation support
 - [x] Flag unsupported claims with deterministic claim checks
@@ -141,6 +141,13 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-03
+
+- Added `BenchmarkQuestion` and `run_retrieval_coverage_benchmark(...)` so multiple benchmark questions can be run through the current RAG pipeline and summarized in one evaluation report.
+- The report includes per-question expected sources, retrieved sources, missing sources, coverage ratios, and an average retrieval coverage score across the benchmark set.
+- Added a regression test proving a two-question benchmark reports one fully covered question, one partially covered question, and an average coverage ratio of `0.75`.
+- Verified the full test suite: `15 passed`; `ruff check .` passed.
 
 ### 2026-06-02
 

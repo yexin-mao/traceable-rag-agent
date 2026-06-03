@@ -28,6 +28,13 @@ class Chunk:
     source_id: str
     text: str
 
+@dataclass(frozen=True)
+class BenchmarkQuestion:
+    """A benchmark item with expected sources for retrieval evaluation."""
+
+    question: str
+    expected_source_ids: list[str]
+
 
 def chunk_documents(documents: list[Document], max_words: int = 120) -> list[Chunk]:
     """Split documents into deterministic word chunks while preserving source metadata."""
@@ -195,6 +202,27 @@ def measure_citation_support(trace: RagTrace) -> dict[str, object]:
         "supported_cited_source_ids": supported_cited_source_ids,
         "unsupported_cited_source_ids": unsupported_cited_source_ids,
         "citation_support_ratio": citation_support_ratio,
+    }
+
+
+def run_retrieval_coverage_benchmark(
+    benchmark: list[BenchmarkQuestion], documents: list[Document], top_k: int = 3
+) -> dict[str, object]:
+    """Run benchmark questions and summarize retrieval coverage quality."""
+
+    results: list[dict[str, object]] = []
+    for item in benchmark:
+        trace = answer_question(item.question, documents, top_k=top_k)
+        coverage = measure_retrieval_coverage(trace, item.expected_source_ids)
+        results.append({"question": item.question, **coverage})
+
+    average_coverage_ratio = (
+        sum(float(result["coverage_ratio"]) for result in results) / len(results) if results else 1.0
+    )
+    return {
+        "question_count": len(benchmark),
+        "average_coverage_ratio": average_coverage_ratio,
+        "results": results,
     }
 
 
