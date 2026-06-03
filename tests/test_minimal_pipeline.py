@@ -12,6 +12,7 @@ from traceable_rag_agent.pipeline import (
     chunk_documents,
     measure_citation_support,
     measure_retrieval_coverage,
+    run_rag_quality_benchmark,
     run_retrieval_coverage_benchmark,
     plan_retrieval_queries,
     retrieve,
@@ -313,3 +314,28 @@ def test_run_retrieval_coverage_benchmark_summarizes_question_level_results() ->
             },
         ],
     }
+
+
+def test_run_rag_quality_benchmark_combines_retrieval_and_citation_metrics() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    benchmark = [
+        BenchmarkQuestion(
+            question="How does Agentic RAG decompose questions?",
+            expected_source_ids=["decomposition"],
+        ),
+        BenchmarkQuestion(
+            question="How does Agentic RAG check evidence sufficiency?",
+            expected_source_ids=["sufficiency", "decomposition"],
+        ),
+    ]
+
+    report = run_rag_quality_benchmark(benchmark, documents, top_k=1)
+
+    assert report["question_count"] == 2
+    assert report["average_retrieval_coverage_ratio"] == 0.75
+    assert report["average_citation_support_ratio"] == 1.0
+    assert report["results"][0]["citation_support"]["supported_cited_source_ids"] == ["decomposition"]
+    assert report["results"][1]["retrieval_coverage"]["missing_source_ids"] == ["decomposition"]

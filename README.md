@@ -131,6 +131,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Measure retrieval coverage
 - [x] Check citation support
 - [x] Flag unsupported claims with deterministic claim checks
+- [x] Summarize retrieval and citation quality in one benchmark report
 
 ### Milestone 5 — Observability dashboard
 
@@ -141,6 +142,13 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-03
+
+- Added `run_rag_quality_benchmark(...)` so one benchmark run now reports both retrieval coverage and citation-support quality.
+- The report keeps per-question retrieval coverage and citation support side by side, plus average retrieval and citation ratios across the benchmark set.
+- Added a regression test proving a two-question benchmark reports average retrieval coverage of `0.75`, average citation support of `1.0`, and question-level missing-source details.
+- Verified the full test suite: `16 passed`; `ruff check .` passed.
 
 ### 2026-06-03
 

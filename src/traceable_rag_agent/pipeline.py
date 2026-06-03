@@ -226,6 +226,41 @@ def run_retrieval_coverage_benchmark(
     }
 
 
+def run_rag_quality_benchmark(
+    benchmark: list[BenchmarkQuestion], documents: list[Document], top_k: int = 3
+) -> dict[str, object]:
+    """Run benchmark questions and report retrieval plus citation quality metrics."""
+
+    results: list[dict[str, object]] = []
+    for item in benchmark:
+        trace = answer_question(item.question, documents, top_k=top_k)
+        results.append(
+            {
+                "question": item.question,
+                "retrieval_coverage": measure_retrieval_coverage(trace, item.expected_source_ids),
+                "citation_support": measure_citation_support(trace),
+            }
+        )
+
+    average_retrieval_coverage_ratio = (
+        sum(float(result["retrieval_coverage"]["coverage_ratio"]) for result in results) / len(results)
+        if results
+        else 1.0
+    )
+    average_citation_support_ratio = (
+        sum(float(result["citation_support"]["citation_support_ratio"]) for result in results)
+        / len(results)
+        if results
+        else 1.0
+    )
+    return {
+        "question_count": len(benchmark),
+        "average_retrieval_coverage_ratio": average_retrieval_coverage_ratio,
+        "average_citation_support_ratio": average_citation_support_ratio,
+        "results": results,
+    }
+
+
 def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
     """Persist one RAG run trace as readable JSON for later observability."""
 
