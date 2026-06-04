@@ -132,6 +132,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Check citation support
 - [x] Flag unsupported claims with deterministic claim checks
 - [x] Summarize retrieval and citation quality in one benchmark report
+- [x] Diagnose question-level failure modes from benchmark results
 
 ### Milestone 5 — Observability dashboard
 
@@ -142,6 +143,13 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-04
+
+- Added `diagnose_rag_quality_failures(...)` to convert benchmark metrics into question-level failure-mode labels: `pass`, `retrieval_gap`, or `unsupported_citation`.
+- The diagnosis report explains whether a failed RAG answer is caused by missing expected evidence or by citing a source that was not retrieved.
+- Added a regression test covering one passing question, one retrieval gap, and one unsupported-citation failure.
+- Verified the focused test, full test suite, and `ruff check .`.
 
 ### 2026-06-03
 

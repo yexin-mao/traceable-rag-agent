@@ -10,6 +10,7 @@ from traceable_rag_agent.pipeline import (
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
+    diagnose_rag_quality_failures,
     measure_citation_support,
     measure_retrieval_coverage,
     run_rag_quality_benchmark,
@@ -339,3 +340,63 @@ def test_run_rag_quality_benchmark_combines_retrieval_and_citation_metrics() -> 
     assert report["average_citation_support_ratio"] == 1.0
     assert report["results"][0]["citation_support"]["supported_cited_source_ids"] == ["decomposition"]
     assert report["results"][1]["retrieval_coverage"]["missing_source_ids"] == ["decomposition"]
+
+
+def test_diagnose_rag_quality_failures_labels_question_level_failure_modes() -> None:
+    quality_report = {
+        "results": [
+            {
+                "question": "How does Agentic RAG decompose questions?",
+                "retrieval_coverage": {
+                    "missing_source_ids": [],
+                    "coverage_ratio": 1.0,
+                },
+                "citation_support": {
+                    "unsupported_cited_source_ids": [],
+                    "citation_support_ratio": 1.0,
+                },
+            },
+            {
+                "question": "How does Agentic RAG check evidence sufficiency?",
+                "retrieval_coverage": {
+                    "missing_source_ids": ["decomposition"],
+                    "coverage_ratio": 0.5,
+                },
+                "citation_support": {
+                    "unsupported_cited_source_ids": [],
+                    "citation_support_ratio": 1.0,
+                },
+            },
+            {
+                "question": "How does Agentic RAG cite evidence?",
+                "retrieval_coverage": {
+                    "missing_source_ids": [],
+                    "coverage_ratio": 1.0,
+                },
+                "citation_support": {
+                    "unsupported_cited_source_ids": ["missing-source"],
+                    "citation_support_ratio": 0.5,
+                },
+            },
+        ]
+    }
+
+    diagnoses = diagnose_rag_quality_failures(quality_report)
+
+    assert diagnoses == [
+        {
+            "question": "How does Agentic RAG decompose questions?",
+            "failure_mode": "pass",
+            "reason": "Retrieval covered expected sources and all citations are supported.",
+        },
+        {
+            "question": "How does Agentic RAG check evidence sufficiency?",
+            "failure_mode": "retrieval_gap",
+            "reason": "Missing expected sources: decomposition.",
+        },
+        {
+            "question": "How does Agentic RAG cite evidence?",
+            "failure_mode": "unsupported_citation",
+            "reason": "Answer cited sources that were not retrieved: missing-source.",
+        },
+    ]

@@ -261,6 +261,36 @@ def run_rag_quality_benchmark(
     }
 
 
+def diagnose_rag_quality_failures(quality_report: dict[str, object]) -> list[dict[str, str]]:
+    """Label question-level RAG failure modes from a quality benchmark report."""
+
+    diagnoses: list[dict[str, str]] = []
+    for result in quality_report.get("results", []):
+        retrieval_coverage = result["retrieval_coverage"]
+        citation_support = result["citation_support"]
+        missing_source_ids = retrieval_coverage["missing_source_ids"]
+        unsupported_cited_source_ids = citation_support["unsupported_cited_source_ids"]
+
+        if missing_source_ids:
+            failure_mode = "retrieval_gap"
+            reason = f"Missing expected sources: {', '.join(missing_source_ids)}."
+        elif unsupported_cited_source_ids:
+            failure_mode = "unsupported_citation"
+            reason = f"Answer cited sources that were not retrieved: {', '.join(unsupported_cited_source_ids)}."
+        else:
+            failure_mode = "pass"
+            reason = "Retrieval covered expected sources and all citations are supported."
+
+        diagnoses.append(
+            {
+                "question": result["question"],
+                "failure_mode": failure_mode,
+                "reason": reason,
+            }
+        )
+    return diagnoses
+
+
 def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
     """Persist one RAG run trace as readable JSON for later observability."""
 
