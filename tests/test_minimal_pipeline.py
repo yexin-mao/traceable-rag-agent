@@ -15,6 +15,7 @@ from traceable_rag_agent.pipeline import (
     measure_retrieval_coverage,
     run_rag_quality_benchmark,
     run_retrieval_coverage_benchmark,
+    summarize_failure_diagnoses,
     plan_retrieval_queries,
     retrieve,
     save_trace_json,
@@ -400,3 +401,42 @@ def test_diagnose_rag_quality_failures_labels_question_level_failure_modes() -> 
             "reason": "Answer cited sources that were not retrieved: missing-source.",
         },
     ]
+
+
+def test_summarize_failure_diagnoses_counts_modes_for_dashboard() -> None:
+    diagnoses = [
+        {
+            "question": "Question A",
+            "failure_mode": "pass",
+            "reason": "Retrieval covered expected sources and all citations are supported.",
+        },
+        {
+            "question": "Question B",
+            "failure_mode": "retrieval_gap",
+            "reason": "Missing expected sources: source-b.",
+        },
+        {
+            "question": "Question C",
+            "failure_mode": "retrieval_gap",
+            "reason": "Missing expected sources: source-c.",
+        },
+        {
+            "question": "Question D",
+            "failure_mode": "unsupported_citation",
+            "reason": "Answer cited sources that were not retrieved: missing-source.",
+        },
+    ]
+
+    summary = summarize_failure_diagnoses(diagnoses)
+
+    assert summary == {
+        "total_questions": 4,
+        "passed_questions": 1,
+        "failed_questions": 3,
+        "failure_mode_counts": {
+            "pass": 1,
+            "retrieval_gap": 2,
+            "unsupported_citation": 1,
+        },
+        "top_failure_mode": "retrieval_gap",
+    }

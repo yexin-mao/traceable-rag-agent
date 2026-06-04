@@ -291,6 +291,30 @@ def diagnose_rag_quality_failures(quality_report: dict[str, object]) -> list[dic
     return diagnoses
 
 
+def summarize_failure_diagnoses(diagnoses: list[dict[str, str]]) -> dict[str, object]:
+    """Count failure diagnosis modes for dashboard and progress reporting."""
+
+    failure_mode_counts: dict[str, int] = {}
+    for diagnosis in diagnoses:
+        failure_mode = diagnosis["failure_mode"]
+        failure_mode_counts[failure_mode] = failure_mode_counts.get(failure_mode, 0) + 1
+
+    passed_questions = failure_mode_counts.get("pass", 0)
+    failed_questions = len(diagnoses) - passed_questions
+    non_pass_counts = {
+        mode: count for mode, count in failure_mode_counts.items() if mode != "pass"
+    }
+    top_failure_mode = max(non_pass_counts, key=non_pass_counts.get) if non_pass_counts else "pass"
+
+    return {
+        "total_questions": len(diagnoses),
+        "passed_questions": passed_questions,
+        "failed_questions": failed_questions,
+        "failure_mode_counts": failure_mode_counts,
+        "top_failure_mode": top_failure_mode,
+    }
+
+
 def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
     """Persist one RAG run trace as readable JSON for later observability."""
 

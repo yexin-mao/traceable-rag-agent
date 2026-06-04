@@ -133,6 +133,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Flag unsupported claims with deterministic claim checks
 - [x] Summarize retrieval and citation quality in one benchmark report
 - [x] Diagnose question-level failure modes from benchmark results
+- [x] Summarize failure modes for dashboard/report status cards
 
 ### Milestone 5 — Observability dashboard
 
@@ -143,6 +144,13 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-04
+
+- Added `summarize_failure_diagnoses(...)` to turn question-level failure labels into dashboard-ready counts: total, passed, failed, per-mode counts, and top failure mode.
+- This makes benchmark failure analysis easier to show in a report or UI status card before building the full dashboard.
+- Added a regression test covering one passing item, two retrieval gaps, and one unsupported-citation failure.
+- Verified the focused test, full test suite, and `ruff check .`.
 
 ### 2026-06-04
 
