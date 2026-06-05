@@ -134,6 +134,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Summarize retrieval and citation quality in one benchmark report
 - [x] Diagnose question-level failure modes from benchmark results
 - [x] Summarize failure modes for dashboard/report status cards
+- [x] Recommend the next evaluation/debugging priority from failure summaries
 
 ### Milestone 5 — Observability dashboard
 
@@ -144,6 +145,13 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-05
+
+- Added `recommend_next_evaluation_action(...)` to convert benchmark failure summaries into one concrete next debugging priority.
+- The helper distinguishes retrieval gaps from unsupported citations and returns an interview-friendly action message, making evaluation results more operational instead of just descriptive.
+- Added a regression test proving a retrieval-gap-heavy benchmark recommends improving query rewriting, retrieval recall, or reranking before changing answer synthesis.
+- Verified the focused test, full test suite, and `ruff check .`.
 
 ### 2026-06-04
 

@@ -315,6 +315,38 @@ def summarize_failure_diagnoses(diagnoses: list[dict[str, str]]) -> dict[str, ob
     }
 
 
+def recommend_next_evaluation_action(summary: dict[str, object]) -> dict[str, str]:
+    """Translate a failure summary into one next debugging priority."""
+
+    top_failure_mode = str(summary["top_failure_mode"])
+    total_questions = int(summary["total_questions"])
+    failure_mode_counts = summary["failure_mode_counts"]
+    top_failure_count = int(failure_mode_counts[top_failure_mode])
+
+    if top_failure_mode == "retrieval_gap":
+        return {
+            "priority": "fix_retrieval",
+            "message": (
+                f"Top failure mode is retrieval_gap across {top_failure_count} of "
+                f"{total_questions} questions; improve query rewriting, retrieval recall, "
+                "or reranking before changing answer synthesis."
+            ),
+        }
+    if top_failure_mode == "unsupported_citation":
+        return {
+            "priority": "fix_citations",
+            "message": (
+                f"Top failure mode is unsupported_citation across {top_failure_count} of "
+                f"{total_questions} questions; tighten citation filtering and answer "
+                "synthesis so every cited source is retrieved evidence."
+            ),
+        }
+    return {
+        "priority": "keep_benchmarking",
+        "message": "All benchmark questions passed; add harder questions before changing the pipeline.",
+    }
+
+
 def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
     """Persist one RAG run trace as readable JSON for later observability."""
 

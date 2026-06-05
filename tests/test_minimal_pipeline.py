@@ -15,6 +15,7 @@ from traceable_rag_agent.pipeline import (
     measure_retrieval_coverage,
     run_rag_quality_benchmark,
     run_retrieval_coverage_benchmark,
+    recommend_next_evaluation_action,
     summarize_failure_diagnoses,
     plan_retrieval_queries,
     retrieve,
@@ -439,4 +440,25 @@ def test_summarize_failure_diagnoses_counts_modes_for_dashboard() -> None:
             "unsupported_citation": 1,
         },
         "top_failure_mode": "retrieval_gap",
+    }
+
+
+def test_recommend_next_evaluation_action_turns_failure_summary_into_actionable_guidance() -> None:
+    summary = {
+        "total_questions": 4,
+        "passed_questions": 1,
+        "failed_questions": 3,
+        "failure_mode_counts": {
+            "pass": 1,
+            "retrieval_gap": 2,
+            "unsupported_citation": 1,
+        },
+        "top_failure_mode": "retrieval_gap",
+    }
+
+    action = recommend_next_evaluation_action(summary)
+
+    assert action == {
+        "priority": "fix_retrieval",
+        "message": "Top failure mode is retrieval_gap across 2 of 4 questions; improve query rewriting, retrieval recall, or reranking before changing answer synthesis.",
     }
