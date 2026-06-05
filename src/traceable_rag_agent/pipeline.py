@@ -347,6 +347,27 @@ def recommend_next_evaluation_action(summary: dict[str, object]) -> dict[str, st
     }
 
 
+def build_quality_report_markdown(summary: dict[str, object], action: dict[str, str]) -> str:
+    """Format benchmark status and next action as a dashboard-ready Markdown report."""
+
+    failure_mode_counts = summary["failure_mode_counts"]
+    lines = [
+        "## RAG Quality Report",
+        "",
+        f"- Total questions: {summary['total_questions']}",
+        f"- Passed questions: {summary['passed_questions']}",
+        f"- Failed questions: {summary['failed_questions']}",
+        f"- Top failure mode: {summary['top_failure_mode']}",
+        f"- Next priority: {action['priority']}",
+        f"- Recommendation: {action['message']}",
+        "",
+        "| Failure mode | Count |",
+        "| --- | ---: |",
+    ]
+    lines.extend(f"| {mode} | {count} |" for mode, count in failure_mode_counts.items())
+    return "\n".join(lines)
+
+
 def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
     """Persist one RAG run trace as readable JSON for later observability."""
 

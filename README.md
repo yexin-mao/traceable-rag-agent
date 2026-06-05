@@ -135,6 +135,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Diagnose question-level failure modes from benchmark results
 - [x] Summarize failure modes for dashboard/report status cards
 - [x] Recommend the next evaluation/debugging priority from failure summaries
+- [x] Format benchmark quality summaries as Markdown reports for dashboard/demo use
 
 ### Milestone 5 — Observability dashboard
 
@@ -145,6 +146,13 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-05
+
+- Added `build_quality_report_markdown(...)` to turn evaluation summaries and recommended next actions into a compact Markdown report for dashboard/demo use.
+- The report includes total/pass/fail counts, top failure mode, next priority, recommendation text, and a failure-mode table.
+- Added a regression test proving the Markdown output is deterministic and ready to render in a project page, README excerpt, or future observability dashboard.
+- Verified the focused test, full test suite, and `ruff check .`.
 
 ### 2026-06-05
 

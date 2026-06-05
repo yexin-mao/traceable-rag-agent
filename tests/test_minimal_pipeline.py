@@ -7,6 +7,7 @@ from traceable_rag_agent.pipeline import (
     Document,
     answer_question,
     build_evidence_table,
+    build_quality_report_markdown,
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
@@ -462,3 +463,42 @@ def test_recommend_next_evaluation_action_turns_failure_summary_into_actionable_
         "priority": "fix_retrieval",
         "message": "Top failure mode is retrieval_gap across 2 of 4 questions; improve query rewriting, retrieval recall, or reranking before changing answer synthesis.",
     }
+
+
+def test_build_quality_report_markdown_formats_dashboard_ready_summary() -> None:
+    summary = {
+        "total_questions": 4,
+        "passed_questions": 1,
+        "failed_questions": 3,
+        "failure_mode_counts": {
+            "pass": 1,
+            "retrieval_gap": 2,
+            "unsupported_citation": 1,
+        },
+        "top_failure_mode": "retrieval_gap",
+    }
+    action = {
+        "priority": "fix_retrieval",
+        "message": "Top failure mode is retrieval_gap across 2 of 4 questions; improve query rewriting, retrieval recall, or reranking before changing answer synthesis.",
+    }
+
+    markdown = build_quality_report_markdown(summary, action)
+
+    assert markdown == "\n".join(
+        [
+            "## RAG Quality Report",
+            "",
+            "- Total questions: 4",
+            "- Passed questions: 1",
+            "- Failed questions: 3",
+            "- Top failure mode: retrieval_gap",
+            "- Next priority: fix_retrieval",
+            "- Recommendation: Top failure mode is retrieval_gap across 2 of 4 questions; improve query rewriting, retrieval recall, or reranking before changing answer synthesis.",
+            "",
+            "| Failure mode | Count |",
+            "| --- | ---: |",
+            "| pass | 1 |",
+            "| retrieval_gap | 2 |",
+            "| unsupported_citation | 1 |",
+        ]
+    )
