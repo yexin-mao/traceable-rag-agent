@@ -9,6 +9,7 @@ from traceable_rag_agent.pipeline import (
     build_evidence_table,
     build_quality_report_markdown,
     build_trace_report_markdown,
+    build_trace_status_summary,
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
@@ -270,6 +271,30 @@ def test_build_trace_report_markdown_formats_one_run_for_observability_dashboard
             f"| 2 | sufficiency | sufficiency#0 | {trace.evidence[1].score:.2f} | Agentic RAG checks evidence sufficiency before final synthesis. |",
         ]
     )
+
+
+def test_build_trace_status_summary_returns_dashboard_card_metrics() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+
+    summary = build_trace_status_summary(trace)
+
+    assert summary == {
+        "sufficiency_status": "sufficient",
+        "planned_query_count": 2,
+        "retrieval_step_count": 2,
+        "evidence_count": 2,
+        "supported_claim_count": 2,
+        "unsupported_claim_count": 0,
+        "cited_source_count": 2,
+    }
 
 
 def test_measure_retrieval_coverage_reports_found_missing_and_ratio() -> None:

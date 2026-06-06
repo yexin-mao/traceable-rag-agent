@@ -410,6 +410,24 @@ def build_trace_report_markdown(trace: RagTrace) -> str:
     return "\n".join(lines)
 
 
+def build_trace_status_summary(trace: RagTrace) -> dict[str, object]:
+    """Return compact per-run metrics for dashboard status cards."""
+
+    cited_source_ids = list(dict.fromkeys(re.findall(r"\[([^\]]+)\]", trace.answer)))
+    sufficiency_status = (
+        trace.evidence_sufficiency.status if trace.evidence_sufficiency is not None else "not_evaluated"
+    )
+    return {
+        "sufficiency_status": sufficiency_status,
+        "planned_query_count": len(trace.planned_queries),
+        "retrieval_step_count": len(trace.retrieval_steps),
+        "evidence_count": len(trace.evidence),
+        "supported_claim_count": sum(check.status == "supported" for check in trace.claim_checks),
+        "unsupported_claim_count": sum(check.status == "unsupported" for check in trace.claim_checks),
+        "cited_source_count": len(cited_source_ids),
+    }
+
+
 def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
     """Persist one RAG run trace as readable JSON for later observability."""
 

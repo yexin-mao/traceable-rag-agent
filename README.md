@@ -142,11 +142,18 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Store per-query retrieval steps in each trace
 - [x] Store every run as a persisted trace
 - [x] Format one-run trace reports as Markdown for dashboard/demo rendering
+- [x] Summarize one-run trace status metrics for dashboard cards
 - [ ] Visualize retrieval steps
 - [ ] Visualize evidence and citations
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-06
+
+- Added `build_trace_status_summary(...)` to turn one RAG run into compact dashboard-card metrics: sufficiency status, planned-query count, retrieval-step count, evidence count, supported/unsupported claim counts, and cited-source count.
+- Added a regression test proving a multi-query trace produces deterministic status metrics for a future observability UI.
+- Verified the focused test, full test suite, and `ruff check .`.
 
 ### 2026-06-06
 
