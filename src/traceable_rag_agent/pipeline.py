@@ -368,6 +368,48 @@ def build_quality_report_markdown(summary: dict[str, object], action: dict[str, 
     return "\n".join(lines)
 
 
+def build_trace_report_markdown(trace: RagTrace) -> str:
+    """Format one RAG run trace as Markdown for observability dashboard rendering."""
+
+    sufficiency = trace.evidence_sufficiency
+    sufficiency_text = (
+        f"{sufficiency.status} — {sufficiency.reason}"
+        if sufficiency is not None
+        else "not evaluated — No evidence sufficiency summary is attached."
+    )
+    lines = [
+        "## Trace Report",
+        "",
+        f"- Question: {trace.question}",
+        f"- Evidence sufficiency: {sufficiency_text}",
+        f"- Planned queries: {len(trace.planned_queries)}",
+        f"- Retrieved evidence items: {len(trace.evidence)}",
+        "",
+        "### Retrieval steps",
+        "| Step | Query | Sources | Chunks |",
+        "| ---: | --- | --- | --- |",
+    ]
+    for step_index, step in enumerate(trace.retrieval_steps, start=1):
+        sources = ", ".join(step.retrieved_source_ids) if step.retrieved_source_ids else "none"
+        chunks = ", ".join(step.retrieved_chunk_ids) if step.retrieved_chunk_ids else "none"
+        lines.append(f"| {step_index} | {step.query} | {sources} | {chunks} |")
+
+    lines.extend(
+        [
+            "",
+            "### Evidence",
+            "| Rank | Source | Chunk | Score | Snippet |",
+            "| ---: | --- | --- | ---: | --- |",
+        ]
+    )
+    for rank, item in enumerate(trace.evidence, start=1):
+        chunk_id = item.metadata.get("chunk_id", "")
+        lines.append(
+            f"| {rank} | {item.source_id} | {chunk_id} | {item.score:.2f} | {item.text} |"
+        )
+    return "\n".join(lines)
+
+
 def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
     """Persist one RAG run trace as readable JSON for later observability."""
 
@@ -382,7 +424,9 @@ def check_answer_claims(answer: str, evidence: list[Evidence]) -> list[ClaimChec
 
     checks: list[ClaimCheck] = []
     for claim in _sentences(answer):
-        claim_terms = _terms(claim)
+        claim_terms = _terms(_strip_citations(claim))
+        if not claim_terms:
+            continue
         supporting_sources = [
             item.source_id
             for item in evidence
@@ -446,6 +490,10 @@ def _synthesize_answer(evidence: list[Evidence]) -> str:
 
 def _sentences(text: str) -> list[str]:
     return [sentence.strip() for sentence in re.split(r"(?<=[.!?])\s+", text) if sentence.strip()]
+
+
+def _strip_citations(text: str) -> str:
+    return re.sub(r"\s*\[[^\]]+\]", "", text)
 
 
 def _terms(text: str) -> set[str]:

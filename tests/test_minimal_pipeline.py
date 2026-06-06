@@ -8,6 +8,7 @@ from traceable_rag_agent.pipeline import (
     answer_question,
     build_evidence_table,
     build_quality_report_markdown,
+    build_trace_report_markdown,
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
@@ -232,6 +233,43 @@ def test_save_trace_json_persists_run_for_later_observability(tmp_path) -> None:
     assert saved_trace["question"] == "How does Agentic RAG check evidence sufficiency?"
     assert saved_trace["retrieval_steps"][0]["retrieved_chunk_ids"] == ["sufficiency#0"]
     assert saved_trace["evidence_sufficiency"]["status"] == "sufficient"
+
+
+def test_build_trace_report_markdown_formats_one_run_for_observability_dashboard() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+
+    markdown = build_trace_report_markdown(trace)
+
+    assert markdown == "\n".join(
+        [
+            "## Trace Report",
+            "",
+            "- Question: How does Agentic RAG decompose questions and check evidence sufficiency?",
+            "- Evidence sufficiency: sufficient — All answer claims are supported by retrieved evidence.",
+            "- Planned queries: 2",
+            "- Retrieved evidence items: 2",
+            "",
+            "### Retrieval steps",
+            "| Step | Query | Sources | Chunks |",
+            "| ---: | --- | --- | --- |",
+            "| 1 | How does Agentic RAG decompose questions? | decomposition | decomposition#0 |",
+            "| 2 | How does Agentic RAG check evidence sufficiency? | sufficiency | sufficiency#0 |",
+            "",
+            "### Evidence",
+            "| Rank | Source | Chunk | Score | Snippet |",
+            "| ---: | --- | --- | ---: | --- |",
+            f"| 1 | decomposition | decomposition#0 | {trace.evidence[0].score:.2f} | Agentic RAG decomposes questions into focused retrieval queries. |",
+            f"| 2 | sufficiency | sufficiency#0 | {trace.evidence[1].score:.2f} | Agentic RAG checks evidence sufficiency before final synthesis. |",
+        ]
+    )
 
 
 def test_measure_retrieval_coverage_reports_found_missing_and_ratio() -> None:

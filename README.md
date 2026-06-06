@@ -141,11 +141,20 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 
 - [x] Store per-query retrieval steps in each trace
 - [x] Store every run as a persisted trace
+- [x] Format one-run trace reports as Markdown for dashboard/demo rendering
 - [ ] Visualize retrieval steps
 - [ ] Visualize evidence and citations
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-06
+
+- Added `build_trace_report_markdown(...)` to render one full RAG trace as Markdown for a future observability dashboard or demo page.
+- The report shows the original question, evidence sufficiency status, planned-query count, evidence count, retrieval-step table, and ranked evidence table.
+- Tightened deterministic claim checks so citation-only fragments such as `[source-id]` do not become false unsupported claims.
+- Added a regression test proving a multi-query run formats into a deterministic trace report.
+- Verified the focused test, full test suite (`21 passed`), and `ruff check .`.
 
 ### 2026-06-05
 
