@@ -10,6 +10,7 @@ from traceable_rag_agent.pipeline import (
     build_quality_report_markdown,
     build_trace_report_markdown,
     build_trace_status_summary,
+    build_trace_timeline_events,
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
@@ -295,6 +296,63 @@ def test_build_trace_status_summary_returns_dashboard_card_metrics() -> None:
         "unsupported_claim_count": 0,
         "cited_source_count": 2,
     }
+
+
+def test_build_trace_timeline_events_returns_ordered_observability_steps() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+
+    events = build_trace_timeline_events(trace)
+
+    assert events == [
+        {
+            "order": 1,
+            "event_type": "plan_query",
+            "title": "Planned query 1",
+            "detail": "How does Agentic RAG decompose questions?",
+            "source_ids": [],
+            "chunk_ids": [],
+        },
+        {
+            "order": 2,
+            "event_type": "retrieve_evidence",
+            "title": "Retrieved evidence for query 1",
+            "detail": "How does Agentic RAG decompose questions?",
+            "source_ids": ["decomposition"],
+            "chunk_ids": ["decomposition#0"],
+        },
+        {
+            "order": 3,
+            "event_type": "plan_query",
+            "title": "Planned query 2",
+            "detail": "How does Agentic RAG check evidence sufficiency?",
+            "source_ids": [],
+            "chunk_ids": [],
+        },
+        {
+            "order": 4,
+            "event_type": "retrieve_evidence",
+            "title": "Retrieved evidence for query 2",
+            "detail": "How does Agentic RAG check evidence sufficiency?",
+            "source_ids": ["sufficiency"],
+            "chunk_ids": ["sufficiency#0"],
+        },
+        {
+            "order": 5,
+            "event_type": "evaluate_sufficiency",
+            "title": "Evaluated evidence sufficiency",
+            "detail": "sufficient: All answer claims are supported by retrieved evidence.",
+            "source_ids": ["decomposition", "sufficiency"],
+            "chunk_ids": ["decomposition#0", "sufficiency#0"],
+        },
+    ]
 
 
 def test_measure_retrieval_coverage_reports_found_missing_and_ratio() -> None:

@@ -143,11 +143,18 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Store every run as a persisted trace
 - [x] Format one-run trace reports as Markdown for dashboard/demo rendering
 - [x] Summarize one-run trace status metrics for dashboard cards
-- [ ] Visualize retrieval steps
+- [x] Build ordered timeline events for visualizing retrieval and evaluation steps
 - [ ] Visualize evidence and citations
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-07
+
+- Added `build_trace_timeline_events(...)` to convert one RAG trace into ordered observability events for a future dashboard timeline.
+- The timeline now includes query-planning events, retrieval events with source/chunk IDs, and final evidence-sufficiency evaluation.
+- Added a regression test proving multi-query traces produce deterministic timeline events.
+- Verified the focused test, full test suite (`23 passed`), and `ruff check .`.
 
 ### 2026-06-06
 

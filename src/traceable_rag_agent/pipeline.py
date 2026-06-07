@@ -428,6 +428,51 @@ def build_trace_status_summary(trace: RagTrace) -> dict[str, object]:
     }
 
 
+def build_trace_timeline_events(trace: RagTrace) -> list[dict[str, object]]:
+    """Return ordered timeline events for visualizing one RAG run."""
+
+    events: list[dict[str, object]] = []
+    order = 1
+    for query_index, planned_query in enumerate(trace.planned_queries, start=1):
+        events.append(
+            {
+                "order": order,
+                "event_type": "plan_query",
+                "title": f"Planned query {query_index}",
+                "detail": planned_query.query,
+                "source_ids": [],
+                "chunk_ids": [],
+            }
+        )
+        order += 1
+        if query_index <= len(trace.retrieval_steps):
+            retrieval_step = trace.retrieval_steps[query_index - 1]
+            events.append(
+                {
+                    "order": order,
+                    "event_type": "retrieve_evidence",
+                    "title": f"Retrieved evidence for query {query_index}",
+                    "detail": retrieval_step.query,
+                    "source_ids": retrieval_step.retrieved_source_ids,
+                    "chunk_ids": retrieval_step.retrieved_chunk_ids,
+                }
+            )
+            order += 1
+
+    if trace.evidence_sufficiency is not None:
+        events.append(
+            {
+                "order": order,
+                "event_type": "evaluate_sufficiency",
+                "title": "Evaluated evidence sufficiency",
+                "detail": f"{trace.evidence_sufficiency.status}: {trace.evidence_sufficiency.reason}",
+                "source_ids": [item.source_id for item in trace.evidence],
+                "chunk_ids": [item.metadata.get("chunk_id", "") for item in trace.evidence],
+            }
+        )
+    return events
+
+
 def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
     """Persist one RAG run trace as readable JSON for later observability."""
 
