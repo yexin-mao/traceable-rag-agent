@@ -144,10 +144,17 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format one-run trace reports as Markdown for dashboard/demo rendering
 - [x] Summarize one-run trace status metrics for dashboard cards
 - [x] Build ordered timeline events for visualizing retrieval and evaluation steps
-- [ ] Visualize evidence and citations
+- [x] Visualize evidence and citations
 - [ ] Show latency, errors, and evaluation metrics
 
 ## Development log
+
+### 2026-06-07
+
+- Added `build_citation_evidence_map(...)` to connect answer citations back to retrieved evidence for future dashboard rendering.
+- The map reports whether each cited source was retrieved, its evidence rank, chunk ID, snippet, and supporting-claim count.
+- Added a regression test proving multi-source answers produce deterministic citation-to-evidence links.
+- Verified the focused test, full test suite (`24 passed`), and `ruff check .`.
 
 ### 2026-06-07
 

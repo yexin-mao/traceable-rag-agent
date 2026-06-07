@@ -473,6 +473,30 @@ def build_trace_timeline_events(trace: RagTrace) -> list[dict[str, object]]:
     return events
 
 
+
+
+def build_citation_evidence_map(trace: RagTrace) -> list[dict[str, object]]:
+    """Link answer citations to retrieved evidence for citation/evidence visualization."""
+
+    cited_source_ids = list(dict.fromkeys(re.findall(r"\[([^\]]+)\]", trace.answer)))
+    evidence_by_source_id = {item.source_id: (rank, item) for rank, item in enumerate(trace.evidence, start=1)}
+    return [
+        {
+            "citation": source_id,
+            "is_retrieved": source_id in evidence_by_source_id,
+            "evidence_rank": evidence_by_source_id[source_id][0] if source_id in evidence_by_source_id else None,
+            "chunk_id": evidence_by_source_id[source_id][1].metadata.get("chunk_id", "")
+            if source_id in evidence_by_source_id
+            else "",
+            "snippet": evidence_by_source_id[source_id][1].text if source_id in evidence_by_source_id else "",
+            "supporting_claim_count": sum(
+                source_id in check.supporting_source_ids for check in trace.claim_checks
+            ),
+        }
+        for source_id in cited_source_ids
+    ]
+
+
 def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
     """Persist one RAG run trace as readable JSON for later observability."""
 

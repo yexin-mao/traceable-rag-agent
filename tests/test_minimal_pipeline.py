@@ -11,6 +11,7 @@ from traceable_rag_agent.pipeline import (
     build_trace_report_markdown,
     build_trace_status_summary,
     build_trace_timeline_events,
+    build_citation_evidence_map,
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
@@ -351,6 +352,39 @@ def test_build_trace_timeline_events_returns_ordered_observability_steps() -> No
             "detail": "sufficient: All answer claims are supported by retrieved evidence.",
             "source_ids": ["decomposition", "sufficiency"],
             "chunk_ids": ["decomposition#0", "sufficiency#0"],
+        },
+    ]
+
+
+def test_build_citation_evidence_map_links_answer_citations_to_retrieved_evidence() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+
+    citation_map = build_citation_evidence_map(trace)
+
+    assert citation_map == [
+        {
+            "citation": "decomposition",
+            "is_retrieved": True,
+            "evidence_rank": 1,
+            "chunk_id": "decomposition#0",
+            "snippet": "Agentic RAG decomposes questions into focused retrieval queries.",
+            "supporting_claim_count": 1,
+        },
+        {
+            "citation": "sufficiency",
+            "is_retrieved": True,
+            "evidence_rank": 2,
+            "chunk_id": "sufficiency#0",
+            "snippet": "Agentic RAG checks evidence sufficiency before final synthesis.",
+            "supporting_claim_count": 1,
         },
     ]
 
