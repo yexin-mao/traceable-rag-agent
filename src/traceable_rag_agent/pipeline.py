@@ -1,6 +1,7 @@
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from time import perf_counter
 
 from traceable_rag_agent.models import (
     ClaimCheck,
@@ -127,13 +128,16 @@ def answer_question(question: str, documents: list[Document], top_k: int = 3) ->
     retrieval_steps: list[RetrievalStep] = []
     retrieved_items: list[Evidence] = []
     for planned_query in planned_queries:
+        retrieval_started_at = perf_counter()
         query_evidence = retrieve(planned_query.query, chunks, top_k=top_k)
+        latency_ms = (perf_counter() - retrieval_started_at) * 1000
         retrieved_items.extend(query_evidence)
         retrieval_steps.append(
             RetrievalStep(
                 query=planned_query.query,
                 retrieved_source_ids=[item.source_id for item in query_evidence],
                 retrieved_chunk_ids=[item.metadata["chunk_id"] for item in query_evidence],
+                latency_ms=latency_ms,
             )
         )
     evidence = _deduplicate_evidence(retrieved_items)
@@ -463,6 +467,7 @@ def build_trace_status_summary(trace: RagTrace) -> dict[str, object]:
         "supported_claim_count": sum(check.status == "supported" for check in trace.claim_checks),
         "unsupported_claim_count": sum(check.status == "unsupported" for check in trace.claim_checks),
         "cited_source_count": len(cited_source_ids),
+        "total_retrieval_latency_ms": sum(step.latency_ms for step in trace.retrieval_steps),
     }
 
 

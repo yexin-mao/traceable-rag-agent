@@ -23,6 +23,7 @@ class RetrievalStep(BaseModel):
     query: str
     retrieved_source_ids: list[str] = Field(default_factory=list)
     retrieved_chunk_ids: list[str] = Field(default_factory=list)
+    latency_ms: float = Field(default=0.0, ge=0.0)
 
 
 class ClaimCheck(BaseModel):

@@ -146,9 +146,16 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Build ordered timeline events for visualizing retrieval and evaluation steps
 - [x] Visualize evidence and citations
 - [x] Show evaluation metric cards for retrieval coverage, citation support, and unsupported claims
+- [x] Record retrieval latency per step and summarize total retrieval latency for status cards
 - [ ] Show latency and error metrics
 
 ## Development log
+
+### 2026-06-08
+
+- Added per-retrieval `latency_ms` tracking to each `RetrievalStep` and exposed `total_retrieval_latency_ms` in `build_trace_status_summary(...)`.
+- This makes the trace dashboard path more production-oriented: interviewers can see not only whether retrieval worked, but how expensive each retrieval step was.
+- Verified strict RED/GREEN on the focused retrieval-step and status-summary tests, then ran the full test suite (`25 passed`) and `ruff check .`.
 
 ### 2026-06-08
 

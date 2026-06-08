@@ -134,6 +134,7 @@ def test_answer_question_records_retrieval_steps_for_each_planned_query() -> Non
         ["decomposition#0"],
         ["sufficiency#0"],
     ]
+    assert all(step.latency_ms >= 0 for step in trace.retrieval_steps)
 
 
 def test_check_answer_claims_flags_claims_without_supporting_evidence() -> None:
@@ -297,7 +298,9 @@ def test_build_trace_status_summary_returns_dashboard_card_metrics() -> None:
         "supported_claim_count": 2,
         "unsupported_claim_count": 0,
         "cited_source_count": 2,
+        "total_retrieval_latency_ms": summary["total_retrieval_latency_ms"],
     }
+    assert summary["total_retrieval_latency_ms"] >= 0
 
 
 def test_build_trace_timeline_events_returns_ordered_observability_steps() -> None:
