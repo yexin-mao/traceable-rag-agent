@@ -145,9 +145,16 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Summarize one-run trace status metrics for dashboard cards
 - [x] Build ordered timeline events for visualizing retrieval and evaluation steps
 - [x] Visualize evidence and citations
-- [ ] Show latency, errors, and evaluation metrics
+- [x] Show evaluation metric cards for retrieval coverage, citation support, and unsupported claims
+- [ ] Show latency and error metrics
 
 ## Development log
+
+### 2026-06-08
+
+- Added `build_evaluation_metric_cards(...)` to turn one RAG trace into dashboard-ready cards for retrieval coverage, citation support, and unsupported-claim counts.
+- Added a regression test proving the metric cards are deterministic and interview/demo ready.
+- Verified RED/GREEN with the focused test, then ran the full test suite (`25 passed`) and `ruff check .`.
 
 ### 2026-06-07
 

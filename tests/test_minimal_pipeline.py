@@ -12,6 +12,7 @@ from traceable_rag_agent.pipeline import (
     build_trace_status_summary,
     build_trace_timeline_events,
     build_citation_evidence_map,
+    build_evaluation_metric_cards,
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
@@ -618,6 +619,42 @@ def test_recommend_next_evaluation_action_turns_failure_summary_into_actionable_
         "priority": "fix_retrieval",
         "message": "Top failure mode is retrieval_gap across 2 of 4 questions; improve query rewriting, retrieval recall, or reranking before changing answer synthesis.",
     }
+
+
+def test_build_evaluation_metric_cards_summarizes_trace_quality_for_dashboard() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+
+    cards = build_evaluation_metric_cards(trace, expected_source_ids=["decomposition", "sufficiency"])
+
+    assert cards == [
+        {
+            "label": "Retrieval coverage",
+            "value": "100%",
+            "status": "pass",
+            "detail": "Found 2 of 2 expected sources.",
+        },
+        {
+            "label": "Citation support",
+            "value": "100%",
+            "status": "pass",
+            "detail": "Supported 2 of 2 cited sources.",
+        },
+        {
+            "label": "Unsupported claims",
+            "value": "0",
+            "status": "pass",
+            "detail": "0 unsupported claims out of 2 checked claims.",
+        },
+    ]
+
 
 
 def test_build_quality_report_markdown_formats_dashboard_ready_summary() -> None:

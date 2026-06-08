@@ -205,6 +205,44 @@ def measure_citation_support(trace: RagTrace) -> dict[str, object]:
     }
 
 
+def build_evaluation_metric_cards(
+    trace: RagTrace, expected_source_ids: list[str]
+) -> list[dict[str, str]]:
+    """Build dashboard-ready evaluation metric cards for one RAG trace."""
+
+    retrieval_coverage = measure_retrieval_coverage(trace, expected_source_ids)
+    citation_support = measure_citation_support(trace)
+    unsupported_claim_count = sum(check.status == "unsupported" for check in trace.claim_checks)
+    checked_claim_count = len(trace.claim_checks)
+
+    found_count = len(retrieval_coverage["found_source_ids"])
+    expected_count = len(retrieval_coverage["expected_source_ids"])
+    supported_citation_count = len(citation_support["supported_cited_source_ids"])
+    cited_count = len(citation_support["cited_source_ids"])
+
+    return [
+        {
+            "label": "Retrieval coverage",
+            "value": _format_percent(float(retrieval_coverage["coverage_ratio"])),
+            "status": "pass" if retrieval_coverage["coverage_ratio"] == 1.0 else "fail",
+            "detail": f"Found {found_count} of {expected_count} expected sources.",
+        },
+        {
+            "label": "Citation support",
+            "value": _format_percent(float(citation_support["citation_support_ratio"])),
+            "status": "pass" if citation_support["citation_support_ratio"] == 1.0 else "fail",
+            "detail": f"Supported {supported_citation_count} of {cited_count} cited sources.",
+        },
+        {
+            "label": "Unsupported claims",
+            "value": str(unsupported_claim_count),
+            "status": "pass" if unsupported_claim_count == 0 else "fail",
+            "detail": f"{unsupported_claim_count} unsupported claims out of {checked_claim_count} checked claims.",
+        },
+    ]
+
+
+
 def run_retrieval_coverage_benchmark(
     benchmark: list[BenchmarkQuestion], documents: list[Document], top_k: int = 3
 ) -> dict[str, object]:
@@ -553,6 +591,11 @@ def check_evidence_sufficiency(
         supported_claim_count=supported_count,
         unsupported_claim_count=unsupported_count,
     )
+
+
+def _format_percent(ratio: float) -> str:
+    return f"{ratio:.0%}"
+
 
 
 def _deduplicate_evidence(evidence_items) -> list[Evidence]:
