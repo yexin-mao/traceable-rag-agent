@@ -246,6 +246,29 @@ def build_evaluation_metric_cards(
     ]
 
 
+def build_latency_metric_cards(trace: RagTrace) -> list[dict[str, str]]:
+    """Build dashboard-ready latency cards for one RAG trace."""
+
+    step_count = len(trace.retrieval_steps)
+    total_latency_ms = sum(step.latency_ms for step in trace.retrieval_steps)
+    average_latency_ms = total_latency_ms / step_count if step_count else 0.0
+    status = "pass"
+    return [
+        {
+            "label": "Total retrieval latency",
+            "value": f"{total_latency_ms:.2f} ms",
+            "status": status,
+            "detail": f"{step_count} retrieval steps completed without recorded errors.",
+        },
+        {
+            "label": "Average retrieval latency",
+            "value": f"{average_latency_ms:.2f} ms",
+            "status": status,
+            "detail": f"Average latency across {step_count} retrieval steps.",
+        },
+    ]
+
+
 
 def run_retrieval_coverage_benchmark(
     benchmark: list[BenchmarkQuestion], documents: list[Document], top_k: int = 3

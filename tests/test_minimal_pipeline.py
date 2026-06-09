@@ -13,6 +13,7 @@ from traceable_rag_agent.pipeline import (
     build_trace_timeline_events,
     build_citation_evidence_map,
     build_evaluation_metric_cards,
+    build_latency_metric_cards,
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
@@ -655,6 +656,38 @@ def test_build_evaluation_metric_cards_summarizes_trace_quality_for_dashboard() 
             "value": "0",
             "status": "pass",
             "detail": "0 unsupported claims out of 2 checked claims.",
+        },
+    ]
+
+
+
+def test_build_latency_metric_cards_summarizes_retrieval_latency_for_dashboard() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+    trace.retrieval_steps[0].latency_ms = 12.345
+    trace.retrieval_steps[1].latency_ms = 7.655
+
+    cards = build_latency_metric_cards(trace)
+
+    assert cards == [
+        {
+            "label": "Total retrieval latency",
+            "value": "20.00 ms",
+            "status": "pass",
+            "detail": "2 retrieval steps completed without recorded errors.",
+        },
+        {
+            "label": "Average retrieval latency",
+            "value": "10.00 ms",
+            "status": "pass",
+            "detail": "Average latency across 2 retrieval steps.",
         },
     ]
 

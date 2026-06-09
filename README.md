@@ -147,9 +147,16 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Visualize evidence and citations
 - [x] Show evaluation metric cards for retrieval coverage, citation support, and unsupported claims
 - [x] Record retrieval latency per step and summarize total retrieval latency for status cards
-- [ ] Show latency and error metrics
+- [x] Show latency metric cards for total and average retrieval time
+- [ ] Show latency thresholds and error metrics
 
 ## Development log
+
+### 2026-06-09
+
+- Added `build_latency_metric_cards(...)` to turn per-step retrieval timings into dashboard-ready total and average latency cards.
+- Added a regression test proving deterministic latency card formatting for future observability UI work.
+- Verified strict RED/GREEN with the focused latency-card test, then ran the full test suite (`26 passed`) and `ruff check .`.
 
 ### 2026-06-08
 
