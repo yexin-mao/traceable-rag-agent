@@ -246,19 +246,27 @@ def build_evaluation_metric_cards(
     ]
 
 
-def build_latency_metric_cards(trace: RagTrace) -> list[dict[str, str]]:
+def build_latency_metric_cards(
+    trace: RagTrace, slow_threshold_ms: float | None = None
+) -> list[dict[str, str]]:
     """Build dashboard-ready latency cards for one RAG trace."""
 
     step_count = len(trace.retrieval_steps)
     total_latency_ms = sum(step.latency_ms for step in trace.retrieval_steps)
     average_latency_ms = total_latency_ms / step_count if step_count else 0.0
-    status = "pass"
+    is_slow = slow_threshold_ms is not None and total_latency_ms > slow_threshold_ms
+    status = "warn" if is_slow else "pass"
+    total_detail = (
+        f"{step_count} retrieval steps exceeded the {slow_threshold_ms:.2f} ms slow threshold."
+        if is_slow
+        else f"{step_count} retrieval steps completed without recorded errors."
+    )
     return [
         {
             "label": "Total retrieval latency",
             "value": f"{total_latency_ms:.2f} ms",
             "status": status,
-            "detail": f"{step_count} retrieval steps completed without recorded errors.",
+            "detail": total_detail,
         },
         {
             "label": "Average retrieval latency",

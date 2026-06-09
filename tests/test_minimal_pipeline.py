@@ -692,6 +692,29 @@ def test_build_latency_metric_cards_summarizes_retrieval_latency_for_dashboard()
     ]
 
 
+def test_build_latency_metric_cards_flags_slow_retrieval_threshold() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+    trace.retrieval_steps[0].latency_ms = 80.0
+    trace.retrieval_steps[1].latency_ms = 90.0
+
+    cards = build_latency_metric_cards(trace, slow_threshold_ms=100.0)
+
+    assert cards[0] == {
+        "label": "Total retrieval latency",
+        "value": "170.00 ms",
+        "status": "warn",
+        "detail": "2 retrieval steps exceeded the 100.00 ms slow threshold.",
+    }
+    assert cards[1]["status"] == "warn"
+
 
 def test_build_quality_report_markdown_formats_dashboard_ready_summary() -> None:
     summary = {
