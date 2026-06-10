@@ -15,6 +15,7 @@ from traceable_rag_agent.pipeline import (
     build_citation_evidence_map,
     build_evaluation_metric_cards,
     build_latency_metric_cards,
+    build_trace_health_metric_cards,
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
@@ -743,6 +744,41 @@ def test_build_retrieval_error_metric_cards_summarizes_failed_retrieval_steps() 
             "value": "query 2",
             "status": "fail",
             "detail": "timeout while retrieving evidence",
+        },
+    ]
+
+
+def test_build_trace_health_metric_cards_summarizes_run_readiness_for_dashboard() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+
+    cards = build_trace_health_metric_cards(trace)
+
+    assert cards == [
+        {
+            "label": "Evidence sufficiency",
+            "value": "sufficient",
+            "status": "pass",
+            "detail": "All answer claims are supported by retrieved evidence.",
+        },
+        {
+            "label": "Trace completeness",
+            "value": "2/2 steps",
+            "status": "pass",
+            "detail": "2 planned queries produced 2 retrieval steps and 2 evidence items.",
+        },
+        {
+            "label": "Claim support",
+            "value": "2 supported / 0 unsupported",
+            "status": "pass",
+            "detail": "Checked 2 answer claims against retrieved evidence.",
         },
     ]
 

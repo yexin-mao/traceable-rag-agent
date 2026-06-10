@@ -150,8 +150,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Show latency metric cards for total and average retrieval time
 - [x] Flag slow retrieval runs against a configurable latency threshold
 - [x] Show retrieval error metric cards
+- [x] Show trace health metric cards for sufficiency, completeness, and claim support
 
 ## Development log
+
+### 2026-06-10
+
+- Added `build_trace_health_metric_cards(...)` to summarize one RAG run as dashboard-ready health cards: evidence sufficiency, trace completeness, and claim support.
+- Added a strict TDD regression test proving a multi-query trace renders deterministic pass/fail health-card details.
+- Verified RED/GREEN with the focused trace-health-card test, then ran the full test suite (`29 passed`) and `ruff check .`.
 
 ### 2026-06-10
 

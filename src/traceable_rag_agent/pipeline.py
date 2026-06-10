@@ -309,6 +309,47 @@ def build_retrieval_error_metric_cards(trace: RagTrace) -> list[dict[str, str]]:
     return cards
 
 
+def build_trace_health_metric_cards(trace: RagTrace) -> list[dict[str, str]]:
+    """Build dashboard-ready health cards that summarize one run's readiness."""
+
+    sufficiency = trace.evidence_sufficiency
+    sufficiency_status = sufficiency.status if sufficiency is not None else "not_evaluated"
+    sufficiency_reason = (
+        sufficiency.reason if sufficiency is not None else "No evidence sufficiency summary is attached."
+    )
+    planned_query_count = len(trace.planned_queries)
+    retrieval_step_count = len(trace.retrieval_steps)
+    evidence_count = len(trace.evidence)
+    supported_claim_count = sum(check.status == "supported" for check in trace.claim_checks)
+    unsupported_claim_count = sum(check.status == "unsupported" for check in trace.claim_checks)
+    checked_claim_count = len(trace.claim_checks)
+    trace_is_complete = planned_query_count == retrieval_step_count and evidence_count > 0
+
+    return [
+        {
+            "label": "Evidence sufficiency",
+            "value": sufficiency_status,
+            "status": "pass" if sufficiency_status == "sufficient" else "fail",
+            "detail": sufficiency_reason,
+        },
+        {
+            "label": "Trace completeness",
+            "value": f"{retrieval_step_count}/{planned_query_count} steps",
+            "status": "pass" if trace_is_complete else "fail",
+            "detail": (
+                f"{planned_query_count} planned queries produced {retrieval_step_count} retrieval steps "
+                f"and {evidence_count} evidence items."
+            ),
+        },
+        {
+            "label": "Claim support",
+            "value": f"{supported_claim_count} supported / {unsupported_claim_count} unsupported",
+            "status": "pass" if unsupported_claim_count == 0 else "fail",
+            "detail": f"Checked {checked_claim_count} answer claims against retrieved evidence.",
+        },
+    ]
+
+
 
 def run_retrieval_coverage_benchmark(
     benchmark: list[BenchmarkQuestion], documents: list[Document], top_k: int = 3
