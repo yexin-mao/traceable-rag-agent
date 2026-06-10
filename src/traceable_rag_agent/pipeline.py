@@ -277,6 +277,38 @@ def build_latency_metric_cards(
     ]
 
 
+def build_retrieval_error_metric_cards(trace: RagTrace) -> list[dict[str, str]]:
+    """Build dashboard-ready error cards for failed retrieval steps."""
+
+    error_steps = [
+        (step_index, step)
+        for step_index, step in enumerate(trace.retrieval_steps, start=1)
+        if step.error
+    ]
+    error_count = len(error_steps)
+    step_count = len(trace.retrieval_steps)
+    status = "fail" if error_count else "pass"
+    cards = [
+        {
+            "label": "Retrieval errors",
+            "value": str(error_count),
+            "status": status,
+            "detail": f"{error_count} of {step_count} retrieval steps recorded errors.",
+        }
+    ]
+    if error_steps:
+        first_error_index, first_error_step = error_steps[0]
+        cards.append(
+            {
+                "label": "First retrieval error",
+                "value": f"query {first_error_index}",
+                "status": "fail",
+                "detail": first_error_step.error or "",
+            }
+        )
+    return cards
+
+
 
 def run_retrieval_coverage_benchmark(
     benchmark: list[BenchmarkQuestion], documents: list[Document], top_k: int = 3

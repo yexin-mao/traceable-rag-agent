@@ -8,6 +8,7 @@ from traceable_rag_agent.pipeline import (
     answer_question,
     build_evidence_table,
     build_quality_report_markdown,
+    build_retrieval_error_metric_cards,
     build_trace_report_markdown,
     build_trace_status_summary,
     build_trace_timeline_events,
@@ -714,6 +715,36 @@ def test_build_latency_metric_cards_flags_slow_retrieval_threshold() -> None:
         "detail": "2 retrieval steps exceeded the 100.00 ms slow threshold.",
     }
     assert cards[1]["status"] == "warn"
+
+
+def test_build_retrieval_error_metric_cards_summarizes_failed_retrieval_steps() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+    trace.retrieval_steps[1].error = "timeout while retrieving evidence"
+
+    cards = build_retrieval_error_metric_cards(trace)
+
+    assert cards == [
+        {
+            "label": "Retrieval errors",
+            "value": "1",
+            "status": "fail",
+            "detail": "1 of 2 retrieval steps recorded errors.",
+        },
+        {
+            "label": "First retrieval error",
+            "value": "query 2",
+            "status": "fail",
+            "detail": "timeout while retrieving evidence",
+        },
+    ]
 
 
 def test_build_quality_report_markdown_formats_dashboard_ready_summary() -> None:

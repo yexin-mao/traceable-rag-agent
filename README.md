@@ -149,9 +149,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Record retrieval latency per step and summarize total retrieval latency for status cards
 - [x] Show latency metric cards for total and average retrieval time
 - [x] Flag slow retrieval runs against a configurable latency threshold
-- [ ] Show error metrics
+- [x] Show retrieval error metric cards
 
 ## Development log
+
+### 2026-06-10
+
+- Added an optional `error` field to each `RetrievalStep` so traces can preserve retrieval failures alongside latency and retrieved-source metadata.
+- Added `build_retrieval_error_metric_cards(...)` to turn failed retrieval steps into dashboard-ready error cards, including total error count and first-error detail.
+- Verified strict RED/GREEN with the focused retrieval-error-card test, then ran the full test suite (`28 passed`) and `ruff check .`.
 
 ### 2026-06-09
 
