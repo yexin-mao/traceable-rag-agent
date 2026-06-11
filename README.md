@@ -152,8 +152,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Show retrieval error metric cards
 - [x] Show trace health metric cards for sufficiency, completeness, and claim support
 - [x] Group health, evaluation, latency, and retrieval-error cards into dashboard-ready sections
+- [x] Format observability dashboard sections as Markdown tables for demo/report pages
 
 ## Development log
+
+### 2026-06-11
+
+- Added `build_observability_dashboard_markdown(...)` to render grouped observability sections as Markdown tables for a future demo page or report export.
+- Added a strict TDD regression test proving health, evaluation, latency, and retrieval-error sections produce deterministic Markdown output.
+- Verified RED/GREEN with the focused dashboard-Markdown test, then ran the full test suite (`31 passed`) and `ruff check .`.
 
 ### 2026-06-11
 

@@ -336,6 +336,26 @@ def build_observability_dashboard_sections(
     ]
 
 
+def build_observability_dashboard_markdown(sections: list[dict[str, object]]) -> str:
+    """Format dashboard sections as Markdown tables for demo/report rendering."""
+
+    lines = ["## Observability Dashboard"]
+    for section in sections:
+        lines.extend(
+            [
+                "",
+                f"### {section['title']}",
+                "| Metric | Value | Status | Detail |",
+                "| --- | --- | --- | --- |",
+            ]
+        )
+        for card in section["cards"]:
+            lines.append(
+                f"| {card['label']} | {card['value']} | {card['status']} | {card['detail']} |"
+            )
+    return "\n".join(lines)
+
+
 
 def build_trace_health_metric_cards(trace: RagTrace) -> list[dict[str, str]]:
     """Build dashboard-ready health cards that summarize one run's readiness."""

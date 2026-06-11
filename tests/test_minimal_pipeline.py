@@ -15,6 +15,7 @@ from traceable_rag_agent.pipeline import (
     build_citation_evidence_map,
     build_evaluation_metric_cards,
     build_latency_metric_cards,
+    build_observability_dashboard_markdown,
     build_observability_dashboard_sections,
     build_trace_health_metric_cards,
     check_answer_claims,
@@ -823,6 +824,59 @@ def test_build_observability_dashboard_sections_groups_health_evaluation_latency
         "status": "pass",
         "detail": "0 of 2 retrieval steps recorded errors.",
     }
+
+
+def test_build_observability_dashboard_markdown_formats_sections_for_demo_page() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+    trace.retrieval_steps[0].latency_ms = 5.0
+    trace.retrieval_steps[1].latency_ms = 15.0
+    sections = build_observability_dashboard_sections(
+        trace,
+        expected_source_ids=["decomposition", "sufficiency"],
+        slow_threshold_ms=100.0,
+    )
+
+    markdown = build_observability_dashboard_markdown(sections)
+
+    assert markdown == "\n".join(
+        [
+            "## Observability Dashboard",
+            "",
+            "### Trace health",
+            "| Metric | Value | Status | Detail |",
+            "| --- | --- | --- | --- |",
+            "| Evidence sufficiency | sufficient | pass | All answer claims are supported by retrieved evidence. |",
+            "| Trace completeness | 2/2 steps | pass | 2 planned queries produced 2 retrieval steps and 2 evidence items. |",
+            "| Claim support | 2 supported / 0 unsupported | pass | Checked 2 answer claims against retrieved evidence. |",
+            "",
+            "### Evaluation quality",
+            "| Metric | Value | Status | Detail |",
+            "| --- | --- | --- | --- |",
+            "| Retrieval coverage | 100% | pass | Found 2 of 2 expected sources. |",
+            "| Citation support | 100% | pass | Supported 2 of 2 cited sources. |",
+            "| Unsupported claims | 0 | pass | 0 unsupported claims out of 2 checked claims. |",
+            "",
+            "### Retrieval latency",
+            "| Metric | Value | Status | Detail |",
+            "| --- | --- | --- | --- |",
+            "| Total retrieval latency | 20.00 ms | pass | 2 retrieval steps completed without recorded errors. |",
+            "| Average retrieval latency | 10.00 ms | pass | Average latency across 2 retrieval steps. |",
+            "",
+            "### Retrieval errors",
+            "| Metric | Value | Status | Detail |",
+            "| --- | --- | --- | --- |",
+            "| Retrieval errors | 0 | pass | 0 of 2 retrieval steps recorded errors. |",
+        ]
+    )
+
 
 
 def test_build_quality_report_markdown_formats_dashboard_ready_summary() -> None:
