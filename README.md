@@ -151,8 +151,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Flag slow retrieval runs against a configurable latency threshold
 - [x] Show retrieval error metric cards
 - [x] Show trace health metric cards for sufficiency, completeness, and claim support
+- [x] Group health, evaluation, latency, and retrieval-error cards into dashboard-ready sections
 
 ## Development log
+
+### 2026-06-11
+
+- Added `build_observability_dashboard_sections(...)` to group trace health, evaluation quality, retrieval latency, and retrieval error cards into a single render-ready structure for a future dashboard.
+- Added a strict TDD regression test proving a multi-query trace produces deterministic section titles and card contents.
+- Verified RED/GREEN with the focused dashboard-section test, then ran the full test suite (`30 passed`) and `ruff check .`.
 
 ### 2026-06-10
 

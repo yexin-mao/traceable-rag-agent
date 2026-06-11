@@ -309,6 +309,34 @@ def build_retrieval_error_metric_cards(trace: RagTrace) -> list[dict[str, str]]:
     return cards
 
 
+def build_observability_dashboard_sections(
+    trace: RagTrace,
+    expected_source_ids: list[str],
+    slow_threshold_ms: float | None = None,
+) -> list[dict[str, object]]:
+    """Group one trace's dashboard cards into render-ready observability sections."""
+
+    return [
+        {
+            "title": "Trace health",
+            "cards": build_trace_health_metric_cards(trace),
+        },
+        {
+            "title": "Evaluation quality",
+            "cards": build_evaluation_metric_cards(trace, expected_source_ids),
+        },
+        {
+            "title": "Retrieval latency",
+            "cards": build_latency_metric_cards(trace, slow_threshold_ms=slow_threshold_ms),
+        },
+        {
+            "title": "Retrieval errors",
+            "cards": build_retrieval_error_metric_cards(trace),
+        },
+    ]
+
+
+
 def build_trace_health_metric_cards(trace: RagTrace) -> list[dict[str, str]]:
     """Build dashboard-ready health cards that summarize one run's readiness."""
 

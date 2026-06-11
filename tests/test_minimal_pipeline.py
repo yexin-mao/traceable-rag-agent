@@ -15,6 +15,7 @@ from traceable_rag_agent.pipeline import (
     build_citation_evidence_map,
     build_evaluation_metric_cards,
     build_latency_metric_cards,
+    build_observability_dashboard_sections,
     build_trace_health_metric_cards,
     check_answer_claims,
     check_evidence_sufficiency,
@@ -781,6 +782,47 @@ def test_build_trace_health_metric_cards_summarizes_run_readiness_for_dashboard(
             "detail": "Checked 2 answer claims against retrieved evidence.",
         },
     ]
+
+
+def test_build_observability_dashboard_sections_groups_health_evaluation_latency_and_errors() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+    trace.retrieval_steps[0].latency_ms = 5.0
+    trace.retrieval_steps[1].latency_ms = 15.0
+
+    sections = build_observability_dashboard_sections(
+        trace,
+        expected_source_ids=["decomposition", "sufficiency"],
+        slow_threshold_ms=100.0,
+    )
+
+    assert [section["title"] for section in sections] == [
+        "Trace health",
+        "Evaluation quality",
+        "Retrieval latency",
+        "Retrieval errors",
+    ]
+    assert sections[0]["cards"][0]["label"] == "Evidence sufficiency"
+    assert sections[1]["cards"][0]["value"] == "100%"
+    assert sections[2]["cards"][0] == {
+        "label": "Total retrieval latency",
+        "value": "20.00 ms",
+        "status": "pass",
+        "detail": "2 retrieval steps completed without recorded errors.",
+    }
+    assert sections[3]["cards"][0] == {
+        "label": "Retrieval errors",
+        "value": "0",
+        "status": "pass",
+        "detail": "0 of 2 retrieval steps recorded errors.",
+    }
 
 
 def test_build_quality_report_markdown_formats_dashboard_ready_summary() -> None:
