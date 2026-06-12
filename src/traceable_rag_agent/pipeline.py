@@ -351,7 +351,12 @@ def build_observability_dashboard_markdown(sections: list[dict[str, object]]) ->
         )
         for card in section["cards"]:
             lines.append(
-                f"| {card['label']} | {card['value']} | {card['status']} | {card['detail']} |"
+                "| "
+                + " | ".join(
+                    _escape_markdown_table_cell(str(card[field]))
+                    for field in ("label", "value", "status", "detail")
+                )
+                + " |"
             )
     return "\n".join(lines)
 
@@ -752,6 +757,10 @@ def check_evidence_sufficiency(
 
 def _format_percent(ratio: float) -> str:
     return f"{ratio:.0%}"
+
+
+def _escape_markdown_table_cell(value: str) -> str:
+    return value.replace("|", r"\|")
 
 
 

@@ -878,6 +878,25 @@ def test_build_observability_dashboard_markdown_formats_sections_for_demo_page()
     )
 
 
+def test_build_observability_dashboard_markdown_escapes_table_pipes_in_card_text() -> None:
+    sections = [
+        {
+            "title": "Demo notes",
+            "cards": [
+                {
+                    "label": "Prompt | retrieval",
+                    "value": "pass | warn",
+                    "status": "warn",
+                    "detail": "Check query | evidence before demo export.",
+                }
+            ],
+        }
+    ]
+
+    markdown = build_observability_dashboard_markdown(sections)
+
+    assert "| Prompt \\| retrieval | pass \\| warn | warn | Check query \\| evidence before demo export. |" in markdown
+
 
 def test_build_quality_report_markdown_formats_dashboard_ready_summary() -> None:
     summary = {

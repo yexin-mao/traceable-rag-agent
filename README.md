@@ -153,8 +153,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Show trace health metric cards for sufficiency, completeness, and claim support
 - [x] Group health, evaluation, latency, and retrieval-error cards into dashboard-ready sections
 - [x] Format observability dashboard sections as Markdown tables for demo/report pages
+- [x] Escape Markdown table separators in dashboard card text so demo exports stay render-safe
 
 ## Development log
+
+### 2026-06-12
+
+- Hardened `build_observability_dashboard_markdown(...)` so labels, values, and details containing `|` are escaped before being inserted into Markdown tables.
+- Added a strict TDD regression test proving dashboard/demo exports remain valid when card text contains table separator characters.
+- Verified RED/GREEN with the focused Markdown escaping test, then ran the full test suite (`32 passed`) and `ruff check .`.
 
 ### 2026-06-11
 
