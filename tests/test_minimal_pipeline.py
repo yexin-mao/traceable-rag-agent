@@ -282,6 +282,24 @@ def test_build_trace_report_markdown_formats_one_run_for_observability_dashboard
     )
 
 
+def test_build_trace_report_markdown_escapes_table_pipes_in_trace_fields() -> None:
+    trace = answer_question(
+        "How does Agentic RAG compare query planning | retrieval?",
+        [
+            Document(
+                source_id="demo|source",
+                text="Agentic RAG compares query planning | retrieval before synthesis.",
+            )
+        ],
+        top_k=1,
+    )
+
+    markdown = build_trace_report_markdown(trace)
+
+    assert "| 1 | How does Agentic RAG compare query planning \\| retrieval? | demo\\|source | demo\\|source#0 |" in markdown
+    assert f"| 1 | demo\\|source | demo\\|source#0 | {trace.evidence[0].score:.2f} | Agentic RAG compares query planning \\| retrieval before synthesis. |" in markdown
+
+
 def test_build_trace_status_summary_returns_dashboard_card_metrics() -> None:
     documents = [
         Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),

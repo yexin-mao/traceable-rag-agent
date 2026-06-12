@@ -154,8 +154,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Group health, evaluation, latency, and retrieval-error cards into dashboard-ready sections
 - [x] Format observability dashboard sections as Markdown tables for demo/report pages
 - [x] Escape Markdown table separators in dashboard card text so demo exports stay render-safe
+- [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-12
+
+- Hardened `build_trace_report_markdown(...)` so queries, source IDs, chunk IDs, and snippets containing `|` are escaped before entering Markdown tables.
+- Added a strict TDD regression test proving trace-report exports remain valid when retrieved evidence contains table separator characters.
+- Verified RED/GREEN with the focused trace-report escaping test, then ran the full test suite (`33 passed`) and `ruff check .`.
 
 ### 2026-06-12
 

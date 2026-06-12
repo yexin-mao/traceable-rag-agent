@@ -591,7 +591,10 @@ def build_trace_report_markdown(trace: RagTrace) -> str:
     for step_index, step in enumerate(trace.retrieval_steps, start=1):
         sources = ", ".join(step.retrieved_source_ids) if step.retrieved_source_ids else "none"
         chunks = ", ".join(step.retrieved_chunk_ids) if step.retrieved_chunk_ids else "none"
-        lines.append(f"| {step_index} | {step.query} | {sources} | {chunks} |")
+        lines.append(
+            f"| {step_index} | {_escape_markdown_table_cell(step.query)} | "
+            f"{_escape_markdown_table_cell(sources)} | {_escape_markdown_table_cell(chunks)} |"
+        )
 
     lines.extend(
         [
@@ -602,9 +605,11 @@ def build_trace_report_markdown(trace: RagTrace) -> str:
         ]
     )
     for rank, item in enumerate(trace.evidence, start=1):
-        chunk_id = item.metadata.get("chunk_id", "")
+        chunk_id = str(item.metadata.get("chunk_id", ""))
         lines.append(
-            f"| {rank} | {item.source_id} | {chunk_id} | {item.score:.2f} | {item.text} |"
+            f"| {rank} | {_escape_markdown_table_cell(item.source_id)} | "
+            f"{_escape_markdown_table_cell(chunk_id)} | {item.score:.2f} | "
+            f"{_escape_markdown_table_cell(item.text)} |"
         )
     return "\n".join(lines)
 
