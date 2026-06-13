@@ -144,6 +144,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format one-run trace reports as Markdown for dashboard/demo rendering
 - [x] Summarize one-run trace status metrics for dashboard cards
 - [x] Build ordered timeline events for visualizing retrieval and evaluation steps
+- [x] Format timeline events as Markdown tables for demo/report pages
 - [x] Visualize evidence and citations
 - [x] Show evaluation metric cards for retrieval coverage, citation support, and unsupported claims
 - [x] Record retrieval latency per step and summarize total retrieval latency for status cards
@@ -157,6 +158,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-13
+
+- Added `build_trace_timeline_markdown(...)` to render ordered RAG timeline events as a Markdown table for demo/report pages.
+- Added a strict TDD regression test proving query planning, retrieval, and evidence-sufficiency events render in deterministic order with sources and chunk IDs.
+- Verified RED/GREEN with the focused timeline-Markdown test, then ran the full test suite (`34 passed`) and `ruff check .`.
 
 ### 2026-06-12
 

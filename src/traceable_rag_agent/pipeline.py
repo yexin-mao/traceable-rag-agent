@@ -680,6 +680,27 @@ def build_trace_timeline_events(trace: RagTrace) -> list[dict[str, object]]:
 
 
 
+def build_trace_timeline_markdown(events: list[dict[str, object]]) -> str:
+    """Format trace timeline events as a Markdown table for demo/report rendering."""
+
+    lines = [
+        "## Trace Timeline",
+        "",
+        "| Order | Event | Detail | Sources | Chunks |",
+        "| ---: | --- | --- | --- | --- |",
+    ]
+    for event in events:
+        sources = ", ".join(str(source_id) for source_id in event["source_ids"]) or "none"
+        chunks = ", ".join(str(chunk_id) for chunk_id in event["chunk_ids"]) or "none"
+        lines.append(
+            f"| {event['order']} | {_escape_markdown_table_cell(str(event['title']))} | "
+            f"{_escape_markdown_table_cell(str(event['detail']))} | "
+            f"{_escape_markdown_table_cell(sources)} | {_escape_markdown_table_cell(chunks)} |"
+        )
+    return "\n".join(lines)
+
+
+
 def build_citation_evidence_map(trace: RagTrace) -> list[dict[str, object]]:
     """Link answer citations to retrieved evidence for citation/evidence visualization."""
 

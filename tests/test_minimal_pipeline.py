@@ -12,6 +12,7 @@ from traceable_rag_agent.pipeline import (
     build_trace_report_markdown,
     build_trace_status_summary,
     build_trace_timeline_events,
+    build_trace_timeline_markdown,
     build_citation_evidence_map,
     build_evaluation_metric_cards,
     build_latency_metric_cards,
@@ -381,6 +382,35 @@ def test_build_trace_timeline_events_returns_ordered_observability_steps() -> No
             "chunk_ids": ["decomposition#0", "sufficiency#0"],
         },
     ]
+
+
+def test_build_trace_timeline_markdown_formats_events_for_demo_rendering() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+    events = build_trace_timeline_events(trace)
+
+    markdown = build_trace_timeline_markdown(events)
+
+    assert markdown == "\n".join(
+        [
+            "## Trace Timeline",
+            "",
+            "| Order | Event | Detail | Sources | Chunks |",
+            "| ---: | --- | --- | --- | --- |",
+            "| 1 | Planned query 1 | How does Agentic RAG decompose questions? | none | none |",
+            "| 2 | Retrieved evidence for query 1 | How does Agentic RAG decompose questions? | decomposition | decomposition#0 |",
+            "| 3 | Planned query 2 | How does Agentic RAG check evidence sufficiency? | none | none |",
+            "| 4 | Retrieved evidence for query 2 | How does Agentic RAG check evidence sufficiency? | sufficiency | sufficiency#0 |",
+            "| 5 | Evaluated evidence sufficiency | sufficient: All answer claims are supported by retrieved evidence. | decomposition, sufficiency | decomposition#0, sufficiency#0 |",
+        ]
+    )
 
 
 def test_build_citation_evidence_map_links_answer_citations_to_retrieved_evidence() -> None:
