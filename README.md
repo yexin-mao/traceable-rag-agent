@@ -144,6 +144,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format one-run trace reports as Markdown for dashboard/demo rendering
 - [x] Summarize one-run trace status metrics for dashboard cards
 - [x] Build ordered timeline events for visualizing retrieval and evaluation steps
+- [x] Include answer-synthesis events in the trace timeline before evaluation
 - [x] Format timeline events as Markdown tables for demo/report pages
 - [x] Visualize evidence and citations
 - [x] Show evaluation metric cards for retrieval coverage, citation support, and unsupported claims
@@ -158,6 +159,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-13
+
+- Added a `synthesize_answer` event to `build_trace_timeline_events(...)`, so trace timelines now show when retrieved evidence becomes a citation-grounded answer before sufficiency evaluation.
+- Added a strict TDD regression test proving answer synthesis appears between retrieval and evaluation with evidence source/chunk IDs preserved.
+- Verified RED/GREEN with the focused synthesis-timeline test, then reran the related timeline tests.
 
 ### 2026-06-13
 

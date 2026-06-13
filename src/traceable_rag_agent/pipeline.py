@@ -664,6 +664,20 @@ def build_trace_timeline_events(trace: RagTrace) -> list[dict[str, object]]:
             )
             order += 1
 
+    evidence_source_ids = [item.source_id for item in trace.evidence]
+    evidence_chunk_ids = [item.metadata.get("chunk_id", "") for item in trace.evidence]
+    events.append(
+        {
+            "order": order,
+            "event_type": "synthesize_answer",
+            "title": "Synthesized citation-grounded answer",
+            "detail": f"{len(trace.claim_checks)} answer claims checked against {len(trace.evidence)} evidence items.",
+            "source_ids": evidence_source_ids,
+            "chunk_ids": evidence_chunk_ids,
+        }
+    )
+    order += 1
+
     if trace.evidence_sufficiency is not None:
         events.append(
             {
@@ -671,8 +685,8 @@ def build_trace_timeline_events(trace: RagTrace) -> list[dict[str, object]]:
                 "event_type": "evaluate_sufficiency",
                 "title": "Evaluated evidence sufficiency",
                 "detail": f"{trace.evidence_sufficiency.status}: {trace.evidence_sufficiency.reason}",
-                "source_ids": [item.source_id for item in trace.evidence],
-                "chunk_ids": [item.metadata.get("chunk_id", "") for item in trace.evidence],
+                "source_ids": evidence_source_ids,
+                "chunk_ids": evidence_chunk_ids,
             }
         )
     return events

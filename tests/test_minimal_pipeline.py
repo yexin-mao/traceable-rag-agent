@@ -327,6 +327,31 @@ def test_build_trace_status_summary_returns_dashboard_card_metrics() -> None:
     assert summary["total_retrieval_latency_ms"] >= 0
 
 
+def test_build_trace_timeline_events_includes_answer_synthesis_before_evaluation() -> None:
+    trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+
+    events = build_trace_timeline_events(trace)
+
+    assert [event["event_type"] for event in events] == [
+        "plan_query",
+        "retrieve_evidence",
+        "synthesize_answer",
+        "evaluate_sufficiency",
+    ]
+    assert events[2] == {
+        "order": 3,
+        "event_type": "synthesize_answer",
+        "title": "Synthesized citation-grounded answer",
+        "detail": "1 answer claims checked against 1 evidence items.",
+        "source_ids": ["sufficiency"],
+        "chunk_ids": ["sufficiency#0"],
+    }
+
+
 def test_build_trace_timeline_events_returns_ordered_observability_steps() -> None:
     documents = [
         Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
@@ -375,6 +400,14 @@ def test_build_trace_timeline_events_returns_ordered_observability_steps() -> No
         },
         {
             "order": 5,
+            "event_type": "synthesize_answer",
+            "title": "Synthesized citation-grounded answer",
+            "detail": "2 answer claims checked against 2 evidence items.",
+            "source_ids": ["decomposition", "sufficiency"],
+            "chunk_ids": ["decomposition#0", "sufficiency#0"],
+        },
+        {
+            "order": 6,
             "event_type": "evaluate_sufficiency",
             "title": "Evaluated evidence sufficiency",
             "detail": "sufficient: All answer claims are supported by retrieved evidence.",
@@ -408,7 +441,8 @@ def test_build_trace_timeline_markdown_formats_events_for_demo_rendering() -> No
             "| 2 | Retrieved evidence for query 1 | How does Agentic RAG decompose questions? | decomposition | decomposition#0 |",
             "| 3 | Planned query 2 | How does Agentic RAG check evidence sufficiency? | none | none |",
             "| 4 | Retrieved evidence for query 2 | How does Agentic RAG check evidence sufficiency? | sufficiency | sufficiency#0 |",
-            "| 5 | Evaluated evidence sufficiency | sufficient: All answer claims are supported by retrieved evidence. | decomposition, sufficiency | decomposition#0, sufficiency#0 |",
+            "| 5 | Synthesized citation-grounded answer | 2 answer claims checked against 2 evidence items. | decomposition, sufficiency | decomposition#0, sufficiency#0 |",
+            "| 6 | Evaluated evidence sufficiency | sufficient: All answer claims are supported by retrieved evidence. | decomposition, sufficiency | decomposition#0, sufficiency#0 |",
         ]
     )
 
