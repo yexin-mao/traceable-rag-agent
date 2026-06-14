@@ -714,6 +714,36 @@ def build_trace_timeline_markdown(events: list[dict[str, object]]) -> str:
     return "\n".join(lines)
 
 
+def build_trace_interview_summary_markdown(
+    trace: RagTrace, expected_source_ids: list[str]
+) -> str:
+    """Format one trace as an interviewer-friendly Agentic RAG summary."""
+
+    retrieval_coverage = measure_retrieval_coverage(trace, expected_source_ids)
+    citation_support = measure_citation_support(trace)
+    unsupported_claim_count = sum(check.status == "unsupported" for check in trace.claim_checks)
+    sufficiency = trace.evidence_sufficiency
+    sufficiency_text = (
+        f"{sufficiency.status} — {sufficiency.reason}"
+        if sufficiency is not None
+        else "not evaluated — No evidence sufficiency summary is attached."
+    )
+    return "\n".join(
+        [
+            "## Interview Trace Summary",
+            "",
+            "- Agent concept: query decomposition + citation-grounded synthesis + faithfulness evaluation",
+            f"- Question: {trace.question}",
+            f"- Planned retrieval queries: {len(trace.planned_queries)}",
+            f"- Retrieved evidence items: {len(trace.evidence)}",
+            f"- Retrieval coverage: {_format_percent(float(retrieval_coverage['coverage_ratio']))}",
+            f"- Citation support: {_format_percent(float(citation_support['citation_support_ratio']))}",
+            f"- Unsupported claims: {unsupported_claim_count}",
+            f"- Evidence sufficiency: {sufficiency_text}",
+        ]
+    )
+
+
 
 def build_citation_evidence_map(trace: RagTrace) -> list[dict[str, object]]:
     """Link answer citations to retrieved evidence for citation/evidence visualization."""

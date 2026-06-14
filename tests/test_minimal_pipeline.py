@@ -19,6 +19,7 @@ from traceable_rag_agent.pipeline import (
     build_observability_dashboard_markdown,
     build_observability_dashboard_sections,
     build_trace_health_metric_cards,
+    build_trace_interview_summary_markdown,
     check_answer_claims,
     check_evidence_sufficiency,
     chunk_documents,
@@ -443,6 +444,38 @@ def test_build_trace_timeline_markdown_formats_events_for_demo_rendering() -> No
             "| 4 | Retrieved evidence for query 2 | How does Agentic RAG check evidence sufficiency? | sufficiency | sufficiency#0 |",
             "| 5 | Synthesized citation-grounded answer | 2 answer claims checked against 2 evidence items. | decomposition, sufficiency | decomposition#0, sufficiency#0 |",
             "| 6 | Evaluated evidence sufficiency | sufficient: All answer claims are supported by retrieved evidence. | decomposition, sufficiency | decomposition#0, sufficiency#0 |",
+        ]
+    )
+
+
+def test_build_trace_interview_summary_markdown_highlights_agent_concepts() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+
+    markdown = build_trace_interview_summary_markdown(
+        trace,
+        expected_source_ids=["decomposition", "sufficiency"],
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Interview Trace Summary",
+            "",
+            "- Agent concept: query decomposition + citation-grounded synthesis + faithfulness evaluation",
+            "- Question: How does Agentic RAG decompose questions and check evidence sufficiency?",
+            "- Planned retrieval queries: 2",
+            "- Retrieved evidence items: 2",
+            "- Retrieval coverage: 100%",
+            "- Citation support: 100%",
+            "- Unsupported claims: 0",
+            "- Evidence sufficiency: sufficient — All answer claims are supported by retrieved evidence.",
         ]
     )
 

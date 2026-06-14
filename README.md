@@ -146,6 +146,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Build ordered timeline events for visualizing retrieval and evaluation steps
 - [x] Include answer-synthesis events in the trace timeline before evaluation
 - [x] Format timeline events as Markdown tables for demo/report pages
+- [x] Format interviewer-friendly trace summaries that connect evidence metrics to Agentic RAG concepts
 - [x] Visualize evidence and citations
 - [x] Show evaluation metric cards for retrieval coverage, citation support, and unsupported claims
 - [x] Record retrieval latency per step and summarize total retrieval latency for status cards
@@ -159,6 +160,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-14
+
+- Added `build_trace_interview_summary_markdown(...)` to turn one RAG trace into a concise interviewer-facing summary.
+- The summary connects Agentic RAG concepts to concrete run metrics: planned queries, retrieved evidence, retrieval coverage, citation support, unsupported claims, and evidence sufficiency.
+- Verified RED/GREEN with the focused interview-summary test before running the full suite and linter.
 
 ### 2026-06-13
 
