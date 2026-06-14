@@ -14,6 +14,7 @@ from traceable_rag_agent.pipeline import (
     build_trace_timeline_events,
     build_trace_timeline_markdown,
     build_citation_evidence_map,
+    build_citation_evidence_map_markdown,
     build_evaluation_metric_cards,
     build_latency_metric_cards,
     build_observability_dashboard_markdown,
@@ -511,6 +512,32 @@ def test_build_citation_evidence_map_links_answer_citations_to_retrieved_evidenc
             "supporting_claim_count": 1,
         },
     ]
+
+
+def test_build_citation_evidence_map_markdown_formats_citation_links_for_demo_review() -> None:
+    documents = [
+        Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+        Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+    ]
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        documents,
+        top_k=1,
+    )
+    citation_map = build_citation_evidence_map(trace)
+
+    markdown = build_citation_evidence_map_markdown(citation_map)
+
+    assert markdown == "\n".join(
+        [
+            "## Citation Evidence Map",
+            "",
+            "| Citation | Retrieved? | Evidence rank | Chunk | Supporting claims | Snippet |",
+            "| --- | --- | ---: | --- | ---: | --- |",
+            "| decomposition | yes | 1 | decomposition#0 | 1 | Agentic RAG decomposes questions into focused retrieval queries. |",
+            "| sufficiency | yes | 2 | sufficiency#0 | 1 | Agentic RAG checks evidence sufficiency before final synthesis. |",
+        ]
+    )
 
 
 def test_measure_retrieval_coverage_reports_found_missing_and_ratio() -> None:

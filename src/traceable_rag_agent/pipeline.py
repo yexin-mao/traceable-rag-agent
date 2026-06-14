@@ -767,6 +767,34 @@ def build_citation_evidence_map(trace: RagTrace) -> list[dict[str, object]]:
     ]
 
 
+def build_citation_evidence_map_markdown(citation_map: list[dict[str, object]]) -> str:
+    """Format citation-to-evidence links as a Markdown table for demo review."""
+
+    lines = [
+        "## Citation Evidence Map",
+        "",
+        "| Citation | Retrieved? | Evidence rank | Chunk | Supporting claims | Snippet |",
+        "| --- | --- | ---: | --- | ---: | --- |",
+    ]
+    for item in citation_map:
+        evidence_rank = item["evidence_rank"] if item["evidence_rank"] is not None else ""
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    _escape_markdown_table_cell(str(item["citation"])),
+                    "yes" if item["is_retrieved"] else "no",
+                    str(evidence_rank),
+                    _escape_markdown_table_cell(str(item["chunk_id"])),
+                    str(item["supporting_claim_count"]),
+                    _escape_markdown_table_cell(str(item["snippet"])),
+                ]
+            )
+            + " |"
+        )
+    return "\n".join(lines)
+
+
 def save_trace_json(trace: RagTrace, output_path: str | Path) -> Path:
     """Persist one RAG run trace as readable JSON for later observability."""
 

@@ -148,6 +148,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format timeline events as Markdown tables for demo/report pages
 - [x] Format interviewer-friendly trace summaries that connect evidence metrics to Agentic RAG concepts
 - [x] Visualize evidence and citations
+- [x] Format citation-to-evidence maps as Markdown tables for demo/review pages
 - [x] Show evaluation metric cards for retrieval coverage, citation support, and unsupported claims
 - [x] Record retrieval latency per step and summarize total retrieval latency for status cards
 - [x] Show latency metric cards for total and average retrieval time
@@ -160,6 +161,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-14
+
+- Added `build_citation_evidence_map_markdown(...)` to render citation-to-evidence links as a Markdown table for demo/review pages.
+- The export shows each answer citation, whether the source was retrieved, the evidence rank, chunk ID, supporting-claim count, and evidence snippet.
+- Verified RED/GREEN with the focused citation-map Markdown test before running the full suite and linter.
 
 ### 2026-06-14
 
