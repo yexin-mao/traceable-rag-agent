@@ -546,6 +546,26 @@ def recommend_next_evaluation_action(summary: dict[str, object]) -> dict[str, st
     }
 
 
+def build_unsupported_claim_report_markdown(claim_checks: list[ClaimCheck]) -> str:
+    """Format unsupported answer claims as a Markdown review table."""
+
+    lines = [
+        "## Unsupported Claim Review",
+        "",
+        "| Claim | Status | Supporting sources |",
+        "| --- | --- | --- |",
+    ]
+    for check in claim_checks:
+        if check.status != "unsupported":
+            continue
+        supporting_sources = ", ".join(check.supporting_source_ids) or "none"
+        lines.append(
+            f"| {_escape_markdown_table_cell(check.claim)} | {check.status} | "
+            f"{_escape_markdown_table_cell(supporting_sources)} |"
+        )
+    return "\n".join(lines)
+
+
 def build_quality_report_markdown(summary: dict[str, object], action: dict[str, str]) -> str:
     """Format benchmark status and next action as a dashboard-ready Markdown report."""
 

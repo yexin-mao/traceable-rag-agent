@@ -1040,6 +1040,34 @@ def test_build_observability_dashboard_markdown_escapes_table_pipes_in_card_text
     assert "| Prompt \\| retrieval | pass \\| warn | warn | Check query \\| evidence before demo export. |" in markdown
 
 
+def test_build_unsupported_claim_report_markdown_lists_failed_claims_for_review() -> None:
+    from traceable_rag_agent import pipeline
+
+    evidence = [
+        Evidence(
+            source_id="retrieval",
+            text="Agentic RAG checks retrieved evidence before answering.",
+            score=1.0,
+        )
+    ]
+    claim_checks = check_answer_claims(
+        "Agentic RAG checks retrieved evidence before answering. It guarantees perfect answers.",
+        evidence,
+    )
+
+    markdown = pipeline.build_unsupported_claim_report_markdown(claim_checks)
+
+    assert markdown == "\n".join(
+        [
+            "## Unsupported Claim Review",
+            "",
+            "| Claim | Status | Supporting sources |",
+            "| --- | --- | --- |",
+            "| It guarantees perfect answers. | unsupported | none |",
+        ]
+    )
+
+
 def test_build_quality_report_markdown_formats_dashboard_ready_summary() -> None:
     summary = {
         "total_questions": 4,

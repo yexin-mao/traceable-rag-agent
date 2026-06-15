@@ -136,6 +136,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Summarize failure modes for dashboard/report status cards
 - [x] Recommend the next evaluation/debugging priority from failure summaries
 - [x] Format benchmark quality summaries as Markdown reports for dashboard/demo use
+- [x] Format unsupported-claim review tables for faithfulness debugging
 
 ### Milestone 5 — Observability dashboard
 
@@ -161,6 +162,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-15
+
+- Added `build_unsupported_claim_report_markdown(...)` to render unsupported answer claims as a focused Markdown review table.
+- The report filters to failed faithfulness checks, lists the exact unsupported claim, and keeps supporting-source display explicit as `none` when no evidence supports it.
+- Verified RED/GREEN with the focused unsupported-claim review test before running the full suite and linter.
 
 ### 2026-06-14
 
