@@ -231,6 +231,31 @@ def test_answer_question_marks_trace_insufficient_when_no_evidence_is_retrieved(
     assert trace.evidence_sufficiency.reason == "No evidence was retrieved for this question."
 
 
+def test_answer_question_retries_with_rewritten_query_when_initial_retrieval_is_weak() -> None:
+    documents = [
+        Document(
+            source_id="faithfulness",
+            text="Unsupported claim checks flag claims without evidence before final answers.",
+        )
+    ]
+
+    trace = answer_question("How are hallucinations prevented?", documents, top_k=1)
+
+    assert [query.query for query in trace.planned_queries] == [
+        "How are hallucinations prevented?",
+        "unsupported claims evidence",
+    ]
+    assert trace.planned_queries[1].reason == "Retry retrieval with a rewritten query after weak evidence."
+    assert [step.query for step in trace.retrieval_steps] == [
+        "How are hallucinations prevented?",
+        "unsupported claims evidence",
+    ]
+    assert trace.retrieval_steps[0].retrieved_source_ids == []
+    assert trace.retrieval_steps[1].retrieved_source_ids == ["faithfulness"]
+    assert [item.source_id for item in trace.evidence] == ["faithfulness"]
+    assert trace.evidence_sufficiency.status == "sufficient"
+
+
 def test_save_trace_json_persists_run_for_later_observability(tmp_path) -> None:
     trace = answer_question(
         "How does Agentic RAG check evidence sufficiency?",

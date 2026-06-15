@@ -127,7 +127,9 @@ def answer_question(question: str, documents: list[Document], top_k: int = 3) ->
     planned_queries = plan_retrieval_queries(question)
     retrieval_steps: list[RetrievalStep] = []
     retrieved_items: list[Evidence] = []
-    for planned_query in planned_queries:
+    query_index = 0
+    while query_index < len(planned_queries):
+        planned_query = planned_queries[query_index]
         retrieval_started_at = perf_counter()
         query_evidence = retrieve(planned_query.query, chunks, top_k=top_k)
         latency_ms = (perf_counter() - retrieval_started_at) * 1000
@@ -140,6 +142,16 @@ def answer_question(question: str, documents: list[Document], top_k: int = 3) ->
                 latency_ms=latency_ms,
             )
         )
+        if not query_evidence:
+            retry_query = _rewrite_weak_retrieval_query(planned_query.query)
+            if retry_query is not None and retry_query not in {query.query for query in planned_queries}:
+                planned_queries.append(
+                    RetrievalQuery(
+                        query=retry_query,
+                        reason="Retry retrieval with a rewritten query after weak evidence.",
+                    )
+                )
+        query_index += 1
     evidence = _deduplicate_evidence(retrieved_items)
     answer = _synthesize_answer(evidence)
     claim_checks = check_answer_claims(answer, evidence)
@@ -900,6 +912,13 @@ def _synthesize_answer(evidence: list[Evidence]) -> str:
 
     cited_sentences = [f"{item.text} [{item.source_id}]" for item in evidence]
     return " ".join(cited_sentences)
+
+
+def _rewrite_weak_retrieval_query(query: str) -> str | None:
+    query_terms = _terms(query)
+    if query_terms & {"hallucination", "hallucinations", "hallucinate", "hallucinated"}:
+        return "unsupported claims evidence"
+    return None
 
 
 def _sentences(text: str) -> list[str]:

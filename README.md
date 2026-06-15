@@ -123,7 +123,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Decompose complex question into sub-queries
 - [x] Run multi-query retrieval
 - [x] Add evidence sufficiency check
-- [ ] Retry retrieval with rewritten query when evidence is weak
+- [x] Retry retrieval with rewritten query when evidence is weak
 
 ### Milestone 4 — Evaluation
 
@@ -162,6 +162,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-15
+
+- Added a weak-evidence retry path in `answer_question(...)`: when an initial retrieval returns no evidence, the trace can append a rewritten retrieval query and run a second retrieval step.
+- Added deterministic hallucination-control rewriting from weak queries to `unsupported claims evidence`, so the pipeline can recover evidence about faithfulness checks instead of stopping after the first miss.
+- Verified strict RED/GREEN with the focused retry test before running the full suite (`39 passed`) and `ruff check .`.
 
 ### 2026-06-15
 
