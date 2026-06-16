@@ -122,6 +122,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 
 - [x] Decompose complex question into sub-queries
 - [x] Run multi-query retrieval
+- [x] Format retrieval plans with query reasons for interview/demo pages
 - [x] Add evidence sufficiency check
 - [x] Retry retrieval with rewritten query when evidence is weak
 
@@ -162,6 +163,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-16
+
+- Added `build_retrieval_plan_markdown(...)` to render planned retrieval queries, why each query exists, and which sources each step retrieved.
+- This makes query decomposition explainable for interview/demo pages instead of hiding it inside the trace object.
+- Verified strict RED/GREEN with the focused retrieval-plan Markdown test before running the full suite and linter.
 
 ### 2026-06-16
 

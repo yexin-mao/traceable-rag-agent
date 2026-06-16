@@ -606,6 +606,27 @@ def build_retrieval_retry_report_markdown(trace: RagTrace) -> str:
     return "\n".join(lines)
 
 
+def build_retrieval_plan_markdown(trace: RagTrace) -> str:
+    """Format planned retrieval queries and reasons as a Markdown plan table."""
+
+    lines = [
+        "## Retrieval Plan",
+        "",
+        "| Step | Query | Reason | Retrieved sources |",
+        "| ---: | --- | --- | --- |",
+    ]
+    for query_index, planned_query in enumerate(trace.planned_queries, start=1):
+        sources = "none"
+        if query_index <= len(trace.retrieval_steps):
+            sources = ", ".join(trace.retrieval_steps[query_index - 1].retrieved_source_ids) or "none"
+        lines.append(
+            f"| {query_index} | {_escape_markdown_table_cell(planned_query.query)} | "
+            f"{_escape_markdown_table_cell(planned_query.reason)} | "
+            f"{_escape_markdown_table_cell(sources)} |"
+        )
+    return "\n".join(lines)
+
+
 
 def build_quality_report_markdown(summary: dict[str, object], action: dict[str, str]) -> str:
     """Format benchmark status and next action as a dashboard-ready Markdown report."""

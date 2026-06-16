@@ -9,6 +9,7 @@ from traceable_rag_agent.pipeline import (
     build_evidence_table,
     build_quality_report_markdown,
     build_retrieval_error_metric_cards,
+    build_retrieval_plan_markdown,
     build_trace_report_markdown,
     build_trace_status_summary,
     build_trace_timeline_events,
@@ -1116,6 +1117,31 @@ def test_build_retrieval_retry_report_markdown_shows_recovery_from_weak_evidence
             "| Retry | Original query | Retry query | Before sources | After sources | Status |",
             "| ---: | --- | --- | --- | --- | --- |",
             "| 1 | How are hallucinations prevented? | unsupported claims evidence | none | faithfulness | recovered |",
+        ]
+    )
+
+
+
+def test_build_retrieval_plan_markdown_shows_query_reasons_for_interview_demo() -> None:
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        [
+            Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+            Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+        ],
+        top_k=1,
+    )
+
+    markdown = build_retrieval_plan_markdown(trace)
+
+    assert markdown == "\n".join(
+        [
+            "## Retrieval Plan",
+            "",
+            "| Step | Query | Reason | Retrieved sources |",
+            "| ---: | --- | --- | --- |",
+            "| 1 | How does Agentic RAG decompose questions? | Retrieve evidence for one focused part of the complex question. | decomposition |",
+            "| 2 | How does Agentic RAG check evidence sufficiency? | Retrieve evidence for one focused part of the complex question. | sufficiency |",
         ]
     )
 
