@@ -1093,6 +1093,34 @@ def test_build_unsupported_claim_report_markdown_lists_failed_claims_for_review(
     )
 
 
+def test_build_retrieval_retry_report_markdown_shows_recovery_from_weak_evidence() -> None:
+    from traceable_rag_agent import pipeline
+
+    trace = answer_question(
+        "How are hallucinations prevented?",
+        [
+            Document(
+                source_id="faithfulness",
+                text="Unsupported claim checks flag claims without evidence before final answers.",
+            )
+        ],
+        top_k=1,
+    )
+
+    markdown = pipeline.build_retrieval_retry_report_markdown(trace)
+
+    assert markdown == "\n".join(
+        [
+            "## Retrieval Retry Report",
+            "",
+            "| Retry | Original query | Retry query | Before sources | After sources | Status |",
+            "| ---: | --- | --- | --- | --- | --- |",
+            "| 1 | How are hallucinations prevented? | unsupported claims evidence | none | faithfulness | recovered |",
+        ]
+    )
+
+
+
 def test_build_quality_report_markdown_formats_dashboard_ready_summary() -> None:
     summary = {
         "total_questions": 4,

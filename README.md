@@ -163,6 +163,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 
 ## Development log
 
+### 2026-06-16
+
+- Added `build_retrieval_retry_report_markdown(...)` to turn weak-evidence recovery attempts into a demo-ready Markdown table.
+- The report shows the original failed query, rewritten retry query, before/after retrieved sources, and whether the retry recovered evidence.
+- Verified strict RED/GREEN with the focused retry-report test before running the full suite and linter.
+
 ### 2026-06-15
 
 - Added a weak-evidence retry path in `answer_question(...)`: when an initial retrieval returns no evidence, the trace can append a rewritten retrieval query and run a second retrieval step.

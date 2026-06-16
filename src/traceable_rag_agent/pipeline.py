@@ -578,6 +578,35 @@ def build_unsupported_claim_report_markdown(claim_checks: list[ClaimCheck]) -> s
     return "\n".join(lines)
 
 
+def build_retrieval_retry_report_markdown(trace: RagTrace) -> str:
+    """Format weak-evidence retrieval retries as a Markdown recovery report."""
+
+    lines = [
+        "## Retrieval Retry Report",
+        "",
+        "| Retry | Original query | Retry query | Before sources | After sources | Status |",
+        "| ---: | --- | --- | --- | --- | --- |",
+    ]
+    retry_count = 0
+    for query_index, planned_query in enumerate(trace.planned_queries):
+        if planned_query.reason != "Retry retrieval with a rewritten query after weak evidence.":
+            continue
+        retry_count += 1
+        previous_step = trace.retrieval_steps[query_index - 1]
+        retry_step = trace.retrieval_steps[query_index]
+        before_sources = ", ".join(previous_step.retrieved_source_ids) or "none"
+        after_sources = ", ".join(retry_step.retrieved_source_ids) or "none"
+        status = "recovered" if retry_step.retrieved_source_ids else "unresolved"
+        lines.append(
+            f"| {retry_count} | {_escape_markdown_table_cell(previous_step.query)} | "
+            f"{_escape_markdown_table_cell(planned_query.query)} | "
+            f"{_escape_markdown_table_cell(before_sources)} | "
+            f"{_escape_markdown_table_cell(after_sources)} | {status} |"
+        )
+    return "\n".join(lines)
+
+
+
 def build_quality_report_markdown(summary: dict[str, object], action: dict[str, str]) -> str:
     """Format benchmark status and next action as a dashboard-ready Markdown report."""
 
