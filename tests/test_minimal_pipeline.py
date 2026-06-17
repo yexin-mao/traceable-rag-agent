@@ -26,6 +26,7 @@ from traceable_rag_agent.pipeline import (
     check_evidence_sufficiency,
     chunk_documents,
     diagnose_rag_quality_failures,
+    build_failure_diagnosis_markdown,
     measure_citation_support,
     measure_retrieval_coverage,
     run_rag_quality_benchmark,
@@ -735,6 +736,34 @@ def test_diagnose_rag_quality_failures_labels_question_level_failure_modes() -> 
             "reason": "Answer cited sources that were not retrieved: missing-source.",
         },
     ]
+
+
+def test_build_failure_diagnosis_markdown_formats_question_level_debug_table() -> None:
+    diagnoses = [
+        {
+            "question": "How does Agentic RAG decompose questions?",
+            "failure_mode": "pass",
+            "reason": "Retrieval covered expected sources and all citations are supported.",
+        },
+        {
+            "question": "How does Agentic RAG check evidence | citations?",
+            "failure_mode": "retrieval_gap",
+            "reason": "Missing expected sources: source-b | source-c.",
+        },
+    ]
+
+    markdown = build_failure_diagnosis_markdown(diagnoses)
+
+    assert markdown == "\n".join(
+        [
+            "## Failure Diagnosis Report",
+            "",
+            "| Question | Failure mode | Reason |",
+            "| --- | --- | --- |",
+            "| How does Agentic RAG decompose questions? | pass | Retrieval covered expected sources and all citations are supported. |",
+            "| How does Agentic RAG check evidence \\| citations? | retrieval_gap | Missing expected sources: source-b \\| source-c. |",
+        ]
+    )
 
 
 def test_summarize_failure_diagnoses_counts_modes_for_dashboard() -> None:

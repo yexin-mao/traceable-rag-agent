@@ -502,6 +502,27 @@ def diagnose_rag_quality_failures(quality_report: dict[str, object]) -> list[dic
     return diagnoses
 
 
+def build_failure_diagnosis_markdown(diagnoses: list[dict[str, str]]) -> str:
+    """Format question-level RAG failure diagnoses as a Markdown debug table."""
+
+    lines = [
+        "## Failure Diagnosis Report",
+        "",
+        "| Question | Failure mode | Reason |",
+        "| --- | --- | --- |",
+    ]
+    for diagnosis in diagnoses:
+        lines.append(
+            "| "
+            + " | ".join(
+                _escape_markdown_table_cell(diagnosis[field])
+                for field in ("question", "failure_mode", "reason")
+            )
+            + " |"
+        )
+    return "\n".join(lines)
+
+
 def summarize_failure_diagnoses(diagnoses: list[dict[str, str]]) -> dict[str, object]:
     """Count failure diagnosis modes for dashboard and progress reporting."""
 

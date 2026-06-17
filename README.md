@@ -134,6 +134,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Flag unsupported claims with deterministic claim checks
 - [x] Summarize retrieval and citation quality in one benchmark report
 - [x] Diagnose question-level failure modes from benchmark results
+- [x] Format question-level failure diagnoses as Markdown debug tables
 - [x] Summarize failure modes for dashboard/report status cards
 - [x] Recommend the next evaluation/debugging priority from failure summaries
 - [x] Format benchmark quality summaries as Markdown reports for dashboard/demo use
@@ -163,6 +164,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-17
+
+- Added `build_failure_diagnosis_markdown(...)` to render question-level RAG failure diagnoses as a Markdown table.
+- The report shows each benchmark question, its failure mode, and the plain-English reason, with Markdown table escaping for interview/demo exports.
+- Verified strict RED/GREEN with the focused failure-diagnosis Markdown test before running the full suite and linter.
 
 ### 2026-06-16
 
