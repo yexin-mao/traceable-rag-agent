@@ -523,6 +523,30 @@ def build_failure_diagnosis_markdown(diagnoses: list[dict[str, str]]) -> str:
     return "\n".join(lines)
 
 
+def build_retrieval_gap_report_markdown(quality_report: dict[str, object]) -> str:
+    """Format retrieval-coverage gaps as a focused Markdown debug table."""
+
+    lines = [
+        "## Retrieval Gap Report",
+        "",
+        "| Question | Coverage | Missing sources | Retrieved sources |",
+        "| --- | ---: | --- | --- |",
+    ]
+    for result in quality_report.get("results", []):
+        retrieval_coverage = result["retrieval_coverage"]
+        missing_source_ids = retrieval_coverage["missing_source_ids"]
+        if not missing_source_ids:
+            continue
+        retrieved_source_ids = retrieval_coverage["retrieved_source_ids"]
+        lines.append(
+            f"| {_escape_markdown_table_cell(result['question'])} | "
+            f"{_format_percent(float(retrieval_coverage['coverage_ratio']))} | "
+            f"{_escape_markdown_table_cell(', '.join(missing_source_ids))} | "
+            f"{_escape_markdown_table_cell(', '.join(retrieved_source_ids) or 'none')} |"
+        )
+    return "\n".join(lines)
+
+
 def summarize_failure_diagnoses(diagnoses: list[dict[str, str]]) -> dict[str, object]:
     """Count failure diagnosis modes for dashboard and progress reporting."""
 

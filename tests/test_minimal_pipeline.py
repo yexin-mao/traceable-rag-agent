@@ -27,6 +27,7 @@ from traceable_rag_agent.pipeline import (
     chunk_documents,
     diagnose_rag_quality_failures,
     build_failure_diagnosis_markdown,
+    build_retrieval_gap_report_markdown,
     measure_citation_support,
     measure_retrieval_coverage,
     run_rag_quality_benchmark,
@@ -762,6 +763,45 @@ def test_build_failure_diagnosis_markdown_formats_question_level_debug_table() -
             "| --- | --- | --- |",
             "| How does Agentic RAG decompose questions? | pass | Retrieval covered expected sources and all citations are supported. |",
             "| How does Agentic RAG check evidence \\| citations? | retrieval_gap | Missing expected sources: source-b \\| source-c. |",
+        ]
+    )
+
+
+def test_build_retrieval_gap_report_markdown_lists_missing_sources_for_debugging() -> None:
+    quality_report = {
+        "results": [
+            {
+                "question": "How does Agentic RAG decompose questions?",
+                "retrieval_coverage": {
+                    "expected_source_ids": ["decomposition"],
+                    "retrieved_source_ids": ["decomposition"],
+                    "found_source_ids": ["decomposition"],
+                    "missing_source_ids": [],
+                    "coverage_ratio": 1.0,
+                },
+            },
+            {
+                "question": "How does Agentic RAG check evidence | citations?",
+                "retrieval_coverage": {
+                    "expected_source_ids": ["evidence", "citations"],
+                    "retrieved_source_ids": ["evidence"],
+                    "found_source_ids": ["evidence"],
+                    "missing_source_ids": ["citations"],
+                    "coverage_ratio": 0.5,
+                },
+            },
+        ]
+    }
+
+    markdown = build_retrieval_gap_report_markdown(quality_report)
+
+    assert markdown == "\n".join(
+        [
+            "## Retrieval Gap Report",
+            "",
+            "| Question | Coverage | Missing sources | Retrieved sources |",
+            "| --- | ---: | --- | --- |",
+            "| How does Agentic RAG check evidence \\| citations? | 50% | citations | evidence |",
         ]
     )
 

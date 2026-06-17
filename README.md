@@ -135,6 +135,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Summarize retrieval and citation quality in one benchmark report
 - [x] Diagnose question-level failure modes from benchmark results
 - [x] Format question-level failure diagnoses as Markdown debug tables
+- [x] Format retrieval-gap debug reports that list missing expected sources per failed benchmark question
 - [x] Summarize failure modes for dashboard/report status cards
 - [x] Recommend the next evaluation/debugging priority from failure summaries
 - [x] Format benchmark quality summaries as Markdown reports for dashboard/demo use
@@ -164,6 +165,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-17
+
+- Added `build_retrieval_gap_report_markdown(...)` to render retrieval-coverage failures as a focused Markdown debug table.
+- The report filters to benchmark questions with missing expected sources and shows coverage, missing sources, and retrieved sources with Markdown-safe escaping.
+- Verified strict RED/GREEN with the focused retrieval-gap report test before running the full suite and linter.
 
 ### 2026-06-17
 
