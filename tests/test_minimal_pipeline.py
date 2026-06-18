@@ -1294,3 +1294,35 @@ def test_build_unsupported_citation_report_markdown_lists_invalid_citations_for_
             "| How does Agentic RAG check citations \\| evidence? | 50% | missing\\|source | evidence |",
         ]
     )
+
+
+def test_build_evidence_sufficiency_gap_report_markdown_lists_insufficient_traces() -> None:
+    from traceable_rag_agent import pipeline
+
+    supported_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    unsupported_trace = answer_question(
+        "How does Agentic RAG check unsupported | missing evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+
+    markdown = pipeline.build_evidence_sufficiency_gap_report_markdown(
+        [
+            {"label": "supported demo", "trace": supported_trace},
+            {"label": "unsupported | demo", "trace": unsupported_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Evidence Sufficiency Gap Report",
+            "",
+            "| Trace | Status | Evidence items | Unsupported claims | Reason |",
+            "| --- | --- | ---: | ---: | --- |",
+            "| unsupported \\| demo | insufficient | 0 | 1 | No evidence was retrieved for this question. |",
+        ]
+    )

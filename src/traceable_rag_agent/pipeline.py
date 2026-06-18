@@ -571,6 +571,30 @@ def build_unsupported_citation_report_markdown(quality_report: dict[str, object]
     return "\n".join(lines)
 
 
+def build_evidence_sufficiency_gap_report_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format insufficient traces as a focused Markdown debug table."""
+
+    lines = [
+        "## Evidence Sufficiency Gap Report",
+        "",
+        "| Trace | Status | Evidence items | Unsupported claims | Reason |",
+        "| --- | --- | ---: | ---: | --- |",
+    ]
+    for item in trace_items:
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        if sufficiency is None or sufficiency.status != "insufficient":
+            continue
+        lines.append(
+            f"| {_escape_markdown_table_cell(str(item['label']))} | "
+            f"{_escape_markdown_table_cell(sufficiency.status)} | "
+            f"{sufficiency.evidence_count} | "
+            f"{sufficiency.unsupported_claim_count} | "
+            f"{_escape_markdown_table_cell(sufficiency.reason)} |"
+        )
+    return "\n".join(lines)
+
+
 def summarize_failure_diagnoses(diagnoses: list[dict[str, str]]) -> dict[str, object]:
     """Count failure diagnosis modes for dashboard and progress reporting."""
 
