@@ -547,6 +547,30 @@ def build_retrieval_gap_report_markdown(quality_report: dict[str, object]) -> st
     return "\n".join(lines)
 
 
+def build_unsupported_citation_report_markdown(quality_report: dict[str, object]) -> str:
+    """Format unsupported citations as a focused Markdown debug table."""
+
+    lines = [
+        "## Unsupported Citation Report",
+        "",
+        "| Question | Citation support | Unsupported citations | Retrieved evidence sources |",
+        "| --- | ---: | --- | --- |",
+    ]
+    for result in quality_report.get("results", []):
+        citation_support = result["citation_support"]
+        unsupported_cited_source_ids = citation_support["unsupported_cited_source_ids"]
+        if not unsupported_cited_source_ids:
+            continue
+        evidence_source_ids = citation_support["evidence_source_ids"]
+        lines.append(
+            f"| {_escape_markdown_table_cell(result['question'])} | "
+            f"{_format_percent(float(citation_support['citation_support_ratio']))} | "
+            f"{_escape_markdown_table_cell(', '.join(unsupported_cited_source_ids))} | "
+            f"{_escape_markdown_table_cell(', '.join(evidence_source_ids) or 'none')} |"
+        )
+    return "\n".join(lines)
+
+
 def summarize_failure_diagnoses(diagnoses: list[dict[str, str]]) -> dict[str, object]:
     """Count failure diagnosis modes for dashboard and progress reporting."""
 

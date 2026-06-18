@@ -1253,3 +1253,44 @@ def test_build_quality_report_markdown_formats_dashboard_ready_summary() -> None
             "| unsupported_citation | 1 |",
         ]
     )
+
+
+def test_build_unsupported_citation_report_markdown_lists_invalid_citations_for_debugging() -> None:
+    from traceable_rag_agent import pipeline
+
+    quality_report = {
+        "results": [
+            {
+                "question": "How does Agentic RAG cite evidence?",
+                "citation_support": {
+                    "cited_source_ids": ["decomposition"],
+                    "evidence_source_ids": ["decomposition"],
+                    "supported_cited_source_ids": ["decomposition"],
+                    "unsupported_cited_source_ids": [],
+                    "citation_support_ratio": 1.0,
+                },
+            },
+            {
+                "question": "How does Agentic RAG check citations | evidence?",
+                "citation_support": {
+                    "cited_source_ids": ["evidence", "missing|source"],
+                    "evidence_source_ids": ["evidence"],
+                    "supported_cited_source_ids": ["evidence"],
+                    "unsupported_cited_source_ids": ["missing|source"],
+                    "citation_support_ratio": 0.5,
+                },
+            },
+        ]
+    }
+
+    markdown = pipeline.build_unsupported_citation_report_markdown(quality_report)
+
+    assert markdown == "\n".join(
+        [
+            "## Unsupported Citation Report",
+            "",
+            "| Question | Citation support | Unsupported citations | Retrieved evidence sources |",
+            "| --- | ---: | --- | --- |",
+            "| How does Agentic RAG check citations \\| evidence? | 50% | missing\\|source | evidence |",
+        ]
+    )
