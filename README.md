@@ -137,6 +137,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format question-level failure diagnoses as Markdown debug tables
 - [x] Format retrieval-gap debug reports that list missing expected sources per failed benchmark question
 - [x] Format unsupported-citation debug reports that list invalid citations and retrieved evidence sources
+- [x] Format evidence-decision logs that mark traces as ready for answer delivery or needing retry/escalation
 - [x] Format evidence-sufficiency gap reports that list insufficient traces and reasons
 - [x] Format source-attribution reports that connect retrieved sources to citations and supported claims
 - [x] Summarize failure modes for dashboard/report status cards
@@ -168,6 +169,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-19
+
+- Added `build_evidence_decision_markdown(...)` to render an evidence decision log for multiple traces.
+- The report marks sufficient traces as `ready_for_answer` and insufficient/not-evaluated traces as `retry_or_escalate`, preserving the plain-English sufficiency reason with Markdown-safe escaping.
+- Verified strict RED/GREEN with the focused evidence-decision Markdown test before running the full suite and linter.
 
 ### 2026-06-19
 

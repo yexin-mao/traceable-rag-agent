@@ -169,6 +169,29 @@ def answer_question(question: str, documents: list[Document], top_k: int = 3) ->
 
 
 
+def build_evidence_decision_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format answer-readiness decisions from evidence sufficiency status."""
+
+    lines = [
+        "## Evidence Decision Log",
+        "",
+        "| Trace | Sufficiency | Decision | Reason |",
+        "| --- | --- | --- | --- |",
+    ]
+    for item in trace_items:
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        status = sufficiency.status if sufficiency is not None else "not_evaluated"
+        reason = sufficiency.reason if sufficiency is not None else "No evidence sufficiency summary is attached."
+        decision = "ready_for_answer" if status == "sufficient" else "retry_or_escalate"
+        lines.append(
+            f"| {_escape_markdown_table_cell(str(item['label']))} | "
+            f"{_escape_markdown_table_cell(status)} | {decision} | "
+            f"{_escape_markdown_table_cell(reason)} |"
+        )
+    return "\n".join(lines)
+
+
 def build_evidence_table(trace: RagTrace) -> list[dict[str, object]]:
     """Return ranked evidence snippets for dashboard/report rendering."""
 

@@ -7,6 +7,7 @@ from traceable_rag_agent.pipeline import (
     Document,
     answer_question,
     build_evidence_table,
+    build_evidence_decision_markdown,
     build_quality_report_markdown,
     build_retrieval_error_metric_cards,
     build_retrieval_plan_markdown,
@@ -191,6 +192,36 @@ def test_check_evidence_sufficiency_marks_supported_answers_sufficient() -> None
 
 
 
+
+def test_build_evidence_decision_markdown_recommends_publish_or_recovery_action() -> None:
+    supported_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    insufficient_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+
+    markdown = build_evidence_decision_markdown(
+        [
+            {"label": "supported demo", "trace": supported_trace},
+            {"label": "missing | evidence demo", "trace": insufficient_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Evidence Decision Log",
+            "",
+            "| Trace | Sufficiency | Decision | Reason |",
+            "| --- | --- | --- | --- |",
+            "| supported demo | sufficient | ready_for_answer | All answer claims are supported by retrieved evidence. |",
+            "| missing \\| evidence demo | insufficient | retry_or_escalate | No evidence was retrieved for this question. |",
+        ]
+    )
 
 def test_build_evidence_table_exposes_ranked_snippets_for_dashboard() -> None:
     documents = [
