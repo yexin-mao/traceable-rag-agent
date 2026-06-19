@@ -138,6 +138,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format retrieval-gap debug reports that list missing expected sources per failed benchmark question
 - [x] Format unsupported-citation debug reports that list invalid citations and retrieved evidence sources
 - [x] Format evidence-sufficiency gap reports that list insufficient traces and reasons
+- [x] Format source-attribution reports that connect retrieved sources to citations and supported claims
 - [x] Summarize failure modes for dashboard/report status cards
 - [x] Recommend the next evaluation/debugging priority from failure summaries
 - [x] Format benchmark quality summaries as Markdown reports for dashboard/demo use
@@ -167,6 +168,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-19
+
+- Added `build_source_attribution_markdown(...)` to render retrieved sources as an attribution table with evidence ranks, answer-citation status, supported-claim counts, and top retrieval score.
+- This makes source-level grounding easier to inspect during interviews: reviewers can see which retrieved sources actually influenced the final citation-grounded answer versus unused context.
+- Verified strict RED/GREEN with the focused source-attribution Markdown test before running the full suite and linter.
 
 ### 2026-06-18
 

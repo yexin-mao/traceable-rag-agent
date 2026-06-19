@@ -1,6 +1,6 @@
 import json
 
-from traceable_rag_agent.models import Evidence
+from traceable_rag_agent.models import ClaimCheck, Evidence, RagTrace, RetrievalQuery, RetrievalStep
 
 from traceable_rag_agent.pipeline import (
     BenchmarkQuestion,
@@ -10,6 +10,7 @@ from traceable_rag_agent.pipeline import (
     build_quality_report_markdown,
     build_retrieval_error_metric_cards,
     build_retrieval_plan_markdown,
+    build_source_attribution_markdown,
     build_trace_report_markdown,
     build_trace_status_summary,
     build_trace_timeline_events,
@@ -1214,6 +1215,59 @@ def test_build_retrieval_plan_markdown_shows_query_reasons_for_interview_demo() 
         ]
     )
 
+
+def test_build_source_attribution_markdown_shows_retrieved_cited_and_supporting_sources() -> None:
+    trace = RagTrace(
+        question="How does Agentic RAG attribute answer sources?",
+        planned_queries=[
+            RetrievalQuery(
+                query="How does Agentic RAG attribute answer sources?",
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ],
+        retrieval_steps=[
+            RetrievalStep(
+                query="How does Agentic RAG attribute answer sources?",
+                retrieved_source_ids=["retrieval", "faithfulness", "notes|draft"],
+                retrieved_chunk_ids=["retrieval#0", "faithfulness#0", "notes|draft#0"],
+            )
+        ],
+        evidence=[
+            Evidence(source_id="retrieval", text="Agentic RAG retrieves evidence before synthesis.", score=0.91),
+            Evidence(source_id="faithfulness", text="Faithfulness checks compare answer claims to evidence.", score=0.82),
+            Evidence(source_id="notes|draft", text="Draft notes are retrieved but not cited in final answers.", score=0.7),
+        ],
+        answer=(
+            "Agentic RAG retrieves evidence before synthesis. [retrieval] "
+            "Faithfulness checks compare answer claims to evidence. [faithfulness]"
+        ),
+        claim_checks=[
+            ClaimCheck(
+                claim="Agentic RAG retrieves evidence before synthesis.",
+                status="supported",
+                supporting_source_ids=["retrieval"],
+            ),
+            ClaimCheck(
+                claim="Faithfulness checks compare answer claims to evidence.",
+                status="supported",
+                supporting_source_ids=["faithfulness"],
+            ),
+        ],
+    )
+
+    markdown = build_source_attribution_markdown(trace)
+
+    assert markdown == "\n".join(
+        [
+            "## Source Attribution",
+            "",
+            "| Source | Evidence ranks | Cited in answer | Supported claims | Top score |",
+            "| --- | --- | --- | ---: | ---: |",
+            "| retrieval | 1 | yes | 1 | 0.91 |",
+            "| faithfulness | 2 | yes | 1 | 0.82 |",
+            "| notes\\|draft | 3 | no | 0 | 0.70 |",
+        ]
+    )
 
 
 def test_build_quality_report_markdown_formats_dashboard_ready_summary() -> None:

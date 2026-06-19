@@ -721,6 +721,43 @@ def build_retrieval_plan_markdown(trace: RagTrace) -> str:
 
 
 
+def build_source_attribution_markdown(trace: RagTrace) -> str:
+    """Format retrieved source attribution as a Markdown table."""
+
+    cited_source_ids = set(re.findall(r"\[([^\]]+)\]", trace.answer))
+    supported_claim_counts: dict[str, int] = {}
+    for check in trace.claim_checks:
+        if check.status != "supported":
+            continue
+        for source_id in check.supporting_source_ids:
+            supported_claim_counts[source_id] = supported_claim_counts.get(source_id, 0) + 1
+
+    lines = [
+        "## Source Attribution",
+        "",
+        "| Source | Evidence ranks | Cited in answer | Supported claims | Top score |",
+        "| --- | --- | --- | ---: | ---: |",
+    ]
+    source_rows: dict[str, dict[str, object]] = {}
+    for rank, item in enumerate(trace.evidence, start=1):
+        row = source_rows.setdefault(
+            item.source_id,
+            {"ranks": [], "top_score": item.score},
+        )
+        row["ranks"].append(str(rank))
+        row["top_score"] = max(float(row["top_score"]), item.score)
+
+    for source_id, row in source_rows.items():
+        ranks = ", ".join(row["ranks"])
+        cited = "yes" if source_id in cited_source_ids else "no"
+        supported_claim_count = supported_claim_counts.get(source_id, 0)
+        lines.append(
+            f"| {_escape_markdown_table_cell(source_id)} | {ranks} | {cited} | "
+            f"{supported_claim_count} | {float(row['top_score']):.2f} |"
+        )
+    return "\n".join(lines)
+
+
 def build_quality_report_markdown(summary: dict[str, object], action: dict[str, str]) -> str:
     """Format benchmark status and next action as a dashboard-ready Markdown report."""
 
