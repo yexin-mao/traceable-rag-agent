@@ -138,6 +138,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format retrieval-gap debug reports that list missing expected sources per failed benchmark question
 - [x] Format unsupported-citation debug reports that list invalid citations and retrieved evidence sources
 - [x] Format evidence-decision logs that mark traces as ready for answer delivery or needing retry/escalation
+- [x] Format recovery action plans that map insufficient traces to concrete next steps
 - [x] Format evidence-sufficiency gap reports that list insufficient traces and reasons
 - [x] Format source-attribution reports that connect retrieved sources to citations and supported claims
 - [x] Summarize failure modes for dashboard/report status cards
@@ -169,6 +170,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-20
+
+- Added `build_recovery_action_plan_markdown(...)` to turn insufficient or not-yet-evaluated traces into concrete recovery actions.
+- The report maps no-evidence failures to retrieval retry, unsupported claims to answer revision/escalation, and unevaluated traces to faithfulness evaluation before delivery.
+- Verified strict RED/GREEN with the focused recovery-action plan test before running the full suite and linter.
 
 ### 2026-06-19
 

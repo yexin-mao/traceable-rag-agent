@@ -192,6 +192,25 @@ def build_evidence_decision_markdown(trace_items: list[dict[str, object]]) -> st
     return "\n".join(lines)
 
 
+def build_recovery_action_plan_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format concrete recovery actions for traces that are not ready to answer."""
+
+    lines = [
+        "## Recovery Action Plan",
+        "",
+        "| Trace | Failure signal | Recommended action | Why |",
+        "| --- | --- | --- | --- |",
+    ]
+    for item in trace_items:
+        trace = item["trace"]
+        failure_signal, action, reason = _recommend_recovery_action(trace)
+        lines.append(
+            f"| {_escape_markdown_table_cell(str(item['label']))} | {failure_signal} | "
+            f"{action} | {_escape_markdown_table_cell(reason)} |"
+        )
+    return "\n".join(lines)
+
+
 def build_evidence_table(trace: RagTrace) -> list[dict[str, object]]:
     """Return ranked evidence snippets for dashboard/report rendering."""
 
@@ -1090,6 +1109,33 @@ def check_evidence_sufficiency(
 
 def _format_percent(ratio: float) -> str:
     return f"{ratio:.0%}"
+
+
+def _recommend_recovery_action(trace: RagTrace) -> tuple[str, str, str]:
+    if trace.evidence_sufficiency is None:
+        return (
+            "not_evaluated",
+            "run_evidence_evaluation",
+            "No evidence sufficiency summary exists; run faithfulness evaluation before delivery.",
+        )
+    if trace.evidence_sufficiency.evidence_count == 0:
+        return (
+            "no_evidence",
+            "retry_retrieval",
+            "No evidence was retrieved; rewrite the query or broaden retrieval before answering.",
+        )
+    if trace.evidence_sufficiency.unsupported_claim_count > 0:
+        count = trace.evidence_sufficiency.unsupported_claim_count
+        return (
+            "unsupported_claims",
+            "revise_or_escalate_answer",
+            f"{count} answer claims are unsupported; revise synthesis or escalate for review before delivery.",
+        )
+    return (
+        "ready",
+        "deliver_answer",
+        "Evidence is sufficient and answer claims are supported.",
+    )
 
 
 def _escape_markdown_table_cell(value: str) -> str:

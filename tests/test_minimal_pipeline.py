@@ -9,6 +9,7 @@ from traceable_rag_agent.pipeline import (
     build_evidence_table,
     build_evidence_decision_markdown,
     build_quality_report_markdown,
+    build_recovery_action_plan_markdown,
     build_retrieval_error_metric_cards,
     build_retrieval_plan_markdown,
     build_source_attribution_markdown,
@@ -222,6 +223,63 @@ def test_build_evidence_decision_markdown_recommends_publish_or_recovery_action(
             "| missing \\| evidence demo | insufficient | retry_or_escalate | No evidence was retrieved for this question. |",
         ]
     )
+
+
+
+def test_build_recovery_action_plan_markdown_maps_insufficient_traces_to_next_steps() -> None:
+    no_evidence_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+    unsupported_claim_trace = RagTrace(
+        question="How should the answer be reviewed?",
+        planned_queries=[
+            RetrievalQuery(
+                query="How should the answer be reviewed?",
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ],
+        retrieval_steps=[
+            RetrievalStep(
+                query="How should the answer be reviewed?",
+                retrieved_source_ids=["review"],
+                retrieved_chunk_ids=["review#0"],
+            )
+        ],
+        evidence=[Evidence(source_id="review", text="Review claims against evidence.", score=0.9)],
+        answer="Review claims against evidence. It is always perfect.",
+        claim_checks=[
+            ClaimCheck(claim="Review claims against evidence.", status="supported", supporting_source_ids=["review"]),
+            ClaimCheck(claim="It is always perfect.", status="unsupported", supporting_source_ids=[]),
+        ],
+        evidence_sufficiency=check_evidence_sufficiency(
+            [Evidence(source_id="review", text="Review claims against evidence.", score=0.9)],
+            [
+                ClaimCheck(claim="Review claims against evidence.", status="supported", supporting_source_ids=["review"]),
+                ClaimCheck(claim="It is always perfect.", status="unsupported", supporting_source_ids=[]),
+            ],
+        ),
+    )
+
+    markdown = build_recovery_action_plan_markdown(
+        [
+            {"label": "missing | evidence", "trace": no_evidence_trace},
+            {"label": "unsupported claim", "trace": unsupported_claim_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Recovery Action Plan",
+            "",
+            "| Trace | Failure signal | Recommended action | Why |",
+            "| --- | --- | --- | --- |",
+            "| missing \\| evidence | no_evidence | retry_retrieval | No evidence was retrieved; rewrite the query or broaden retrieval before answering. |",
+            "| unsupported claim | unsupported_claims | revise_or_escalate_answer | 1 answer claims are unsupported; revise synthesis or escalate for review before delivery. |",
+        ]
+    )
+
 
 def test_build_evidence_table_exposes_ranked_snippets_for_dashboard() -> None:
     documents = [
