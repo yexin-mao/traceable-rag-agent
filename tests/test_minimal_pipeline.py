@@ -1469,3 +1469,36 @@ def test_build_evidence_sufficiency_gap_report_markdown_lists_insufficient_trace
             "| unsupported \\| demo | insufficient | 0 | 1 | No evidence was retrieved for this question. |",
         ]
     )
+
+
+def test_build_answer_approval_gate_markdown_marks_safe_and_blocked_answers() -> None:
+    from traceable_rag_agent import pipeline
+
+    supported_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    unsupported_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+
+    markdown = pipeline.build_answer_approval_gate_markdown(
+        [
+            {"label": "supported answer", "trace": supported_trace},
+            {"label": "missing | evidence", "trace": unsupported_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Answer Approval Gate",
+            "",
+            "| Trace | Gate decision | Evidence status | Reviewer note |",
+            "| --- | --- | --- | --- |",
+            "| supported answer | approve_for_delivery | sufficient | Evidence is sufficient; answer can be delivered with citations. |",
+            "| missing \\| evidence | block_for_revision | insufficient | No evidence was retrieved for this question. |",
+        ]
+    )

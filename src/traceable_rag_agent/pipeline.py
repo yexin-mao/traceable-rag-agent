@@ -211,6 +211,32 @@ def build_recovery_action_plan_markdown(trace_items: list[dict[str, object]]) ->
     return "\n".join(lines)
 
 
+def build_answer_approval_gate_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format an evidence-based gate for approving or blocking answer delivery."""
+
+    lines = [
+        "## Answer Approval Gate",
+        "",
+        "| Trace | Gate decision | Evidence status | Reviewer note |",
+        "| --- | --- | --- | --- |",
+    ]
+    for item in trace_items:
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        evidence_status = sufficiency.status if sufficiency is not None else "not_evaluated"
+        if evidence_status == "sufficient":
+            decision = "approve_for_delivery"
+            reviewer_note = "Evidence is sufficient; answer can be delivered with citations."
+        else:
+            decision = "block_for_revision"
+            reviewer_note = sufficiency.reason if sufficiency is not None else "Run evidence evaluation before delivery."
+        lines.append(
+            f"| {_escape_markdown_table_cell(str(item['label']))} | {decision} | "
+            f"{evidence_status} | {_escape_markdown_table_cell(reviewer_note)} |"
+        )
+    return "\n".join(lines)
+
+
 def build_evidence_table(trace: RagTrace) -> list[dict[str, object]]:
     """Return ranked evidence snippets for dashboard/report rendering."""
 
