@@ -8,6 +8,7 @@ from traceable_rag_agent.pipeline import (
     answer_question,
     build_evidence_table,
     build_evidence_decision_markdown,
+    build_human_review_queue_markdown,
     build_quality_report_markdown,
     build_recovery_action_plan_markdown,
     build_retrieval_error_metric_cards,
@@ -277,6 +278,36 @@ def test_build_recovery_action_plan_markdown_maps_insufficient_traces_to_next_st
             "| --- | --- | --- | --- |",
             "| missing \\| evidence | no_evidence | retry_retrieval | No evidence was retrieved; rewrite the query or broaden retrieval before answering. |",
             "| unsupported claim | unsupported_claims | revise_or_escalate_answer | 1 answer claims are unsupported; revise synthesis or escalate for review before delivery. |",
+        ]
+    )
+
+
+def test_build_human_review_queue_markdown_lists_only_blocked_answer_traces() -> None:
+    approved_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    blocked_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+
+    markdown = build_human_review_queue_markdown(
+        [
+            {"label": "approved trace", "trace": approved_trace},
+            {"label": "missing | evidence", "trace": blocked_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Human Review Queue",
+            "",
+            "| Trace | Review trigger | Recommended reviewer action | Reason |",
+            "| --- | --- | --- | --- |",
+            "| missing \\| evidence | insufficient_evidence | inspect_retrieval_and_revise_answer | No evidence was retrieved for this question. |",
         ]
     )
 

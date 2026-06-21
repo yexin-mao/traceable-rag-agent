@@ -237,6 +237,32 @@ def build_answer_approval_gate_markdown(trace_items: list[dict[str, object]]) ->
     return "\n".join(lines)
 
 
+def build_human_review_queue_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format blocked answer traces as a human-review queue."""
+
+    lines = [
+        "## Human Review Queue",
+        "",
+        "| Trace | Review trigger | Recommended reviewer action | Reason |",
+        "| --- | --- | --- | --- |",
+    ]
+    for item in trace_items:
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        if sufficiency is not None and sufficiency.status == "sufficient":
+            continue
+        review_trigger = "not_evaluated" if sufficiency is None else "insufficient_evidence"
+        reviewer_action = (
+            "run_evidence_evaluation" if sufficiency is None else "inspect_retrieval_and_revise_answer"
+        )
+        reason = sufficiency.reason if sufficiency is not None else "Run evidence evaluation before delivery."
+        lines.append(
+            f"| {_escape_markdown_table_cell(str(item['label']))} | {review_trigger} | "
+            f"{reviewer_action} | {_escape_markdown_table_cell(reason)} |"
+        )
+    return "\n".join(lines)
+
+
 def build_evidence_table(trace: RagTrace) -> list[dict[str, object]]:
     """Return ranked evidence snippets for dashboard/report rendering."""
 
