@@ -140,6 +140,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format evidence-decision logs that mark traces as ready for answer delivery or needing retry/escalation
 - [x] Format answer-approval gates that block delivery when evidence is insufficient
 - [x] Format human-review queues that list only blocked answer traces and reviewer actions
+- [x] Format human-review escalation briefs that summarize blocked traces for reviewer handoff
 - [x] Format recovery action plans that map insufficient traces to concrete next steps
 - [x] Format evidence-sufficiency gap reports that list insufficient traces and reasons
 - [x] Format source-attribution reports that connect retrieved sources to citations and supported claims
@@ -172,6 +173,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-21
+
+- Added `build_human_review_escalation_brief_markdown(...)` to summarize blocked/not-evaluated traces for reviewer handoff.
+- The brief filters out approved traces, counts blocked items, evidence items needing review, and unsupported claims, then renders a Markdown-safe reviewer action table.
+- Verified strict RED/GREEN with the focused escalation-brief test before running the full suite and linter.
 
 ### 2026-06-21
 

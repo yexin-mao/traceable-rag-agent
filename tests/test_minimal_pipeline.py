@@ -8,6 +8,7 @@ from traceable_rag_agent.pipeline import (
     answer_question,
     build_evidence_table,
     build_evidence_decision_markdown,
+    build_human_review_escalation_brief_markdown,
     build_human_review_queue_markdown,
     build_quality_report_markdown,
     build_recovery_action_plan_markdown,
@@ -308,6 +309,56 @@ def test_build_human_review_queue_markdown_lists_only_blocked_answer_traces() ->
             "| Trace | Review trigger | Recommended reviewer action | Reason |",
             "| --- | --- | --- | --- |",
             "| missing \\| evidence | insufficient_evidence | inspect_retrieval_and_revise_answer | No evidence was retrieved for this question. |",
+        ]
+    )
+
+
+def test_build_human_review_escalation_brief_markdown_summarizes_blocked_traces_for_reviewers() -> None:
+    blocked_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+    not_evaluated_trace = RagTrace(
+        question="How should unevaluated answers be handled?",
+        planned_queries=[
+            RetrievalQuery(
+                query="How should unevaluated answers be handled?",
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ],
+        retrieval_steps=[],
+        evidence=[],
+        answer="Do not deliver without checks.",
+        claim_checks=[],
+        evidence_sufficiency=None,
+    )
+    approved_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+
+    markdown = build_human_review_escalation_brief_markdown(
+        [
+            {"label": "missing | evidence", "trace": blocked_trace},
+            {"label": "not evaluated", "trace": not_evaluated_trace},
+            {"label": "approved", "trace": approved_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Human Review Escalation Brief",
+            "",
+            "- Blocked traces: 2",
+            "- Total evidence items needing review: 0",
+            "- Total unsupported claims: 1",
+            "",
+            "| Trace | Question | Trigger | Evidence items | Unsupported claims | Reviewer action |",
+            "| --- | --- | --- | ---: | ---: | --- |",
+            "| missing \\| evidence | How does Agentic RAG handle missing \\| evidence? | insufficient_evidence | 0 | 1 | inspect_retrieval_and_revise_answer |",
+            "| not evaluated | How should unevaluated answers be handled? | not_evaluated | 0 | 0 | run_evidence_evaluation |",
         ]
     )
 

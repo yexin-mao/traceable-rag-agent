@@ -263,6 +263,55 @@ def build_human_review_queue_markdown(trace_items: list[dict[str, object]]) -> s
     return "\n".join(lines)
 
 
+def build_human_review_escalation_brief_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Summarize blocked answer traces for human reviewer escalation."""
+
+    blocked_items = []
+    for item in trace_items:
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        if sufficiency is not None and sufficiency.status == "sufficient":
+            continue
+        trigger = "not_evaluated" if sufficiency is None else "insufficient_evidence"
+        reviewer_action = (
+            "run_evidence_evaluation" if sufficiency is None else "inspect_retrieval_and_revise_answer"
+        )
+        evidence_count = sufficiency.evidence_count if sufficiency is not None else len(trace.evidence)
+        unsupported_claim_count = (
+            sufficiency.unsupported_claim_count
+            if sufficiency is not None
+            else sum(check.status == "unsupported" for check in trace.claim_checks)
+        )
+        blocked_items.append(
+            {
+                "label": str(item["label"]),
+                "question": trace.question,
+                "trigger": trigger,
+                "evidence_count": evidence_count,
+                "unsupported_claim_count": unsupported_claim_count,
+                "reviewer_action": reviewer_action,
+            }
+        )
+
+    lines = [
+        "## Human Review Escalation Brief",
+        "",
+        f"- Blocked traces: {len(blocked_items)}",
+        f"- Total evidence items needing review: {sum(item['evidence_count'] for item in blocked_items)}",
+        f"- Total unsupported claims: {sum(item['unsupported_claim_count'] for item in blocked_items)}",
+        "",
+        "| Trace | Question | Trigger | Evidence items | Unsupported claims | Reviewer action |",
+        "| --- | --- | --- | ---: | ---: | --- |",
+    ]
+    for item in blocked_items:
+        lines.append(
+            f"| {_escape_markdown_table_cell(item['label'])} | "
+            f"{_escape_markdown_table_cell(item['question'])} | {item['trigger']} | "
+            f"{item['evidence_count']} | {item['unsupported_claim_count']} | {item['reviewer_action']} |"
+        )
+    return "\n".join(lines)
+
+
 def build_evidence_table(trace: RagTrace) -> list[dict[str, object]]:
     """Return ranked evidence snippets for dashboard/report rendering."""
 
