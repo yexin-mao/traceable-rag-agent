@@ -263,6 +263,50 @@ def build_human_review_queue_markdown(trace_items: list[dict[str, object]]) -> s
     return "\n".join(lines)
 
 
+def build_human_review_workload_summary(trace_items: list[dict[str, object]]) -> dict[str, object]:
+    """Count approved and blocked traces for human-review workload planning."""
+
+    summary: dict[str, object] = {
+        "total_traces": len(trace_items),
+        "approved_traces": 0,
+        "blocked_traces": 0,
+        "not_evaluated_traces": 0,
+        "insufficient_evidence_traces": 0,
+        "total_evidence_items_needing_review": 0,
+        "total_unsupported_claims": 0,
+        "blocked_trace_labels": [],
+    }
+    blocked_trace_labels: list[str] = []
+    for item in trace_items:
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        if sufficiency is not None and sufficiency.status == "sufficient":
+            summary["approved_traces"] = int(summary["approved_traces"]) + 1
+            continue
+
+        summary["blocked_traces"] = int(summary["blocked_traces"]) + 1
+        blocked_trace_labels.append(str(item["label"]))
+        if sufficiency is None:
+            summary["not_evaluated_traces"] = int(summary["not_evaluated_traces"]) + 1
+            summary["total_evidence_items_needing_review"] = int(
+                summary["total_evidence_items_needing_review"]
+            ) + len(trace.evidence)
+            summary["total_unsupported_claims"] = int(summary["total_unsupported_claims"]) + sum(
+                check.status == "unsupported" for check in trace.claim_checks
+            )
+            continue
+
+        summary["insufficient_evidence_traces"] = int(summary["insufficient_evidence_traces"]) + 1
+        summary["total_evidence_items_needing_review"] = int(
+            summary["total_evidence_items_needing_review"]
+        ) + sufficiency.evidence_count
+        summary["total_unsupported_claims"] = int(summary["total_unsupported_claims"]) + sufficiency.unsupported_claim_count
+
+    summary["blocked_trace_labels"] = blocked_trace_labels
+    return summary
+
+
+
 def build_human_review_escalation_brief_markdown(trace_items: list[dict[str, object]]) -> str:
     """Summarize blocked answer traces for human reviewer escalation."""
 

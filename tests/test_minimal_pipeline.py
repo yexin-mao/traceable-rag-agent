@@ -10,6 +10,7 @@ from traceable_rag_agent.pipeline import (
     build_evidence_decision_markdown,
     build_human_review_escalation_brief_markdown,
     build_human_review_queue_markdown,
+    build_human_review_workload_summary,
     build_quality_report_markdown,
     build_recovery_action_plan_markdown,
     build_retrieval_error_metric_cards,
@@ -311,6 +312,53 @@ def test_build_human_review_queue_markdown_lists_only_blocked_answer_traces() ->
             "| missing \\| evidence | insufficient_evidence | inspect_retrieval_and_revise_answer | No evidence was retrieved for this question. |",
         ]
     )
+
+
+def test_build_human_review_workload_summary_counts_review_outcomes() -> None:
+    blocked_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+    approved_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    not_evaluated_trace = RagTrace(
+        question="How should unevaluated answers be handled?",
+        planned_queries=[
+            RetrievalQuery(
+                query="How should unevaluated answers be handled?",
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ],
+        retrieval_steps=[],
+        evidence=[],
+        answer="Do not deliver without checks.",
+        claim_checks=[],
+        evidence_sufficiency=None,
+    )
+
+    summary = build_human_review_workload_summary(
+        [
+            {"label": "missing | evidence", "trace": blocked_trace},
+            {"label": "approved", "trace": approved_trace},
+            {"label": "not evaluated", "trace": not_evaluated_trace},
+        ]
+    )
+
+    assert summary == {
+        "total_traces": 3,
+        "approved_traces": 1,
+        "blocked_traces": 2,
+        "not_evaluated_traces": 1,
+        "insufficient_evidence_traces": 1,
+        "total_evidence_items_needing_review": 0,
+        "total_unsupported_claims": 1,
+        "blocked_trace_labels": ["missing | evidence", "not evaluated"],
+    }
+
 
 
 def test_build_human_review_escalation_brief_markdown_summarizes_blocked_traces_for_reviewers() -> None:
