@@ -306,6 +306,28 @@ def build_human_review_workload_summary(trace_items: list[dict[str, object]]) ->
     return summary
 
 
+def build_human_review_workload_markdown(summary: dict[str, object]) -> str:
+    """Format human-review workload counts as Markdown for dashboard/report pages."""
+
+    blocked_trace_labels = ", ".join(
+        _escape_markdown_table_cell(str(label)) for label in summary["blocked_trace_labels"]
+    )
+    return "\n".join(
+        [
+            "## Human Review Workload",
+            "",
+            f"- Total traces: {summary['total_traces']}",
+            f"- Approved traces: {summary['approved_traces']}",
+            f"- Blocked traces: {summary['blocked_traces']}",
+            f"- Not evaluated traces: {summary['not_evaluated_traces']}",
+            f"- Insufficient-evidence traces: {summary['insufficient_evidence_traces']}",
+            f"- Evidence items needing review: {summary['total_evidence_items_needing_review']}",
+            f"- Unsupported claims needing review: {summary['total_unsupported_claims']}",
+            f"- Blocked trace labels: {blocked_trace_labels}",
+        ]
+    )
+
+
 
 def build_human_review_escalation_brief_markdown(trace_items: list[dict[str, object]]) -> str:
     """Summarize blocked answer traces for human reviewer escalation."""

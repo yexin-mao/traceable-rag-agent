@@ -10,6 +10,7 @@ from traceable_rag_agent.pipeline import (
     build_evidence_decision_markdown,
     build_human_review_escalation_brief_markdown,
     build_human_review_queue_markdown,
+    build_human_review_workload_markdown,
     build_human_review_workload_summary,
     build_quality_report_markdown,
     build_recovery_action_plan_markdown,
@@ -358,6 +359,37 @@ def test_build_human_review_workload_summary_counts_review_outcomes() -> None:
         "total_unsupported_claims": 1,
         "blocked_trace_labels": ["missing | evidence", "not evaluated"],
     }
+
+
+
+def test_build_human_review_workload_markdown_formats_dashboard_summary() -> None:
+    summary = {
+        "total_traces": 4,
+        "approved_traces": 1,
+        "blocked_traces": 3,
+        "not_evaluated_traces": 1,
+        "insufficient_evidence_traces": 2,
+        "total_evidence_items_needing_review": 5,
+        "total_unsupported_claims": 2,
+        "blocked_trace_labels": ["missing | evidence", "not evaluated", "unsupported claim"],
+    }
+
+    markdown = build_human_review_workload_markdown(summary)
+
+    assert markdown == "\n".join(
+        [
+            "## Human Review Workload",
+            "",
+            "- Total traces: 4",
+            "- Approved traces: 1",
+            "- Blocked traces: 3",
+            "- Not evaluated traces: 1",
+            "- Insufficient-evidence traces: 2",
+            "- Evidence items needing review: 5",
+            "- Unsupported claims needing review: 2",
+            "- Blocked trace labels: missing \\| evidence, not evaluated, unsupported claim",
+        ]
+    )
 
 
 

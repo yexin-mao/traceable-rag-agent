@@ -141,6 +141,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format answer-approval gates that block delivery when evidence is insufficient
 - [x] Format human-review queues that list only blocked answer traces and reviewer actions
 - [x] Summarize human-review workload for approved, blocked, insufficient, and not-yet-evaluated traces
+- [x] Format human-review workload summaries as Markdown for dashboard/report pages
 - [x] Format human-review escalation briefs that summarize blocked traces for reviewer handoff
 - [x] Format recovery action plans that map insufficient traces to concrete next steps
 - [x] Format evidence-sufficiency gap reports that list insufficient traces and reasons
@@ -174,6 +175,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-22
+
+- Added `build_human_review_workload_markdown(...)` to format human-review workload counts as a concise Markdown section for dashboard/report pages.
+- The report shows approved vs blocked traces, not-evaluated and insufficient-evidence breakdowns, evidence items/unsupported claims needing review, and Markdown-safe blocked trace labels.
+- Verified strict RED/GREEN with the focused workload-Markdown test before running the full suite and linter.
 
 ### 2026-06-22
 
