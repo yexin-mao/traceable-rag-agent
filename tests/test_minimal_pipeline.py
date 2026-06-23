@@ -363,6 +363,60 @@ def test_build_human_review_action_summary_markdown_counts_reviewer_next_actions
 
 
 
+def test_build_human_review_checklist_markdown_formats_operator_tasks_for_blocked_traces() -> None:
+    from traceable_rag_agent import pipeline
+
+    blocked_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+    not_evaluated_trace = RagTrace(
+        question="How should unevaluated answers be handled?",
+        planned_queries=[
+            RetrievalQuery(
+                query="How should unevaluated answers be handled?",
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ],
+        retrieval_steps=[],
+        evidence=[],
+        answer="Do not deliver without checks.",
+        claim_checks=[],
+        evidence_sufficiency=None,
+    )
+    approved_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+
+    markdown = pipeline.build_human_review_checklist_markdown(
+        [
+            {"label": "missing | evidence", "trace": blocked_trace},
+            {"label": "not evaluated", "trace": not_evaluated_trace},
+            {"label": "approved", "trace": approved_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Human Review Checklist",
+            "",
+            "### missing \\| evidence",
+            "- [ ] Inspect retrieval trace and retrieved evidence.",
+            "- [ ] Revise answer or rerun retrieval before delivery.",
+            "- [ ] Confirm evidence sufficiency is no longer insufficient.",
+            "",
+            "### not evaluated",
+            "- [ ] Run evidence sufficiency evaluation before delivery.",
+            "- [ ] Check unsupported claims and citation support.",
+            "- [ ] Record approval or escalation decision.",
+        ]
+    )
+
+
+
 def test_build_human_review_workload_summary_counts_review_outcomes() -> None:
     blocked_trace = answer_question(
         "How does Agentic RAG handle missing | evidence?",

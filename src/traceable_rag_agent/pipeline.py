@@ -292,6 +292,36 @@ def build_human_review_action_summary_markdown(trace_items: list[dict[str, objec
 
 
 
+def build_human_review_checklist_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format reviewer checklist tasks for blocked answer traces."""
+
+    lines = ["## Human Review Checklist"]
+    for item in trace_items:
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        if sufficiency is not None and sufficiency.status == "sufficient":
+            continue
+        lines.extend(["", f"### {_escape_markdown_table_cell(str(item['label']))}"])
+        if sufficiency is None:
+            lines.extend(
+                [
+                    "- [ ] Run evidence sufficiency evaluation before delivery.",
+                    "- [ ] Check unsupported claims and citation support.",
+                    "- [ ] Record approval or escalation decision.",
+                ]
+            )
+        else:
+            lines.extend(
+                [
+                    "- [ ] Inspect retrieval trace and retrieved evidence.",
+                    "- [ ] Revise answer or rerun retrieval before delivery.",
+                    f"- [ ] Confirm evidence sufficiency is no longer {sufficiency.status}.",
+                ]
+            )
+    return "\n".join(lines)
+
+
+
 def build_human_review_workload_summary(trace_items: list[dict[str, object]]) -> dict[str, object]:
     """Count approved and blocked traces for human-review workload planning."""
 

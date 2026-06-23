@@ -141,6 +141,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format answer-approval gates that block delivery when evidence is insufficient
 - [x] Format human-review queues that list only blocked answer traces and reviewer actions
 - [x] Format human-review action summaries that group blocked traces by reviewer next action
+- [x] Format human-review checklists that turn blocked traces into concrete operator tasks
 - [x] Summarize human-review workload for approved, blocked, insufficient, and not-yet-evaluated traces
 - [x] Format human-review workload summaries as Markdown for dashboard/report pages
 - [x] Format human-review escalation briefs that summarize blocked traces for reviewer handoff
@@ -176,6 +177,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-23
+
+- Added `build_human_review_checklist_markdown(...)` to turn blocked/not-yet-evaluated traces into concrete reviewer checklist tasks.
+- The checklist filters out already-approved traces, separates missing evaluation from insufficient evidence, and keeps trace labels Markdown-safe for dashboard/report exports.
+- Verified strict RED/GREEN with the focused checklist test before running the full suite and linter.
 
 ### 2026-06-23
 
