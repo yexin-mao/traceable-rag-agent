@@ -263,6 +263,35 @@ def build_human_review_queue_markdown(trace_items: list[dict[str, object]]) -> s
     return "\n".join(lines)
 
 
+def build_human_review_action_summary_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format blocked traces by the next reviewer action needed."""
+
+    action_labels: dict[str, list[str]] = {}
+    for item in trace_items:
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        if sufficiency is not None and sufficiency.status == "sufficient":
+            continue
+        reviewer_action = (
+            "run_evidence_evaluation" if sufficiency is None else "inspect_retrieval_and_revise_answer"
+        )
+        action_labels.setdefault(reviewer_action, []).append(str(item["label"]))
+
+    lines = [
+        "## Human Review Action Summary",
+        "",
+        "| Reviewer action | Trace count | Trace labels |",
+        "| --- | ---: | --- |",
+    ]
+    for action, labels in action_labels.items():
+        lines.append(
+            f"| {action} | {len(labels)} | "
+            f"{_escape_markdown_table_cell(', '.join(labels))} |"
+        )
+    return "\n".join(lines)
+
+
+
 def build_human_review_workload_summary(trace_items: list[dict[str, object]]) -> dict[str, object]:
     """Count approved and blocked traces for human-review workload planning."""
 

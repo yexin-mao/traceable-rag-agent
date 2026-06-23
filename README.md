@@ -140,6 +140,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format evidence-decision logs that mark traces as ready for answer delivery or needing retry/escalation
 - [x] Format answer-approval gates that block delivery when evidence is insufficient
 - [x] Format human-review queues that list only blocked answer traces and reviewer actions
+- [x] Format human-review action summaries that group blocked traces by reviewer next action
 - [x] Summarize human-review workload for approved, blocked, insufficient, and not-yet-evaluated traces
 - [x] Format human-review workload summaries as Markdown for dashboard/report pages
 - [x] Format human-review escalation briefs that summarize blocked traces for reviewer handoff
@@ -175,6 +176,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-23
+
+- Added `build_human_review_action_summary_markdown(...)` to group blocked/not-yet-evaluated traces by the exact reviewer next action.
+- The report counts actions such as `inspect_retrieval_and_revise_answer` and `run_evidence_evaluation`, with Markdown-safe trace labels for dashboard/report exports.
+- Verified strict RED/GREEN with the focused action-summary test before running the full suite and linter.
 
 ### 2026-06-22
 

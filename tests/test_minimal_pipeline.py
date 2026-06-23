@@ -10,6 +10,7 @@ from traceable_rag_agent.pipeline import (
     build_evidence_decision_markdown,
     build_human_review_escalation_brief_markdown,
     build_human_review_queue_markdown,
+    build_human_review_action_summary_markdown,
     build_human_review_workload_markdown,
     build_human_review_workload_summary,
     build_quality_report_markdown,
@@ -313,6 +314,53 @@ def test_build_human_review_queue_markdown_lists_only_blocked_answer_traces() ->
             "| missing \\| evidence | insufficient_evidence | inspect_retrieval_and_revise_answer | No evidence was retrieved for this question. |",
         ]
     )
+
+
+def test_build_human_review_action_summary_markdown_counts_reviewer_next_actions() -> None:
+    blocked_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+    not_evaluated_trace = RagTrace(
+        question="How should unevaluated answers be handled?",
+        planned_queries=[
+            RetrievalQuery(
+                query="How should unevaluated answers be handled?",
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ],
+        retrieval_steps=[],
+        evidence=[],
+        answer="Do not deliver without checks.",
+        claim_checks=[],
+        evidence_sufficiency=None,
+    )
+    approved_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+
+    markdown = build_human_review_action_summary_markdown(
+        [
+            {"label": "missing | evidence", "trace": blocked_trace},
+            {"label": "not evaluated", "trace": not_evaluated_trace},
+            {"label": "approved", "trace": approved_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Human Review Action Summary",
+            "",
+            "| Reviewer action | Trace count | Trace labels |",
+            "| --- | ---: | --- |",
+            "| inspect_retrieval_and_revise_answer | 1 | missing \\| evidence |",
+            "| run_evidence_evaluation | 1 | not evaluated |",
+        ]
+    )
+
 
 
 def test_build_human_review_workload_summary_counts_review_outcomes() -> None:
