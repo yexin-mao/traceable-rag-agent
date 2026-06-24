@@ -390,6 +390,35 @@ def build_human_review_priority_board_markdown(trace_items: list[dict[str, objec
     return "\n".join(lines)
 
 
+def build_human_review_decision_log_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format reviewer approval outcomes as an auditable human-review decision log."""
+
+    lines = [
+        "## Human Review Decision Log",
+        "",
+        "| Trace | Evidence status | Gate recommendation | Reviewer decision | Audit note |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for item in trace_items:
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        evidence_status = sufficiency.status if sufficiency is not None else "not_evaluated"
+        gate_recommendation = "approve_for_delivery" if evidence_status == "sufficient" else "block_for_revision"
+        reviewer_decision = str(item["reviewer_decision"])
+        audit_note = (
+            "Human reviewer accepted the citation-grounded answer."
+            if reviewer_decision == "approved"
+            else sufficiency.reason
+            if sufficiency is not None
+            else "Run evidence evaluation before recording approval."
+        )
+        lines.append(
+            f"| {_escape_markdown_table_cell(str(item['label']))} | {evidence_status} | "
+            f"{gate_recommendation} | {_escape_markdown_table_cell(reviewer_decision)} | "
+            f"{_escape_markdown_table_cell(audit_note)} |"
+        )
+    return "\n".join(lines)
+
 
 def build_human_review_workload_summary(trace_items: list[dict[str, object]]) -> dict[str, object]:
     """Count approved and blocked traces for human-review workload planning."""

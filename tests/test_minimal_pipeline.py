@@ -496,6 +496,38 @@ def test_build_human_review_priority_board_markdown_orders_blocked_traces_by_ris
     )
 
 
+def test_build_human_review_decision_log_markdown_records_approval_outcomes() -> None:
+    from traceable_rag_agent import pipeline
+
+    approved_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    blocked_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+
+    markdown = pipeline.build_human_review_decision_log_markdown(
+        [
+            {"label": "approved answer", "trace": approved_trace, "reviewer_decision": "approved"},
+            {"label": "missing | evidence", "trace": blocked_trace, "reviewer_decision": "retry_retrieval"},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Human Review Decision Log",
+            "",
+            "| Trace | Evidence status | Gate recommendation | Reviewer decision | Audit note |",
+            "| --- | --- | --- | --- | --- |",
+            "| approved answer | sufficient | approve_for_delivery | approved | Human reviewer accepted the citation-grounded answer. |",
+            "| missing \\| evidence | insufficient | block_for_revision | retry_retrieval | No evidence was retrieved for this question. |",
+        ]
+    )
+
 
 def test_build_human_review_workload_summary_counts_review_outcomes() -> None:
     blocked_trace = answer_question(

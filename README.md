@@ -143,6 +143,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format human-review action summaries that group blocked traces by reviewer next action
 - [x] Format human-review checklists that turn blocked traces into concrete operator tasks
 - [x] Format human-review priority boards that order blocked traces by review risk
+- [x] Format human-review decision logs that record reviewer approval/retry outcomes for auditability
 - [x] Summarize human-review workload for approved, blocked, insufficient, and not-yet-evaluated traces
 - [x] Format human-review workload summaries as Markdown for dashboard/report pages
 - [x] Format human-review escalation briefs that summarize blocked traces for reviewer handoff
@@ -178,6 +179,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-24
+
+- Added `build_human_review_decision_log_markdown(...)` to record final human-review decisions after the evidence gate recommends approve/block.
+- The decision log shows evidence status, gate recommendation, reviewer outcome, and an audit note, while keeping labels/notes Markdown-safe for portfolio/demo exports.
+- Verified strict RED/GREEN with the focused decision-log test before running the full suite and linter.
 
 ### 2026-06-24
 
