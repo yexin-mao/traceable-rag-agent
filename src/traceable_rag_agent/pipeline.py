@@ -322,6 +322,75 @@ def build_human_review_checklist_markdown(trace_items: list[dict[str, object]]) 
 
 
 
+def build_human_review_priority_board_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format blocked traces as a risk-ordered human-review priority board."""
+
+    rows: list[tuple[int, str, str, str, str, str]] = []
+    for item in trace_items:
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        if sufficiency is not None and sufficiency.status == "sufficient":
+            continue
+        if sufficiency is None:
+            rows.append(
+                (
+                    3,
+                    "low",
+                    str(item["label"]),
+                    "not_evaluated",
+                    "run_evidence_evaluation",
+                    "Run evidence sufficiency evaluation before delivery.",
+                )
+            )
+        elif sufficiency.evidence_count == 0:
+            rows.append(
+                (
+                    2,
+                    "medium",
+                    str(item["label"]),
+                    "no_evidence",
+                    "retry_retrieval",
+                    "No evidence was retrieved; rewrite or broaden retrieval.",
+                )
+            )
+        elif sufficiency.unsupported_claim_count > 0:
+            rows.append(
+                (
+                    1,
+                    "high",
+                    str(item["label"]),
+                    "unsupported_claims",
+                    "revise_or_escalate_answer",
+                    f"{sufficiency.unsupported_claim_count} unsupported claims need review before delivery.",
+                )
+            )
+        else:
+            rows.append(
+                (
+                    2,
+                    "medium",
+                    str(item["label"]),
+                    "insufficient_evidence",
+                    "inspect_retrieval_and_revise_answer",
+                    sufficiency.reason,
+                )
+            )
+
+    lines = [
+        "## Human Review Priority Board",
+        "",
+        "| Priority | Trace | Risk signal | Reviewer action | Reason |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for _, priority, label, risk_signal, reviewer_action, reason in sorted(rows, key=lambda row: row[0]):
+        lines.append(
+            f"| {priority} | {_escape_markdown_table_cell(label)} | {risk_signal} | "
+            f"{reviewer_action} | {_escape_markdown_table_cell(reason)} |"
+        )
+    return "\n".join(lines)
+
+
+
 def build_human_review_workload_summary(trace_items: list[dict[str, object]]) -> dict[str, object]:
     """Count approved and blocked traces for human-review workload planning."""
 

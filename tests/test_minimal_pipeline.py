@@ -417,6 +417,86 @@ def test_build_human_review_checklist_markdown_formats_operator_tasks_for_blocke
 
 
 
+def test_build_human_review_priority_board_markdown_orders_blocked_traces_by_risk() -> None:
+    from traceable_rag_agent import pipeline
+
+    unsupported_claim_trace = RagTrace(
+        question="How should unsupported answers be reviewed?",
+        planned_queries=[
+            RetrievalQuery(
+                query="How should unsupported answers be reviewed?",
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ],
+        retrieval_steps=[
+            RetrievalStep(
+                query="How should unsupported answers be reviewed?",
+                retrieved_source_ids=["review"],
+                retrieved_chunk_ids=["review#0"],
+            )
+        ],
+        evidence=[Evidence(source_id="review", text="Review claims against evidence.", score=0.9)],
+        answer="Review claims against evidence. It is always perfect.",
+        claim_checks=[
+            ClaimCheck(claim="Review claims against evidence.", status="supported", supporting_source_ids=["review"]),
+            ClaimCheck(claim="It is always perfect.", status="unsupported", supporting_source_ids=[]),
+        ],
+        evidence_sufficiency=check_evidence_sufficiency(
+            [Evidence(source_id="review", text="Review claims against evidence.", score=0.9)],
+            [
+                ClaimCheck(claim="Review claims against evidence.", status="supported", supporting_source_ids=["review"]),
+                ClaimCheck(claim="It is always perfect.", status="unsupported", supporting_source_ids=[]),
+            ],
+        ),
+    )
+    not_evaluated_trace = RagTrace(
+        question="How should unevaluated answers be handled?",
+        planned_queries=[
+            RetrievalQuery(
+                query="How should unevaluated answers be handled?",
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ],
+        retrieval_steps=[],
+        evidence=[],
+        answer="Do not deliver without checks.",
+        claim_checks=[],
+        evidence_sufficiency=None,
+    )
+    no_evidence_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+    approved_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+
+    markdown = pipeline.build_human_review_priority_board_markdown(
+        [
+            {"label": "not evaluated", "trace": not_evaluated_trace},
+            {"label": "approved", "trace": approved_trace},
+            {"label": "missing | evidence", "trace": no_evidence_trace},
+            {"label": "unsupported claim", "trace": unsupported_claim_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Human Review Priority Board",
+            "",
+            "| Priority | Trace | Risk signal | Reviewer action | Reason |",
+            "| --- | --- | --- | --- | --- |",
+            "| high | unsupported claim | unsupported_claims | revise_or_escalate_answer | 1 unsupported claims need review before delivery. |",
+            "| medium | missing \\| evidence | no_evidence | retry_retrieval | No evidence was retrieved; rewrite or broaden retrieval. |",
+            "| low | not evaluated | not_evaluated | run_evidence_evaluation | Run evidence sufficiency evaluation before delivery. |",
+        ]
+    )
+
+
+
 def test_build_human_review_workload_summary_counts_review_outcomes() -> None:
     blocked_trace = answer_question(
         "How does Agentic RAG handle missing | evidence?",

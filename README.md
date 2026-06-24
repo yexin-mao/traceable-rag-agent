@@ -142,6 +142,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format human-review queues that list only blocked answer traces and reviewer actions
 - [x] Format human-review action summaries that group blocked traces by reviewer next action
 - [x] Format human-review checklists that turn blocked traces into concrete operator tasks
+- [x] Format human-review priority boards that order blocked traces by review risk
 - [x] Summarize human-review workload for approved, blocked, insufficient, and not-yet-evaluated traces
 - [x] Format human-review workload summaries as Markdown for dashboard/report pages
 - [x] Format human-review escalation briefs that summarize blocked traces for reviewer handoff
@@ -177,6 +178,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-24
+
+- Added `build_human_review_priority_board_markdown(...)` to order blocked/not-yet-evaluated traces by review risk for human-in-the-loop answer safety.
+- The priority board filters out already-approved traces, promotes unsupported-claim cases above no-evidence and not-yet-evaluated cases, and keeps trace labels/reasons Markdown-safe for dashboard/report exports.
+- Verified strict RED/GREEN with the focused priority-board test before running the full suite and linter.
 
 ### 2026-06-23
 
