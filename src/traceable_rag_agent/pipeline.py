@@ -420,6 +420,28 @@ def build_human_review_decision_log_markdown(trace_items: list[dict[str, object]
     return "\n".join(lines)
 
 
+def build_human_review_decision_summary(trace_items: list[dict[str, object]]) -> dict[str, object]:
+    """Count reviewer approval outcomes for human-review audit reporting."""
+
+    decision_counts: dict[str, int] = {}
+    blocked_trace_labels: list[str] = []
+    for item in trace_items:
+        reviewer_decision = str(item["reviewer_decision"])
+        decision_counts[reviewer_decision] = decision_counts.get(reviewer_decision, 0) + 1
+        if reviewer_decision != "approved":
+            blocked_trace_labels.append(str(item["label"]))
+
+    approved_decisions = decision_counts.get("approved", 0)
+    total_decisions = len(trace_items)
+    return {
+        "total_decisions": total_decisions,
+        "approved_decisions": approved_decisions,
+        "revision_decisions": total_decisions - approved_decisions,
+        "decision_counts": decision_counts,
+        "blocked_trace_labels": blocked_trace_labels,
+    }
+
+
 def build_human_review_workload_summary(trace_items: list[dict[str, object]]) -> dict[str, object]:
     """Count approved and blocked traces for human-review workload planning."""
 

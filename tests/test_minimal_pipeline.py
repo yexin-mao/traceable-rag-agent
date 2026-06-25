@@ -529,6 +529,67 @@ def test_build_human_review_decision_log_markdown_records_approval_outcomes() ->
     )
 
 
+def test_build_human_review_decision_summary_counts_reviewer_outcomes() -> None:
+    from traceable_rag_agent import pipeline
+
+    approved_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    retry_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+    escalate_trace = RagTrace(
+        question="How should unsupported answers be reviewed?",
+        planned_queries=[
+            RetrievalQuery(
+                query="How should unsupported answers be reviewed?",
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ],
+        retrieval_steps=[
+            RetrievalStep(
+                query="How should unsupported answers be reviewed?",
+                retrieved_source_ids=["review"],
+                retrieved_chunk_ids=["review#0"],
+            )
+        ],
+        evidence=[Evidence(source_id="review", text="Review claims against evidence.", score=0.9)],
+        answer="Review claims against evidence. It is always perfect.",
+        claim_checks=[
+            ClaimCheck(claim="Review claims against evidence.", status="supported", supporting_source_ids=["review"]),
+            ClaimCheck(claim="It is always perfect.", status="unsupported", supporting_source_ids=[]),
+        ],
+        evidence_sufficiency=check_evidence_sufficiency(
+            [Evidence(source_id="review", text="Review claims against evidence.", score=0.9)],
+            [
+                ClaimCheck(claim="Review claims against evidence.", status="supported", supporting_source_ids=["review"]),
+                ClaimCheck(claim="It is always perfect.", status="unsupported", supporting_source_ids=[]),
+            ],
+        ),
+    )
+
+    summary = pipeline.build_human_review_decision_summary(
+        [
+            {"label": "approved answer", "trace": approved_trace, "reviewer_decision": "approved"},
+            {"label": "missing | evidence", "trace": retry_trace, "reviewer_decision": "retry_retrieval"},
+            {"label": "unsupported claim", "trace": escalate_trace, "reviewer_decision": "escalated"},
+        ]
+    )
+
+    assert summary == {
+        "total_decisions": 3,
+        "approved_decisions": 1,
+        "revision_decisions": 2,
+        "decision_counts": {"approved": 1, "retry_retrieval": 1, "escalated": 1},
+        "blocked_trace_labels": ["missing | evidence", "unsupported claim"],
+    }
+
+
+
 def test_build_human_review_workload_summary_counts_review_outcomes() -> None:
     blocked_trace = answer_question(
         "How does Agentic RAG handle missing | evidence?",
