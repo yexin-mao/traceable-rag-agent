@@ -11,6 +11,7 @@ from traceable_rag_agent.pipeline import (
     build_human_review_escalation_brief_markdown,
     build_human_review_queue_markdown,
     build_human_review_action_summary_markdown,
+    build_human_review_decision_summary_markdown,
     build_human_review_workload_markdown,
     build_human_review_workload_summary,
     build_quality_report_markdown,
@@ -587,6 +588,36 @@ def test_build_human_review_decision_summary_counts_reviewer_outcomes() -> None:
         "decision_counts": {"approved": 1, "retry_retrieval": 1, "escalated": 1},
         "blocked_trace_labels": ["missing | evidence", "unsupported claim"],
     }
+
+
+
+def test_build_human_review_decision_summary_markdown_formats_review_outcomes_for_dashboard() -> None:
+    summary = {
+        "total_decisions": 4,
+        "approved_decisions": 1,
+        "revision_decisions": 3,
+        "decision_counts": {"approved": 1, "retry_retrieval": 2, "escalated": 1},
+        "blocked_trace_labels": ["missing | evidence", "unsupported claim", "stale citation"],
+    }
+
+    markdown = build_human_review_decision_summary_markdown(summary)
+
+    assert markdown == "\n".join(
+        [
+            "## Human Review Decision Summary",
+            "",
+            "- Total decisions: 4",
+            "- Approved decisions: 1",
+            "- Revision decisions: 3",
+            "- Blocked trace labels: missing \\| evidence, unsupported claim, stale citation",
+            "",
+            "| Reviewer decision | Count |",
+            "| --- | ---: |",
+            "| approved | 1 |",
+            "| retry_retrieval | 2 |",
+            "| escalated | 1 |",
+        ]
+    )
 
 
 

@@ -442,6 +442,28 @@ def build_human_review_decision_summary(trace_items: list[dict[str, object]]) ->
     }
 
 
+def build_human_review_decision_summary_markdown(summary: dict[str, object]) -> str:
+    """Format reviewer decision counts as Markdown for dashboard/report pages."""
+
+    blocked_trace_labels = ", ".join(
+        _escape_markdown_table_cell(str(label)) for label in summary["blocked_trace_labels"]
+    )
+    lines = [
+        "## Human Review Decision Summary",
+        "",
+        f"- Total decisions: {summary['total_decisions']}",
+        f"- Approved decisions: {summary['approved_decisions']}",
+        f"- Revision decisions: {summary['revision_decisions']}",
+        f"- Blocked trace labels: {blocked_trace_labels}",
+        "",
+        "| Reviewer decision | Count |",
+        "| --- | ---: |",
+    ]
+    decision_counts = summary["decision_counts"]
+    lines.extend(f"| {decision} | {count} |" for decision, count in decision_counts.items())
+    return "\n".join(lines)
+
+
 def build_human_review_workload_summary(trace_items: list[dict[str, object]]) -> dict[str, object]:
     """Count approved and blocked traces for human-review workload planning."""
 
