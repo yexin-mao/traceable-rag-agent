@@ -1397,6 +1397,37 @@ def build_trace_interview_summary_markdown(
 
 
 
+def build_interview_evidence_packet_markdown(trace: RagTrace) -> str:
+    """Format a concise interview/demo packet for one traceable RAG run."""
+
+    sufficiency = trace.evidence_sufficiency
+    answer_status = sufficiency.status if sufficiency is not None else "not_evaluated"
+    evidence_sources = ", ".join(dict.fromkeys(item.source_id for item in trace.evidence)) or "none"
+    supported_claim_count = sum(check.status == "supported" for check in trace.claim_checks)
+    unsupported_claim_count = sum(check.status == "unsupported" for check in trace.claim_checks)
+    source_count = len(dict.fromkeys(item.source_id for item in trace.evidence))
+
+    return "\n".join(
+        [
+            "## Interview Evidence Packet",
+            "",
+            f"**Question:** {trace.question}",
+            f"**Answer status:** {answer_status}",
+            f"**Evidence sources:** {evidence_sources}",
+            f"**Unsupported claims:** {unsupported_claim_count}",
+            "",
+            "### Agentic RAG concepts demonstrated",
+            f"- Query planning: {len(trace.planned_queries)} retrieval query planned before answering.",
+            f"- Evidence grounding: {len(trace.evidence)} evidence item selected and cited from {source_count} source.",
+            f"- Faithfulness check: {supported_claim_count} supported claims and {unsupported_claim_count} unsupported claims.",
+            "",
+            "### Demo talking point",
+            "This trace shows a RAG agent that does not just answer; it records retrieval, citations, and evidence sufficiency so a reviewer can verify why the answer is safe to deliver.",
+        ]
+    )
+
+
+
 def build_citation_evidence_map(trace: RagTrace) -> list[dict[str, object]]:
     """Link answer citations to retrieved evidence for citation/evidence visualization."""
 

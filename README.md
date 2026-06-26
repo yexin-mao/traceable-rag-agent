@@ -180,8 +180,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format observability dashboard sections as Markdown tables for demo/report pages
 - [x] Escape Markdown table separators in dashboard card text so demo exports stay render-safe
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
+- [x] Format interview evidence packets that summarize one trace in recruiter/interviewer-friendly language
 
 ## Development log
+
+### 2026-06-26
+
+- Added `build_interview_evidence_packet_markdown(...)` to turn one traceable RAG run into a concise interview/demo packet.
+- The packet highlights question, evidence status, cited sources, unsupported-claim count, and plain-English Agentic RAG talking points for portfolio pages or interview notes.
+- Verified strict RED/GREEN with the focused interview-evidence-packet test before running the full suite and linter.
 
 ### 2026-06-26
 

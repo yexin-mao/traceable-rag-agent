@@ -15,6 +15,7 @@ from traceable_rag_agent.pipeline import (
     build_human_review_revision_queue_markdown,
     build_human_review_workload_markdown,
     build_human_review_workload_summary,
+    build_interview_evidence_packet_markdown,
     build_quality_report_markdown,
     build_recovery_action_plan_markdown,
     build_retrieval_error_metric_cards,
@@ -617,6 +618,35 @@ def test_build_human_review_decision_summary_markdown_formats_review_outcomes_fo
             "| approved | 1 |",
             "| retry_retrieval | 2 |",
             "| escalated | 1 |",
+        ]
+    )
+
+
+def test_build_interview_evidence_packet_markdown_summarizes_trace_for_demo() -> None:
+    trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+
+    markdown = build_interview_evidence_packet_markdown(trace)
+
+    assert markdown == "\n".join(
+        [
+            "## Interview Evidence Packet",
+            "",
+            "**Question:** How does Agentic RAG check evidence sufficiency?",
+            "**Answer status:** sufficient",
+            "**Evidence sources:** sufficiency",
+            "**Unsupported claims:** 0",
+            "",
+            "### Agentic RAG concepts demonstrated",
+            "- Query planning: 1 retrieval query planned before answering.",
+            "- Evidence grounding: 1 evidence item selected and cited from 1 source.",
+            "- Faithfulness check: 1 supported claims and 0 unsupported claims.",
+            "",
+            "### Demo talking point",
+            "This trace shows a RAG agent that does not just answer; it records retrieval, citations, and evidence sufficiency so a reviewer can verify why the answer is safe to deliver.",
         ]
     )
 
