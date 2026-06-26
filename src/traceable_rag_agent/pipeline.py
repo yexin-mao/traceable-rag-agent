@@ -464,6 +464,36 @@ def build_human_review_decision_summary_markdown(summary: dict[str, object]) -> 
     return "\n".join(lines)
 
 
+def build_human_review_revision_queue_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format non-approved reviewer decisions as a follow-up revision queue."""
+
+    lines = [
+        "## Human Review Revision Queue",
+        "",
+        "| Trace | Reviewer decision | Evidence status | Follow-up action | Reason |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for item in trace_items:
+        reviewer_decision = str(item["reviewer_decision"])
+        if reviewer_decision == "approved":
+            continue
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        evidence_status = sufficiency.status if sufficiency is not None else "not_evaluated"
+        reason = sufficiency.reason if sufficiency is not None else "Run evidence evaluation before revision."
+        follow_up_action = (
+            "human_escalation_review"
+            if reviewer_decision == "escalated"
+            else "rerun_retrieval_and_evaluation"
+        )
+        lines.append(
+            f"| {_escape_markdown_table_cell(str(item['label']))} | "
+            f"{_escape_markdown_table_cell(reviewer_decision)} | {evidence_status} | "
+            f"{follow_up_action} | {_escape_markdown_table_cell(reason)} |"
+        )
+    return "\n".join(lines)
+
+
 def build_human_review_workload_summary(trace_items: list[dict[str, object]]) -> dict[str, object]:
     """Count approved and blocked traces for human-review workload planning."""
 

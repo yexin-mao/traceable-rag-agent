@@ -12,6 +12,7 @@ from traceable_rag_agent.pipeline import (
     build_human_review_queue_markdown,
     build_human_review_action_summary_markdown,
     build_human_review_decision_summary_markdown,
+    build_human_review_revision_queue_markdown,
     build_human_review_workload_markdown,
     build_human_review_workload_summary,
     build_quality_report_markdown,
@@ -619,6 +620,67 @@ def test_build_human_review_decision_summary_markdown_formats_review_outcomes_fo
         ]
     )
 
+
+
+def test_build_human_review_revision_queue_markdown_lists_only_non_approved_decisions() -> None:
+    approved_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    retry_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+    escalate_trace = RagTrace(
+        question="How should unsupported answers be reviewed?",
+        planned_queries=[
+            RetrievalQuery(
+                query="How should unsupported answers be reviewed?",
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ],
+        retrieval_steps=[
+            RetrievalStep(
+                query="How should unsupported answers be reviewed?",
+                retrieved_source_ids=["review"],
+                retrieved_chunk_ids=["review#0"],
+            )
+        ],
+        evidence=[Evidence(source_id="review", text="Review claims against evidence.", score=0.9)],
+        answer="Review claims against evidence. It is always perfect.",
+        claim_checks=[
+            ClaimCheck(claim="Review claims against evidence.", status="supported", supporting_source_ids=["review"]),
+            ClaimCheck(claim="It is always perfect.", status="unsupported", supporting_source_ids=[]),
+        ],
+        evidence_sufficiency=check_evidence_sufficiency(
+            [Evidence(source_id="review", text="Review claims against evidence.", score=0.9)],
+            [
+                ClaimCheck(claim="Review claims against evidence.", status="supported", supporting_source_ids=["review"]),
+                ClaimCheck(claim="It is always perfect.", status="unsupported", supporting_source_ids=[]),
+            ],
+        ),
+    )
+
+    markdown = build_human_review_revision_queue_markdown(
+        [
+            {"label": "approved answer", "trace": approved_trace, "reviewer_decision": "approved"},
+            {"label": "missing | evidence", "trace": retry_trace, "reviewer_decision": "retry_retrieval"},
+            {"label": "unsupported claim", "trace": escalate_trace, "reviewer_decision": "escalated"},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Human Review Revision Queue",
+            "",
+            "| Trace | Reviewer decision | Evidence status | Follow-up action | Reason |",
+            "| --- | --- | --- | --- | --- |",
+            "| missing \\| evidence | retry_retrieval | insufficient | rerun_retrieval_and_evaluation | No evidence was retrieved for this question. |",
+            "| unsupported claim | escalated | insufficient | human_escalation_review | Some answer claims are not supported by retrieved evidence. |",
+        ]
+    )
 
 
 def test_build_human_review_workload_summary_counts_review_outcomes() -> None:

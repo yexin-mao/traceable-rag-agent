@@ -146,6 +146,7 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format human-review decision logs that record reviewer approval/retry outcomes for auditability
 - [x] Summarize human-review decision outcomes for approval vs revision tracking
 - [x] Format human-review decision summaries as Markdown for dashboard/report pages
+- [x] Format human-review revision queues for non-approved reviewer decisions and follow-up actions
 - [x] Summarize human-review workload for approved, blocked, insufficient, and not-yet-evaluated traces
 - [x] Format human-review workload summaries as Markdown for dashboard/report pages
 - [x] Format human-review escalation briefs that summarize blocked traces for reviewer handoff
@@ -181,6 +182,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 
 ## Development log
+
+### 2026-06-26
+
+- Added `build_human_review_revision_queue_markdown(...)` to list only non-approved reviewer decisions after the answer approval gate.
+- The queue maps `retry_retrieval` to rerun retrieval/evaluation and `escalated` to human escalation review, while keeping labels and reasons Markdown-safe for dashboard/report exports.
+- Verified strict RED/GREEN with the focused revision-queue test before running the full suite and linter.
 
 ### 2026-06-25
 
