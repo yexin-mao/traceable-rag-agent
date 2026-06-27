@@ -16,6 +16,7 @@ from traceable_rag_agent.pipeline import (
     build_human_review_workload_markdown,
     build_human_review_workload_summary,
     build_interview_evidence_packet_markdown,
+    build_interview_readiness_scorecard_markdown,
     build_interview_walkthrough_markdown,
     build_quality_report_markdown,
     build_recovery_action_plan_markdown,
@@ -685,6 +686,44 @@ def test_build_interview_walkthrough_markdown_formats_trace_as_interview_story()
             "",
             "### Interview framing",
             "This is an Agentic RAG trace: the system plans retrieval, records evidence, checks faithfulness, and exposes whether the answer is safe to deliver.",
+        ]
+    )
+
+
+
+def test_build_interview_readiness_scorecard_markdown_summarizes_demo_batch() -> None:
+    ready_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    blocked_trace = answer_question(
+        "How does Agentic RAG handle missing evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+
+    markdown = build_interview_readiness_scorecard_markdown(
+        [
+            {"label": "ready demo", "trace": ready_trace},
+            {"label": "blocked demo", "trace": blocked_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Interview Readiness Scorecard",
+            "",
+            "- Demo traces reviewed: 2",
+            "- Ready for demo: 1",
+            "- Needs review: 1",
+            "- Evidence items reviewed: 1",
+            "- Unsupported claims found: 1",
+            "",
+            "| Trace | Status | Evidence items | Unsupported claims | Interview angle |",
+            "| --- | --- | ---: | ---: | --- |",
+            "| ready demo | ready_for_demo | 1 | 0 | Show citation-grounded answer delivery. |",
+            "| blocked demo | needs_review | 0 | 1 | Show evidence gate blocking weak answers. |",
         ]
     )
 

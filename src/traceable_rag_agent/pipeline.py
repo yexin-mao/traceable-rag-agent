@@ -1465,6 +1465,52 @@ def build_interview_walkthrough_markdown(trace: RagTrace) -> str:
 
 
 
+def build_interview_readiness_scorecard_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format a batch-level interview readiness scorecard for demo traces."""
+
+    rows: list[str] = []
+    ready_count = 0
+    evidence_count = 0
+    unsupported_claim_count = 0
+    for item in trace_items:
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        status = "ready_for_demo" if sufficiency is not None and sufficiency.status == "sufficient" else "needs_review"
+        if status == "ready_for_demo":
+            ready_count += 1
+        trace_evidence_count = len(trace.evidence)
+        trace_unsupported_claim_count = sum(check.status == "unsupported" for check in trace.claim_checks)
+        evidence_count += trace_evidence_count
+        unsupported_claim_count += trace_unsupported_claim_count
+        interview_angle = (
+            "Show citation-grounded answer delivery."
+            if status == "ready_for_demo"
+            else "Show evidence gate blocking weak answers."
+        )
+        rows.append(
+            f"| {_escape_markdown_table_cell(str(item['label']))} | {status} | {trace_evidence_count} | "
+            f"{trace_unsupported_claim_count} | {interview_angle} |"
+        )
+
+    return "\n".join(
+        [
+            "## Interview Readiness Scorecard",
+            "",
+            f"- Demo traces reviewed: {len(trace_items)}",
+            f"- Ready for demo: {ready_count}",
+            f"- Needs review: {len(trace_items) - ready_count}",
+            f"- Evidence items reviewed: {evidence_count}",
+            f"- Unsupported claims found: {unsupported_claim_count}",
+            "",
+            "| Trace | Status | Evidence items | Unsupported claims | Interview angle |",
+            "| --- | --- | ---: | ---: | --- |",
+            *rows,
+        ]
+    )
+
+
+
+
 def build_citation_evidence_map(trace: RagTrace) -> list[dict[str, object]]:
     """Link answer citations to retrieved evidence for citation/evidence visualization."""
 

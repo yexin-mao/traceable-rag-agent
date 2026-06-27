@@ -182,8 +182,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 - [x] Format interview evidence packets that summarize one trace in recruiter/interviewer-friendly language
 - [x] Format interview walkthroughs that turn a trace into a concise Agentic RAG story
+- [x] Format interview readiness scorecards that summarize demo batches for recruiter/interviewer review
 
 ## Development log
+
+### 2026-06-27
+
+- Added `build_interview_readiness_scorecard_markdown(...)` to summarize multiple demo traces as an interview readiness scorecard.
+- The scorecard counts ready-vs-needs-review traces, evidence items, unsupported claims, and gives a plain-English interview angle for each trace.
+- Verified strict RED/GREEN with the focused scorecard test before running the full suite.
 
 ### 2026-06-27
 
