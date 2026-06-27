@@ -1427,6 +1427,43 @@ def build_interview_evidence_packet_markdown(trace: RagTrace) -> str:
     )
 
 
+def build_interview_walkthrough_markdown(trace: RagTrace) -> str:
+    """Format a trace as a short interview walkthrough story."""
+
+    sufficiency = trace.evidence_sufficiency
+    sufficiency_status = sufficiency.status if sufficiency is not None else "not_evaluated"
+    sufficiency_reason = (
+        sufficiency.reason if sufficiency is not None else "No evidence sufficiency summary is attached."
+    )
+    supported_claim_count = sum(check.status == "supported" for check in trace.claim_checks)
+    unsupported_claim_count = sum(check.status == "unsupported" for check in trace.claim_checks)
+    cited_sources = ", ".join(dict.fromkeys(re.findall(r"\[([^\]]+)\]", trace.answer))) or "none"
+    delivery_status = "ready_for_demo" if sufficiency_status == "sufficient" else "needs_review"
+
+    return "\n".join(
+        [
+            "## Interview Walkthrough",
+            "",
+            f"**User question:** {trace.question}",
+            f"**Delivery status:** {delivery_status}",
+            "",
+            "### What the agent did",
+            f"1. Planned {len(trace.planned_queries)} retrieval queries before answering.",
+            f"2. Ran {len(trace.retrieval_steps)} retrieval steps and selected {len(trace.evidence)} evidence items.",
+            f"3. Generated a citation-grounded answer and checked {len(trace.claim_checks)} claims.",
+            "",
+            "### Evidence and evaluation",
+            f"- Evidence sufficiency: {sufficiency_status} — {sufficiency_reason}",
+            f"- Supported claims: {supported_claim_count}",
+            f"- Unsupported claims: {unsupported_claim_count}",
+            f"- Cited sources: {cited_sources}",
+            "",
+            "### Interview framing",
+            "This is an Agentic RAG trace: the system plans retrieval, records evidence, checks faithfulness, and exposes whether the answer is safe to deliver.",
+        ]
+    )
+
+
 
 def build_citation_evidence_map(trace: RagTrace) -> list[dict[str, object]]:
     """Link answer citations to retrieved evidence for citation/evidence visualization."""

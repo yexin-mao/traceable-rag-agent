@@ -181,8 +181,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Escape Markdown table separators in dashboard card text so demo exports stay render-safe
 - [x] Escape Markdown table separators in trace-report fields so retrieval-step and evidence exports stay render-safe
 - [x] Format interview evidence packets that summarize one trace in recruiter/interviewer-friendly language
+- [x] Format interview walkthroughs that turn a trace into a concise Agentic RAG story
 
 ## Development log
+
+### 2026-06-27
+
+- Added `build_interview_walkthrough_markdown(...)` to turn one traceable RAG run into a concise interview walkthrough.
+- The walkthrough explains planned retrieval, evidence selection, citation-grounded answer checking, delivery readiness, and the Agentic RAG framing in plain language.
+- Verified strict RED/GREEN with the focused interview-walkthrough test before running the full suite and linter.
 
 ### 2026-06-26
 

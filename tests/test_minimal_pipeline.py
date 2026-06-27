@@ -16,6 +16,7 @@ from traceable_rag_agent.pipeline import (
     build_human_review_workload_markdown,
     build_human_review_workload_summary,
     build_interview_evidence_packet_markdown,
+    build_interview_walkthrough_markdown,
     build_quality_report_markdown,
     build_recovery_action_plan_markdown,
     build_retrieval_error_metric_cards,
@@ -647,6 +648,43 @@ def test_build_interview_evidence_packet_markdown_summarizes_trace_for_demo() ->
             "",
             "### Demo talking point",
             "This trace shows a RAG agent that does not just answer; it records retrieval, citations, and evidence sufficiency so a reviewer can verify why the answer is safe to deliver.",
+        ]
+    )
+
+
+
+def test_build_interview_walkthrough_markdown_formats_trace_as_interview_story() -> None:
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence?",
+        [
+            Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+            Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+        ],
+        top_k=1,
+    )
+
+    markdown = build_interview_walkthrough_markdown(trace)
+
+    assert markdown == "\n".join(
+        [
+            "## Interview Walkthrough",
+            "",
+            "**User question:** How does Agentic RAG decompose questions and check evidence?",
+            "**Delivery status:** ready_for_demo",
+            "",
+            "### What the agent did",
+            "1. Planned 2 retrieval queries before answering.",
+            "2. Ran 2 retrieval steps and selected 2 evidence items.",
+            "3. Generated a citation-grounded answer and checked 2 claims.",
+            "",
+            "### Evidence and evaluation",
+            "- Evidence sufficiency: sufficient — All answer claims are supported by retrieved evidence.",
+            "- Supported claims: 2",
+            "- Unsupported claims: 0",
+            "- Cited sources: decomposition, sufficiency",
+            "",
+            "### Interview framing",
+            "This is an Agentic RAG trace: the system plans retrieval, records evidence, checks faithfulness, and exposes whether the answer is safe to deliver.",
         ]
     )
 
