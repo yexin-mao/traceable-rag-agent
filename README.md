@@ -183,8 +183,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format interview evidence packets that summarize one trace in recruiter/interviewer-friendly language
 - [x] Format interview walkthroughs that turn a trace into a concise Agentic RAG story
 - [x] Format interview readiness scorecards that summarize demo batches for recruiter/interviewer review
+- [x] Format trace-backed interview follow-up questions for common Agentic RAG reviewer prompts
 
 ## Development log
+
+### 2026-06-28
+
+- Added `build_interview_followup_questions_markdown(...)` to turn a trace into common interviewer follow-up questions with evidence-backed answer angles.
+- The report explains why the system is more than ChatPDF, how grounding is verified, and how weak evidence triggers retry or human review.
+- Verified strict RED/GREEN with the focused follow-up-question test before running the full suite and linter.
 
 ### 2026-06-27
 

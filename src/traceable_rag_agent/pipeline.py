@@ -1511,6 +1511,31 @@ def build_interview_readiness_scorecard_markdown(trace_items: list[dict[str, obj
 
 
 
+def build_interview_followup_questions_markdown(trace: RagTrace) -> str:
+    """Format likely interview follow-up questions with trace-backed answer angles."""
+
+    sufficiency = trace.evidence_sufficiency
+    sufficiency_status = sufficiency.status if sufficiency is not None else "not_evaluated"
+    cited_sources = ", ".join(dict.fromkeys(re.findall(r"\[([^\]]+)\]", trace.answer))) or "none"
+    lines = [
+        "## Interview Follow-up Questions",
+        "",
+        "| Question | Evidence-backed answer angle |",
+        "| --- | --- |",
+        "| How is this different from a simple ChatPDF app? | "
+        f"It plans {len(trace.planned_queries)} retrieval queries, records "
+        f"{len(trace.retrieval_steps)} retrieval steps, and checks evidence before delivery. |",
+        "| How do you know the answer is grounded? | "
+        f"The trace selected {len(trace.evidence)} evidence items, cited {cited_sources}, "
+        f"and marked sufficiency as {sufficiency_status}. |",
+        "| What happens when evidence is weak? | "
+        "The same trace schema exposes sufficiency failures so the agent can retry retrieval "
+        "or escalate to human review. |",
+    ]
+    return "\n".join(lines)
+
+
+
 def build_citation_evidence_map(trace: RagTrace) -> list[dict[str, object]]:
     """Link answer citations to retrieved evidence for citation/evidence visualization."""
 

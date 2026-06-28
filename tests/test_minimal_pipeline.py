@@ -16,6 +16,7 @@ from traceable_rag_agent.pipeline import (
     build_human_review_workload_markdown,
     build_human_review_workload_summary,
     build_interview_evidence_packet_markdown,
+    build_interview_followup_questions_markdown,
     build_interview_readiness_scorecard_markdown,
     build_interview_walkthrough_markdown,
     build_quality_report_markdown,
@@ -724,6 +725,32 @@ def test_build_interview_readiness_scorecard_markdown_summarizes_demo_batch() ->
             "| --- | --- | ---: | ---: | --- |",
             "| ready demo | ready_for_demo | 1 | 0 | Show citation-grounded answer delivery. |",
             "| blocked demo | needs_review | 0 | 1 | Show evidence gate blocking weak answers. |",
+        ]
+    )
+
+
+
+def test_build_interview_followup_questions_markdown_prepares_trace_specific_answers() -> None:
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence?",
+        [
+            Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+            Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+        ],
+        top_k=1,
+    )
+
+    markdown = build_interview_followup_questions_markdown(trace)
+
+    assert markdown == "\n".join(
+        [
+            "## Interview Follow-up Questions",
+            "",
+            "| Question | Evidence-backed answer angle |",
+            "| --- | --- |",
+            "| How is this different from a simple ChatPDF app? | It plans 2 retrieval queries, records 2 retrieval steps, and checks evidence before delivery. |",
+            "| How do you know the answer is grounded? | The trace selected 2 evidence items, cited decomposition, sufficiency, and marked sufficiency as sufficient. |",
+            "| What happens when evidence is weak? | The same trace schema exposes sufficiency failures so the agent can retry retrieval or escalate to human review. |",
         ]
     )
 
