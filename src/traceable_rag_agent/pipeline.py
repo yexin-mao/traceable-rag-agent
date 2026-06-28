@@ -1535,6 +1535,45 @@ def build_interview_followup_questions_markdown(trace: RagTrace) -> str:
     return "\n".join(lines)
 
 
+def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format demo traces as an interview risk register with mitigation talking points."""
+
+    lines = [
+        "## Interview Risk Register",
+        "",
+        "| Trace | Risk level | Risk signal | Mitigation | Interview framing |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for item in trace_items:
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        if sufficiency is None:
+            risk_level = "medium"
+            risk_signal = "not_evaluated"
+            mitigation = "Run faithfulness evaluation before delivery."
+            framing = "Shows evaluation is a required gate before answer delivery."
+        elif sufficiency.evidence_count == 0:
+            risk_level = "medium"
+            risk_signal = "no_retrieved_evidence"
+            mitigation = "Retry or broaden retrieval before answering."
+            framing = "Shows the agent refuses weak evidence instead of hallucinating."
+        elif sufficiency.unsupported_claim_count > 0:
+            risk_level = "high"
+            risk_signal = "unsupported_claims"
+            mitigation = "Revise answer or escalate to human review."
+            framing = "Shows faithfulness checks catch claims that retrieval did not support."
+        else:
+            risk_level = "low"
+            risk_signal = "evidence_sufficient"
+            mitigation = "Deliver with citations."
+            framing = "Use as the happy-path grounded-answer demo."
+        lines.append(
+            f"| {_escape_markdown_table_cell(str(item['label']))} | {risk_level} | {risk_signal} | "
+            f"{mitigation} | {framing} |"
+        )
+    return "\n".join(lines)
+
+
 
 def build_citation_evidence_map(trace: RagTrace) -> list[dict[str, object]]:
     """Link answer citations to retrieved evidence for citation/evidence visualization."""

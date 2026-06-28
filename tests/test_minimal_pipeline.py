@@ -2135,6 +2135,76 @@ def test_build_evidence_sufficiency_gap_report_markdown_lists_insufficient_trace
     )
 
 
+def test_build_interview_risk_register_markdown_summarizes_demo_risks_and_mitigations() -> None:
+    from traceable_rag_agent import pipeline
+
+    safe_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    no_evidence_trace = answer_question(
+        "How does Agentic RAG handle missing retrieval?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+    unsupported_trace = RagTrace(
+        question="How does Agentic RAG prevent unsupported claims?",
+        planned_queries=[RetrievalQuery(query="unsupported claims", reason="Use the original user question for first-pass retrieval.")],
+        retrieval_steps=[RetrievalStep(query="unsupported claims", retrieved_source_ids=["faithfulness"], retrieved_chunk_ids=["faithfulness#0"])],
+        evidence=[Evidence(source_id="faithfulness", text="Faithfulness checks compare answer claims to retrieved evidence.", score=0.9)],
+        answer="Faithfulness checks compare answer claims to retrieved evidence. [faithfulness] The agent always has perfect recall.",
+        claim_checks=[
+            ClaimCheck(
+                claim="Faithfulness checks compare answer claims to retrieved evidence.",
+                status="supported",
+                supporting_source_ids=["faithfulness"],
+            ),
+            ClaimCheck(
+                claim="The agent always has perfect recall.",
+                status="unsupported",
+                supporting_source_ids=[],
+            ),
+        ],
+        evidence_sufficiency=check_evidence_sufficiency(
+            [Evidence(source_id="faithfulness", text="Faithfulness checks compare answer claims to retrieved evidence.", score=0.9)],
+            [
+                ClaimCheck(
+                    claim="Faithfulness checks compare answer claims to retrieved evidence.",
+                    status="supported",
+                    supporting_source_ids=["faithfulness"],
+                ),
+                ClaimCheck(
+                    claim="The agent always has perfect recall.",
+                    status="unsupported",
+                    supporting_source_ids=[],
+                ),
+            ],
+        ),
+    )
+
+    markdown = pipeline.build_interview_risk_register_markdown(
+        [
+            {"label": "safe demo", "trace": safe_trace},
+            {"label": "no evidence | demo", "trace": no_evidence_trace},
+            {"label": "unsupported claim demo", "trace": unsupported_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Interview Risk Register",
+            "",
+            "| Trace | Risk level | Risk signal | Mitigation | Interview framing |",
+            "| --- | --- | --- | --- | --- |",
+            "| safe demo | low | evidence_sufficient | Deliver with citations. | Use as the happy-path grounded-answer demo. |",
+            "| no evidence \\| demo | medium | no_retrieved_evidence | Retry or broaden retrieval before answering. | Shows the agent refuses weak evidence instead of hallucinating. |",
+            "| unsupported claim demo | high | unsupported_claims | Revise answer or escalate to human review. | Shows faithfulness checks catch claims that retrieval did not support. |",
+        ]
+    )
+
+
+
 def test_build_answer_approval_gate_markdown_marks_safe_and_blocked_answers() -> None:
     from traceable_rag_agent import pipeline
 

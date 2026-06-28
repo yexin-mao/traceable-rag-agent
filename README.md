@@ -184,8 +184,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format interview walkthroughs that turn a trace into a concise Agentic RAG story
 - [x] Format interview readiness scorecards that summarize demo batches for recruiter/interviewer review
 - [x] Format trace-backed interview follow-up questions for common Agentic RAG reviewer prompts
+- [x] Format interview risk registers that map demo-trace risks to mitigations and talking points
 
 ## Development log
+
+### 2026-06-28
+
+- Added `build_interview_risk_register_markdown(...)` to summarize demo traces as a risk register with low/medium/high risk, concrete mitigations, and interview framing.
+- The report distinguishes sufficient evidence, no retrieved evidence, and unsupported-claim risks so interviewers can see how the agent handles weak evidence instead of hiding it.
+- Verified strict RED/GREEN with the focused risk-register test before running the full suite and linter.
 
 ### 2026-06-28
 
