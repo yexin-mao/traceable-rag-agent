@@ -1535,6 +1535,40 @@ def build_interview_followup_questions_markdown(trace: RagTrace) -> str:
     return "\n".join(lines)
 
 
+def build_interview_demo_script_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format demo traces as a concise interviewer-facing walkthrough script."""
+
+    lines = [
+        "## Interview Demo Script",
+        "",
+        "- Demo goal: prove this is an Agentic RAG system that plans retrieval, grounds answers in evidence, and blocks weak answers before delivery.",
+        "- Recommended flow: start with a ready trace, then show a blocked or risky trace to demonstrate failure handling.",
+        "",
+        "| Step | Trace | Demo status | What to show | Interview talking point |",
+        "| ---: | --- | --- | --- | --- |",
+    ]
+    for step_index, item in enumerate(trace_items, start=1):
+        trace = item["trace"]
+        sufficiency = trace.evidence_sufficiency
+        unsupported_claim_count = sum(check.status == "unsupported" for check in trace.claim_checks)
+        demo_status = "ready_for_demo" if sufficiency is not None and sufficiency.status == "sufficient" else "needs_review"
+        talking_point = (
+            "Shows citation-grounded answer delivery with traceable evidence."
+            if demo_status == "ready_for_demo"
+            else "Shows the evidence gate catching weak answers before users see them."
+        )
+        what_to_show = (
+            f"{len(trace.planned_queries)} planned queries, {len(trace.retrieval_steps)} retrieval steps, "
+            f"{len(trace.evidence)} evidence items, {unsupported_claim_count} unsupported claims"
+        )
+        lines.append(
+            f"| {step_index} | {_escape_markdown_table_cell(str(item['label']))} | {demo_status} | "
+            f"{what_to_show} | {talking_point} |"
+        )
+    return "\n".join(lines)
+
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 

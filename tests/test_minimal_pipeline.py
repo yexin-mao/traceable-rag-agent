@@ -1,6 +1,13 @@
 import json
 
-from traceable_rag_agent.models import ClaimCheck, Evidence, RagTrace, RetrievalQuery, RetrievalStep
+from traceable_rag_agent.models import (
+    ClaimCheck,
+    Evidence,
+    EvidenceSufficiency,
+    RagTrace,
+    RetrievalQuery,
+    RetrievalStep,
+)
 
 from traceable_rag_agent.pipeline import (
     BenchmarkQuestion,
@@ -17,6 +24,7 @@ from traceable_rag_agent.pipeline import (
     build_human_review_workload_summary,
     build_interview_evidence_packet_markdown,
     build_interview_followup_questions_markdown,
+    build_interview_demo_script_markdown,
     build_interview_readiness_scorecard_markdown,
     build_interview_walkthrough_markdown,
     build_quality_report_markdown,
@@ -751,6 +759,68 @@ def test_build_interview_followup_questions_markdown_prepares_trace_specific_ans
             "| How is this different from a simple ChatPDF app? | It plans 2 retrieval queries, records 2 retrieval steps, and checks evidence before delivery. |",
             "| How do you know the answer is grounded? | The trace selected 2 evidence items, cited decomposition, sufficiency, and marked sufficiency as sufficient. |",
             "| What happens when evidence is weak? | The same trace schema exposes sufficiency failures so the agent can retry retrieval or escalate to human review. |",
+        ]
+    )
+
+
+
+def test_build_interview_demo_script_markdown_sequences_happy_path_and_risk_trace() -> None:
+    ready_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    blocked_trace = RagTrace(
+        question="How should a hallucinated answer be handled?",
+        planned_queries=[
+            RetrievalQuery(
+                query="How should a hallucinated answer be handled?",
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ],
+        retrieval_steps=[
+            RetrievalStep(
+                query="How should a hallucinated answer be handled?",
+                retrieved_source_ids=[],
+                retrieved_chunk_ids=[],
+            )
+        ],
+        evidence=[],
+        answer="The system should not answer without evidence.",
+        claim_checks=[
+            ClaimCheck(
+                claim="The system should not answer without evidence.",
+                status="unsupported",
+                supporting_source_ids=[],
+            )
+        ],
+        evidence_sufficiency=EvidenceSufficiency(
+            status="insufficient",
+            reason="No evidence was retrieved for this question.",
+            evidence_count=0,
+            supported_claim_count=0,
+            unsupported_claim_count=1,
+        ),
+    )
+
+    markdown = build_interview_demo_script_markdown(
+        [
+            {"label": "grounded answer", "trace": ready_trace},
+            {"label": "blocked hallucination", "trace": blocked_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Interview Demo Script",
+            "",
+            "- Demo goal: prove this is an Agentic RAG system that plans retrieval, grounds answers in evidence, and blocks weak answers before delivery.",
+            "- Recommended flow: start with a ready trace, then show a blocked or risky trace to demonstrate failure handling.",
+            "",
+            "| Step | Trace | Demo status | What to show | Interview talking point |",
+            "| ---: | --- | --- | --- | --- |",
+            "| 1 | grounded answer | ready_for_demo | 1 planned queries, 1 retrieval steps, 1 evidence items, 0 unsupported claims | Shows citation-grounded answer delivery with traceable evidence. |",
+            "| 2 | blocked hallucination | needs_review | 1 planned queries, 1 retrieval steps, 0 evidence items, 1 unsupported claims | Shows the evidence gate catching weak answers before users see them. |",
         ]
     )
 
