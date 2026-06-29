@@ -1535,6 +1535,38 @@ def build_interview_followup_questions_markdown(trace: RagTrace) -> str:
     return "\n".join(lines)
 
 
+def build_interview_concept_map_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format project capabilities as an interviewer-facing Agentic RAG concept map."""
+
+    trace_count = len(trace_items)
+    planned_query_count = sum(len(item["trace"].planned_queries) for item in trace_items)
+    evidence_count = sum(len(item["trace"].evidence) for item in trace_items)
+    unsupported_claim_count = sum(
+        sum(check.status == "unsupported" for check in item["trace"].claim_checks)
+        for item in trace_items
+    )
+    ready_count = sum(
+        item["trace"].evidence_sufficiency is not None
+        and item["trace"].evidence_sufficiency.status == "sufficient"
+        for item in trace_items
+    )
+    blocked_count = trace_count - ready_count
+
+    return "\n".join(
+        [
+            "## Agentic RAG Interview Concept Map",
+            "",
+            "| Concept | Concrete proof in this project | Interview explanation |",
+            "| --- | --- | --- |",
+            f"| Query decomposition | {planned_query_count} planned queries across {trace_count} traces | The agent plans focused searches before answering instead of sending one broad prompt. |",
+            f"| Evidence grounding | {evidence_count} retrieved evidence items | Answers are built from retrieved snippets and source citations, not unsupported text generation. |",
+            f"| Faithfulness evaluation | {unsupported_claim_count} unsupported claims caught | The system checks whether answer claims are supported before delivery. |",
+            f"| Answer safety gate | {ready_count} ready traces / {blocked_count} blocked traces | Good answers can be delivered, while weak or risky answers are routed to retry or human review. |",
+        ]
+    )
+
+
+
 def build_interview_demo_script_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as a concise interviewer-facing walkthrough script."""
 

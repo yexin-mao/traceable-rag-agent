@@ -25,6 +25,7 @@ from traceable_rag_agent.pipeline import (
     build_interview_evidence_packet_markdown,
     build_interview_followup_questions_markdown,
     build_interview_demo_script_markdown,
+    build_interview_concept_map_markdown,
     build_interview_readiness_scorecard_markdown,
     build_interview_walkthrough_markdown,
     build_quality_report_markdown,
@@ -759,6 +760,69 @@ def test_build_interview_followup_questions_markdown_prepares_trace_specific_ans
             "| How is this different from a simple ChatPDF app? | It plans 2 retrieval queries, records 2 retrieval steps, and checks evidence before delivery. |",
             "| How do you know the answer is grounded? | The trace selected 2 evidence items, cited decomposition, sufficiency, and marked sufficiency as sufficient. |",
             "| What happens when evidence is weak? | The same trace schema exposes sufficiency failures so the agent can retry retrieval or escalate to human review. |",
+        ]
+    )
+
+
+
+def test_build_interview_concept_map_markdown_summarizes_agentic_rag_capabilities() -> None:
+    ready_trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        [
+            Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+            Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+        ],
+        top_k=1,
+    )
+    blocked_trace = RagTrace(
+        question="How should unsupported answers be handled?",
+        planned_queries=[
+            RetrievalQuery(
+                query="How should unsupported answers be handled?",
+                reason="Use the original user question for first-pass retrieval.",
+            )
+        ],
+        retrieval_steps=[
+            RetrievalStep(
+                query="How should unsupported answers be handled?",
+                retrieved_source_ids=["review"],
+                retrieved_chunk_ids=["review#0"],
+            )
+        ],
+        evidence=[Evidence(source_id="review", text="Review answers against retrieved evidence.", score=0.9)],
+        answer="Review answers against retrieved evidence. The answer is always perfect.",
+        claim_checks=[
+            ClaimCheck(
+                claim="Review answers against retrieved evidence.", status="supported", supporting_source_ids=["review"]
+            ),
+            ClaimCheck(claim="The answer is always perfect.", status="unsupported", supporting_source_ids=[]),
+        ],
+        evidence_sufficiency=EvidenceSufficiency(
+            status="insufficient",
+            reason="Some answer claims are not supported by retrieved evidence.",
+            evidence_count=1,
+            supported_claim_count=1,
+            unsupported_claim_count=1,
+        ),
+    )
+
+    markdown = build_interview_concept_map_markdown(
+        [
+            {"label": "multi-query ready", "trace": ready_trace},
+            {"label": "unsupported claim", "trace": blocked_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Agentic RAG Interview Concept Map",
+            "",
+            "| Concept | Concrete proof in this project | Interview explanation |",
+            "| --- | --- | --- |",
+            "| Query decomposition | 3 planned queries across 2 traces | The agent plans focused searches before answering instead of sending one broad prompt. |",
+            "| Evidence grounding | 3 retrieved evidence items | Answers are built from retrieved snippets and source citations, not unsupported text generation. |",
+            "| Faithfulness evaluation | 1 unsupported claims caught | The system checks whether answer claims are supported before delivery. |",
+            "| Answer safety gate | 1 ready traces / 1 blocked traces | Good answers can be delivered, while weak or risky answers are routed to retry or human review. |",
         ]
     )
 

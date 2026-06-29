@@ -185,9 +185,16 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format interview readiness scorecards that summarize demo batches for recruiter/interviewer review
 - [x] Format trace-backed interview follow-up questions for common Agentic RAG reviewer prompts
 - [x] Format interview risk registers that map demo-trace risks to mitigations and talking points
+- [x] Format interview concept maps that connect trace metrics to Agentic RAG interview concepts
 - [x] Format interview demo scripts that sequence ready and blocked traces into a recruiter/interviewer walkthrough
 
 ## Development log
+
+### 2026-06-29
+
+- Added `build_interview_concept_map_markdown(...)` to turn demo trace metrics into an interviewer-facing Agentic RAG concept map.
+- The concept map ties query decomposition, evidence grounding, faithfulness evaluation, and the answer safety gate to concrete trace counts so the project is easier to explain beyond a generic ChatPDF demo.
+- Verified strict RED/GREEN with the focused concept-map test before running the full suite and linter.
 
 ### 2026-06-29
 
