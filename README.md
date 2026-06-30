@@ -187,8 +187,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format interview risk registers that map demo-trace risks to mitigations and talking points
 - [x] Format interview concept maps that connect trace metrics to Agentic RAG interview concepts
 - [x] Format interview demo scripts that sequence ready and blocked traces into a recruiter/interviewer walkthrough
+- [x] Format interview objection-handling tables that answer common reviewer concerns with trace-backed metrics
 
 ## Development log
+
+### 2026-06-30
+
+- Added `build_interview_objection_handling_markdown(...)` to turn demo batch metrics into concise answers for common interviewer objections.
+- The table explains why this is more than ChatPDF, how faithfulness is checked, what happens when evidence is weak, and how the trace can be audited.
+- Verified strict RED/GREEN with the focused objection-handling test before running the full suite and linter.
 
 ### 2026-06-29
 

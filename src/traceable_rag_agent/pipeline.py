@@ -1601,6 +1601,40 @@ def build_interview_demo_script_markdown(trace_items: list[dict[str, object]]) -
 
 
 
+def build_interview_objection_handling_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format common interviewer objections with trace-backed responses."""
+
+    trace_count = len(trace_items)
+    planned_query_count = sum(len(item["trace"].planned_queries) for item in trace_items)
+    retrieval_step_count = sum(len(item["trace"].retrieval_steps) for item in trace_items)
+    evidence_count = sum(len(item["trace"].evidence) for item in trace_items)
+    checked_claim_count = sum(len(item["trace"].claim_checks) for item in trace_items)
+    unsupported_claim_count = sum(
+        sum(check.status == "unsupported" for check in item["trace"].claim_checks)
+        for item in trace_items
+    )
+    ready_count = sum(
+        item["trace"].evidence_sufficiency is not None
+        and item["trace"].evidence_sufficiency.status == "sufficient"
+        for item in trace_items
+    )
+    needs_review_count = trace_count - ready_count
+
+    return "\n".join(
+        [
+            "## Interview Objection Handling",
+            "",
+            "| Interviewer concern | Trace-backed response |",
+            "| --- | --- |",
+            f"| Is this just keyword search or ChatPDF? | The demo batch includes {planned_query_count} planned retrieval queries across {trace_count} traces, so the agent exposes planning before answering instead of hiding one broad prompt. |",
+            f"| How do you know answers are faithful? | The traces checked {checked_claim_count} answer claims and caught {unsupported_claim_count} unsupported claims before delivery. |",
+            f"| What happens when evidence is weak? | The answer gate marks {ready_count} traces ready and {needs_review_count} traces needing review, so weak answers are routed to retry or human review instead of being shown as final. |",
+            f"| Can an interviewer inspect the reasoning path? | The batch records {retrieval_step_count} retrieval steps and {evidence_count} evidence items, giving a concrete audit trail from query plan to cited evidence. |",
+        ]
+    )
+
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 
