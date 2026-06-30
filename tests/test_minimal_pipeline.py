@@ -35,6 +35,7 @@ from traceable_rag_agent.pipeline import (
     build_retrieval_plan_markdown,
     build_source_attribution_markdown,
     build_trace_report_markdown,
+    build_trace_replay_plan_markdown,
     build_trace_status_summary,
     build_trace_timeline_events,
     build_trace_timeline_markdown,
@@ -2401,6 +2402,37 @@ def test_build_interview_risk_register_markdown_summarizes_demo_risks_and_mitiga
         ]
     )
 
+
+
+def test_build_trace_replay_plan_markdown_lists_reproducible_debug_steps() -> None:
+    trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence sufficiency?",
+        [
+            Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+            Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+        ],
+        top_k=1,
+    )
+
+    markdown = build_trace_replay_plan_markdown(trace)
+
+    assert markdown == "\n".join(
+        [
+            "## Trace Replay Plan",
+            "",
+            "- Original question: How does Agentic RAG decompose questions and check evidence sufficiency?",
+            "- Replay goal: reproduce the retrieval-to-answer path for debugging or interview review.",
+            "",
+            "| Step | Stage | What to replay | Expected trace signal |",
+            "| ---: | --- | --- | --- |",
+            "| 1 | query_planning | How does Agentic RAG decompose questions? | reason: Retrieve evidence for one focused part of the complex question. |",
+            "| 2 | retrieval | How does Agentic RAG decompose questions? | sources: decomposition; chunks: decomposition#0 |",
+            "| 3 | query_planning | How does Agentic RAG check evidence sufficiency? | reason: Retrieve evidence for one focused part of the complex question. |",
+            "| 4 | retrieval | How does Agentic RAG check evidence sufficiency? | sources: sufficiency; chunks: sufficiency#0 |",
+            "| 5 | synthesis | citation-grounded answer | evidence items: 2; checked claims: 2 |",
+            "| 6 | evaluation | evidence sufficiency gate | sufficient: All answer claims are supported by retrieved evidence. |",
+        ]
+    )
 
 
 def test_build_answer_approval_gate_markdown_marks_safe_and_blocked_answers() -> None:

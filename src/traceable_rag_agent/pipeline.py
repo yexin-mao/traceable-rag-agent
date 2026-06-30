@@ -1266,6 +1266,51 @@ def build_trace_report_markdown(trace: RagTrace) -> str:
     return "\n".join(lines)
 
 
+def build_trace_replay_plan_markdown(trace: RagTrace) -> str:
+    """Format a deterministic replay plan for debugging one RAG trace."""
+
+    lines = [
+        "## Trace Replay Plan",
+        "",
+        f"- Original question: {trace.question}",
+        "- Replay goal: reproduce the retrieval-to-answer path for debugging or interview review.",
+        "",
+        "| Step | Stage | What to replay | Expected trace signal |",
+        "| ---: | --- | --- | --- |",
+    ]
+    step_number = 1
+    for query_index, planned_query in enumerate(trace.planned_queries):
+        lines.append(
+            f"| {step_number} | query_planning | {_escape_markdown_table_cell(planned_query.query)} | "
+            f"reason: {_escape_markdown_table_cell(planned_query.reason)} |"
+        )
+        step_number += 1
+        if query_index < len(trace.retrieval_steps):
+            retrieval_step = trace.retrieval_steps[query_index]
+            sources = "; ".join(retrieval_step.retrieved_source_ids) or "none"
+            chunks = "; ".join(retrieval_step.retrieved_chunk_ids) or "none"
+            lines.append(
+                f"| {step_number} | retrieval | {_escape_markdown_table_cell(retrieval_step.query)} | "
+                f"sources: {_escape_markdown_table_cell(sources)}; chunks: {_escape_markdown_table_cell(chunks)} |"
+            )
+            step_number += 1
+    lines.append(
+        f"| {step_number} | synthesis | citation-grounded answer | "
+        f"evidence items: {len(trace.evidence)}; checked claims: {len(trace.claim_checks)} |"
+    )
+    step_number += 1
+    sufficiency = trace.evidence_sufficiency
+    if sufficiency is None:
+        evaluation_signal = "not_evaluated: No evidence sufficiency summary is attached."
+    else:
+        evaluation_signal = f"{sufficiency.status}: {sufficiency.reason}"
+    lines.append(
+        f"| {step_number} | evaluation | evidence sufficiency gate | "
+        f"{_escape_markdown_table_cell(evaluation_signal)} |"
+    )
+    return "\n".join(lines)
+
+
 def build_trace_status_summary(trace: RagTrace) -> dict[str, object]:
     """Return compact per-run metrics for dashboard status cards."""
 
