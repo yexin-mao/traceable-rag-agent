@@ -1691,6 +1691,26 @@ def build_interview_system_limits_markdown(current_limits: list[str], next_steps
 
 
 
+def build_interview_architecture_tradeoffs_markdown(tradeoffs: list[dict[str, str]]) -> str:
+    """Format architecture choices as interview-ready tradeoff explanations."""
+
+    lines = [
+        "## Interview Architecture Tradeoffs",
+        "",
+        "| Design choice | Why it helps | Current limit | Next engineering step |",
+        "| --- | --- | --- | --- |",
+    ]
+    for tradeoff in tradeoffs:
+        lines.append(
+            f"| {_escape_markdown_table_cell(tradeoff['choice'])} | "
+            f"{_escape_markdown_table_cell(tradeoff['benefit'])} | "
+            f"{_escape_markdown_table_cell(tradeoff['limitation'])} | "
+            f"{_escape_markdown_table_cell(tradeoff['next_step'])} |"
+        )
+    return "\n".join(lines)
+
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 

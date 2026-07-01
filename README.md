@@ -190,8 +190,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format interview objection-handling tables that answer common reviewer concerns with trace-backed metrics
 - [x] Format trace replay plans that reproduce query planning, retrieval, synthesis, and evaluation steps for debugging/interviews
 - [x] Format honest interview system-limit notes with current constraints and next engineering steps
+- [x] Format architecture tradeoff tables that explain design choices, limits, and next engineering steps for interviews
 
 ## Development log
+
+### 2026-07-01
+
+- Added `build_interview_architecture_tradeoffs_markdown(...)` to turn project design choices into concise interview-ready tradeoff explanations.
+- The report maps each architecture choice to its benefit, current limitation, and next engineering step, so the project can be presented honestly without overclaiming hosted/semantic-search capabilities.
+- Verified strict RED/GREEN with the focused architecture-tradeoffs test before running the full suite and linter.
 
 ### 2026-07-01
 

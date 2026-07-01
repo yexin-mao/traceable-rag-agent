@@ -2464,6 +2464,39 @@ def test_build_interview_system_limits_markdown_states_current_limits_and_next_s
 
 
 
+def test_build_interview_architecture_tradeoffs_markdown_maps_choices_to_interview_framing() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_interview_architecture_tradeoffs_markdown(
+        [
+            {
+                "choice": "Deterministic lexical retriever",
+                "benefit": "Keeps regression tests stable and explainable.",
+                "limitation": "Misses semantic matches that embeddings would catch.",
+                "next_step": "Add embedding retrieval behind the same trace schema.",
+            },
+            {
+                "choice": "Evidence sufficiency gate",
+                "benefit": "Blocks weak answers before delivery.",
+                "limitation": "Requires threshold tuning on real evaluation sets.",
+                "next_step": "Calibrate thresholds with benchmark traces.",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Interview Architecture Tradeoffs",
+            "",
+            "| Design choice | Why it helps | Current limit | Next engineering step |",
+            "| --- | --- | --- | --- |",
+            "| Deterministic lexical retriever | Keeps regression tests stable and explainable. | Misses semantic matches that embeddings would catch. | Add embedding retrieval behind the same trace schema. |",
+            "| Evidence sufficiency gate | Blocks weak answers before delivery. | Requires threshold tuning on real evaluation sets. | Calibrate thresholds with benchmark traces. |",
+        ]
+    )
+
+
+
 def test_build_answer_approval_gate_markdown_marks_safe_and_blocked_answers() -> None:
     from traceable_rag_agent import pipeline
 
