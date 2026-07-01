@@ -26,6 +26,7 @@ from traceable_rag_agent.pipeline import (
     build_interview_followup_questions_markdown,
     build_interview_demo_script_markdown,
     build_interview_objection_handling_markdown,
+    build_interview_system_limits_markdown,
     build_interview_concept_map_markdown,
     build_interview_readiness_scorecard_markdown,
     build_interview_walkthrough_markdown,
@@ -2433,6 +2434,34 @@ def test_build_trace_replay_plan_markdown_lists_reproducible_debug_steps() -> No
             "| 6 | evaluation | evidence sufficiency gate | sufficient: All answer claims are supported by retrieved evidence. |",
         ]
     )
+
+
+def test_build_interview_system_limits_markdown_states_current_limits_and_next_steps() -> None:
+    markdown = build_interview_system_limits_markdown(
+        current_limits=[
+            "Uses deterministic lexical retrieval instead of embeddings.",
+            "Runs as local Python helpers, not a hosted demo yet.",
+        ],
+        next_steps=[
+            "Add embedding retrieval and reranking.",
+            "Wrap reports in a lightweight web dashboard.",
+        ],
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Interview System Limits",
+            "",
+            "### Current limits",
+            "- Uses deterministic lexical retrieval instead of embeddings.",
+            "- Runs as local Python helpers, not a hosted demo yet.",
+            "",
+            "### Next engineering steps",
+            "- Add embedding retrieval and reranking.",
+            "- Wrap reports in a lightweight web dashboard.",
+        ]
+    )
+
 
 
 def test_build_answer_approval_gate_markdown_marks_safe_and_blocked_answers() -> None:

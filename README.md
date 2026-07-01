@@ -189,8 +189,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format interview demo scripts that sequence ready and blocked traces into a recruiter/interviewer walkthrough
 - [x] Format interview objection-handling tables that answer common reviewer concerns with trace-backed metrics
 - [x] Format trace replay plans that reproduce query planning, retrieval, synthesis, and evaluation steps for debugging/interviews
+- [x] Format honest interview system-limit notes with current constraints and next engineering steps
 
 ## Development log
+
+### 2026-07-01
+
+- Added `build_interview_system_limits_markdown(...)` to state current system limits and planned engineering steps in a recruiter/interviewer-friendly format.
+- The report keeps the portfolio honest by distinguishing implemented local trace/report helpers from still-planned embedding retrieval, reranking, and hosted dashboard work.
+- Verified strict RED/GREEN with the focused system-limits test before running the full suite and linter.
 
 ### 2026-06-30
 

@@ -1680,6 +1680,17 @@ def build_interview_objection_handling_markdown(trace_items: list[dict[str, obje
 
 
 
+def build_interview_system_limits_markdown(current_limits: list[str], next_steps: list[str]) -> str:
+    """Format honest current limitations and next engineering steps for interviews."""
+
+    lines = ["## Interview System Limits", "", "### Current limits"]
+    lines.extend(f"- {limit}" for limit in current_limits)
+    lines.extend(["", "### Next engineering steps"])
+    lines.extend(f"- {step}" for step in next_steps)
+    return "\n".join(lines)
+
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 
