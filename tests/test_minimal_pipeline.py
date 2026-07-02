@@ -2561,3 +2561,58 @@ def test_build_portfolio_demo_status_markdown_summarizes_current_and_planned_dem
             "The project currently has real tested backend/reporting capabilities, but no hosted public demo is claimed yet.",
         ]
     )
+
+
+
+def test_build_portfolio_progress_snapshot_markdown_summarizes_trace_batch_for_recruiters() -> None:
+    from traceable_rag_agent import pipeline
+
+    ready_trace = answer_question(
+        "How does Agentic RAG check evidence sufficiency?",
+        [Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis.")],
+        top_k=1,
+    )
+    blocked_trace = answer_question(
+        "How does Agentic RAG handle missing | evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+
+    markdown = pipeline.build_portfolio_progress_snapshot_markdown(
+        [
+            {"label": "grounded answer", "trace": ready_trace},
+            {"label": "blocked weak evidence", "trace": blocked_trace},
+        ],
+        current_capabilities=[
+            "Query planning, retrieval traces, citation-grounded synthesis, and faithfulness checks are covered by tests.",
+            "Markdown reports can be copied into portfolio or interview notes.",
+        ],
+        planned_next_steps=[
+            "Add embedding retrieval and reranking behind the existing trace schema.",
+            "Expose a hosted FastAPI/dashboard demo when deployment credentials are ready.",
+        ],
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Progress Snapshot",
+            "",
+            "### Current tested status",
+            "- Demo traces reviewed: 2",
+            "- Ready traces: 1",
+            "- Needs-review traces: 1",
+            "- Evidence items: 1",
+            "- Unsupported claims caught: 1",
+            "",
+            "### Implemented capabilities",
+            "- Query planning, retrieval traces, citation-grounded synthesis, and faithfulness checks are covered by tests.",
+            "- Markdown reports can be copied into portfolio or interview notes.",
+            "",
+            "### Planned next steps",
+            "- Add embedding retrieval and reranking behind the existing trace schema.",
+            "- Expose a hosted FastAPI/dashboard demo when deployment credentials are ready.",
+            "",
+            "### Recruiter-friendly positioning",
+            "This is a tested local Agentic RAG backend/reporting project: it demonstrates evidence-grounded answer flow and failure handling, while the hosted UI remains planned.",
+        ]
+    )

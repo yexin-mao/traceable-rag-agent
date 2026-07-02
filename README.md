@@ -192,8 +192,14 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format honest interview system-limit notes with current constraints and next engineering steps
 - [x] Format architecture tradeoff tables that explain design choices, limits, and next engineering steps for interviews
 - [x] Format honest portfolio demo status notes that separate current tested assets from planned hosted demo work
+- [x] Format recruiter-facing portfolio progress snapshots from tested trace batches
 
 ## Development log
+
+### 2026-07-02
+
+- Added `build_portfolio_progress_snapshot_markdown(...)` to summarize tested demo-trace counts, implemented capabilities, and planned next steps for recruiter/interviewer portfolio updates.
+- The snapshot keeps the project honest: current local Agentic RAG backend/reporting is implemented and tested, while hosted UI work remains planned.
 
 ### 2026-07-02
 

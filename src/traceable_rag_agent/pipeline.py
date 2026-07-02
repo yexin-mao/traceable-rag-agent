@@ -1729,6 +1729,50 @@ def build_portfolio_demo_status_markdown(current_assets: list[str], planned_asse
 
 
 
+def build_portfolio_progress_snapshot_markdown(
+    trace_items: list[dict[str, object]],
+    current_capabilities: list[str],
+    planned_next_steps: list[str],
+) -> str:
+    """Format an honest recruiter-facing progress snapshot from demo traces."""
+
+    ready_count = sum(
+        item["trace"].evidence_sufficiency is not None
+        and item["trace"].evidence_sufficiency.status == "sufficient"
+        for item in trace_items
+    )
+    evidence_count = sum(len(item["trace"].evidence) for item in trace_items)
+    unsupported_claim_count = sum(
+        sum(check.status == "unsupported" for check in item["trace"].claim_checks)
+        for item in trace_items
+    )
+
+    lines = [
+        "## Portfolio Progress Snapshot",
+        "",
+        "### Current tested status",
+        f"- Demo traces reviewed: {len(trace_items)}",
+        f"- Ready traces: {ready_count}",
+        f"- Needs-review traces: {len(trace_items) - ready_count}",
+        f"- Evidence items: {evidence_count}",
+        f"- Unsupported claims caught: {unsupported_claim_count}",
+        "",
+        "### Implemented capabilities",
+    ]
+    lines.extend(f"- {capability}" for capability in current_capabilities)
+    lines.extend(["", "### Planned next steps"])
+    lines.extend(f"- {step}" for step in planned_next_steps)
+    lines.extend(
+        [
+            "",
+            "### Recruiter-friendly positioning",
+            "This is a tested local Agentic RAG backend/reporting project: it demonstrates evidence-grounded answer flow and failure handling, while the hosted UI remains planned.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 
