@@ -1711,6 +1711,24 @@ def build_interview_architecture_tradeoffs_markdown(tradeoffs: list[dict[str, st
 
 
 
+def build_portfolio_demo_status_markdown(current_assets: list[str], planned_assets: list[str]) -> str:
+    """Format honest portfolio status for current and planned demo assets."""
+
+    lines = ["## Portfolio Demo Status", "", "### Current demo assets"]
+    lines.extend(f"- {asset}" for asset in current_assets)
+    lines.extend(["", "### Planned demo assets"])
+    lines.extend(f"- {asset}" for asset in planned_assets)
+    lines.extend(
+        [
+            "",
+            "### Honest positioning",
+            "The project currently has real tested backend/reporting capabilities, but no hosted public demo is claimed yet.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 

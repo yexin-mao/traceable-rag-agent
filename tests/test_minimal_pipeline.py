@@ -2528,3 +2528,36 @@ def test_build_answer_approval_gate_markdown_marks_safe_and_blocked_answers() ->
             "| missing \\| evidence | block_for_revision | insufficient | No evidence was retrieved for this question. |",
         ]
     )
+
+
+
+def test_build_portfolio_demo_status_markdown_summarizes_current_and_planned_demo_assets() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_demo_status_markdown(
+        current_assets=[
+            "Deterministic local RAG pipeline with trace objects.",
+            "Markdown observability reports for interview walkthroughs.",
+        ],
+        planned_assets=[
+            "Hosted FastAPI demo endpoint.",
+            "Public dashboard screenshots and evaluation tables.",
+        ],
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Demo Status",
+            "",
+            "### Current demo assets",
+            "- Deterministic local RAG pipeline with trace objects.",
+            "- Markdown observability reports for interview walkthroughs.",
+            "",
+            "### Planned demo assets",
+            "- Hosted FastAPI demo endpoint.",
+            "- Public dashboard screenshots and evaluation tables.",
+            "",
+            "### Honest positioning",
+            "The project currently has real tested backend/reporting capabilities, but no hosted public demo is claimed yet.",
+        ]
+    )

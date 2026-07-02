@@ -191,8 +191,14 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format trace replay plans that reproduce query planning, retrieval, synthesis, and evaluation steps for debugging/interviews
 - [x] Format honest interview system-limit notes with current constraints and next engineering steps
 - [x] Format architecture tradeoff tables that explain design choices, limits, and next engineering steps for interviews
+- [x] Format honest portfolio demo status notes that separate current tested assets from planned hosted demo work
 
 ## Development log
+
+### 2026-07-02
+
+- Added `build_portfolio_demo_status_markdown(...)` to summarize current tested demo assets and planned public demo work without overclaiming.
+- This gives the portfolio site and interview prep material an honest "current vs planned" status block for recruiter/interviewer review.
 
 ### 2026-07-01
 
