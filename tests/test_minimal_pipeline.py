@@ -2652,3 +2652,36 @@ def test_build_portfolio_capability_matrix_markdown_formats_capabilities_with_ev
             "Current items are implemented/tested; planned items are explicitly not claimed as live demo features.",
         ]
     )
+
+
+def test_build_portfolio_evidence_index_markdown_lists_artifacts_for_recruiters() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_evidence_index_markdown(
+        [
+            {
+                "artifact": "Trace replay plan",
+                "proof": "Shows query planning, retrieval, synthesis, and evaluation steps.",
+                "audience_value": "Helps interviewers inspect how a run can be reproduced.",
+            },
+            {
+                "artifact": "Hosted dashboard",
+                "proof": "Planned; no live URL is claimed yet.",
+                "audience_value": "Clarifies that current proof is local/tested, not a public demo.",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Evidence Index",
+            "",
+            "| Artifact | Proof | Recruiter/interviewer value |",
+            "| --- | --- | --- |",
+            "| Trace replay plan | Shows query planning, retrieval, synthesis, and evaluation steps. | Helps interviewers inspect how a run can be reproduced. |",
+            "| Hosted dashboard | Planned; no live URL is claimed yet. | Clarifies that current proof is local/tested, not a public demo. |",
+            "",
+            "### Honest positioning",
+            "This index links portfolio claims to concrete artifacts and explicitly labels planned assets.",
+        ]
+    )

@@ -1799,6 +1799,32 @@ def build_portfolio_capability_matrix_markdown(capabilities: list[dict[str, str]
 
 
 
+def build_portfolio_evidence_index_markdown(artifacts: list[dict[str, str]]) -> str:
+    """Format portfolio artifacts as a recruiter-facing evidence index."""
+
+    lines = [
+        "## Portfolio Evidence Index",
+        "",
+        "| Artifact | Proof | Recruiter/interviewer value |",
+        "| --- | --- | --- |",
+    ]
+    for artifact in artifacts:
+        lines.append(
+            f"| {_escape_markdown_table_cell(artifact['artifact'])} | "
+            f"{_escape_markdown_table_cell(artifact['proof'])} | "
+            f"{_escape_markdown_table_cell(artifact['audience_value'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Honest positioning",
+            "This index links portfolio claims to concrete artifacts and explicitly labels planned assets.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 

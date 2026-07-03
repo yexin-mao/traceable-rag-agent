@@ -194,8 +194,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format honest portfolio demo status notes that separate current tested assets from planned hosted demo work
 - [x] Format recruiter-facing portfolio progress snapshots from tested trace batches
 - [x] Format portfolio capability matrices that pair each claimed capability with evidence, status, and next steps
+- [x] Format portfolio evidence indexes that link recruiter-facing claims to concrete artifacts
 
 ## Development log
+
+### 2026-07-03
+
+- Added `build_portfolio_evidence_index_markdown(...)` to render recruiter/interviewer-facing artifact indexes that connect portfolio claims to concrete proof and value.
+- The evidence index explicitly labels planned assets, so the portfolio can mention a hosted dashboard as planned without pretending it is live.
+- Verified strict RED/GREEN with the focused evidence-index test before running the full suite and linter.
 
 ### 2026-07-03
 
