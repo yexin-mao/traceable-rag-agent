@@ -1772,6 +1772,32 @@ def build_portfolio_progress_snapshot_markdown(
     return "\n".join(lines)
 
 
+def build_portfolio_capability_matrix_markdown(capabilities: list[dict[str, str]]) -> str:
+    """Format a recruiter-facing capability matrix with honest status and proof."""
+
+    lines = [
+        "## Portfolio Capability Matrix",
+        "",
+        "| Capability | Status | Evidence | Next step |",
+        "| --- | --- | --- | --- |",
+    ]
+    for item in capabilities:
+        lines.append(
+            f"| {_escape_markdown_table_cell(item['capability'])} | "
+            f"{_escape_markdown_table_cell(item['status'])} | "
+            f"{_escape_markdown_table_cell(item['evidence'])} | "
+            f"{_escape_markdown_table_cell(item['next_step'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Honest positioning",
+            "Current items are implemented/tested; planned items are explicitly not claimed as live demo features.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""

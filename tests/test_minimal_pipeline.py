@@ -2616,3 +2616,39 @@ def test_build_portfolio_progress_snapshot_markdown_summarizes_trace_batch_for_r
             "This is a tested local Agentic RAG backend/reporting project: it demonstrates evidence-grounded answer flow and failure handling, while the hosted UI remains planned.",
         ]
     )
+
+
+
+def test_build_portfolio_capability_matrix_markdown_formats_capabilities_with_evidence_and_status() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_capability_matrix_markdown(
+        [
+            {
+                "capability": "Query decomposition",
+                "status": "current",
+                "evidence": "Complex questions split into focused sub-queries in tests.",
+                "next_step": "Add semantic query expansion.",
+            },
+            {
+                "capability": "Hosted dashboard",
+                "status": "planned",
+                "evidence": "No public demo is claimed yet.",
+                "next_step": "Deploy FastAPI plus dashboard after credentials are ready.",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Capability Matrix",
+            "",
+            "| Capability | Status | Evidence | Next step |",
+            "| --- | --- | --- | --- |",
+            "| Query decomposition | current | Complex questions split into focused sub-queries in tests. | Add semantic query expansion. |",
+            "| Hosted dashboard | planned | No public demo is claimed yet. | Deploy FastAPI plus dashboard after credentials are ready. |",
+            "",
+            "### Honest positioning",
+            "Current items are implemented/tested; planned items are explicitly not claimed as live demo features.",
+        ]
+    )

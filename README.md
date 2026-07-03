@@ -193,8 +193,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format architecture tradeoff tables that explain design choices, limits, and next engineering steps for interviews
 - [x] Format honest portfolio demo status notes that separate current tested assets from planned hosted demo work
 - [x] Format recruiter-facing portfolio progress snapshots from tested trace batches
+- [x] Format portfolio capability matrices that pair each claimed capability with evidence, status, and next steps
 
 ## Development log
+
+### 2026-07-03
+
+- Added `build_portfolio_capability_matrix_markdown(...)` to render recruiter/interviewer-facing capability tables with honest `current` vs `planned` status.
+- The matrix keeps portfolio claims evidence-based by pairing each capability with proof and a concrete next engineering step, without implying a hosted demo is live.
+- Verified strict RED/GREEN with the focused capability-matrix test before running broader validation.
 
 ### 2026-07-02
 
