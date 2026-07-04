@@ -1852,6 +1852,31 @@ def build_portfolio_next_step_plan_markdown(next_steps: list[dict[str, str]]) ->
 
 
 
+def build_portfolio_release_notes_markdown(
+    date: str,
+    shipped_items: list[str],
+    validation_items: list[str],
+    next_steps: list[str],
+) -> str:
+    """Format completed daily increments as honest portfolio release notes."""
+
+    lines = [f"## Portfolio Release Notes — {date}", "", "### Shipped today"]
+    lines.extend(f"- {item}" for item in shipped_items)
+    lines.extend(["", "### Validation"])
+    lines.extend(f"- {item}" for item in validation_items)
+    lines.extend(["", "### Next steps"])
+    lines.extend(f"- {step}" for step in next_steps)
+    lines.extend(
+        [
+            "",
+            "### Honest positioning",
+            "These notes describe completed, tested increments only; planned demo work is labeled separately.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 

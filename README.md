@@ -196,8 +196,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format portfolio capability matrices that pair each claimed capability with evidence, status, and next steps
 - [x] Format portfolio evidence indexes that link recruiter-facing claims to concrete artifacts
 - [x] Format portfolio next-step plans that prioritize planned public-demo and retrieval improvements without overclaiming live features
+- [x] Format portfolio release notes that summarize completed daily increments, validation, and next steps for GitHub Pages updates
 
 ## Development log
+
+### 2026-07-04
+
+- Added `build_portfolio_release_notes_markdown(...)` to render completed daily increments as honest portfolio release notes for GitHub Pages/project-status updates.
+- The release-note renderer separates shipped work, validation evidence, and next steps so portfolio updates can stay concrete without implying an unverified hosted demo.
+- Verified strict RED/GREEN with the focused release-notes test before running the full suite and linter.
 
 ### 2026-07-04
 

@@ -2721,3 +2721,38 @@ def test_build_portfolio_next_step_plan_markdown_prioritizes_recruiter_facing_wo
             "These are planned engineering steps, not claimed live features; they show the roadmap from tested local agent to public demo.",
         ]
     )
+
+
+
+def test_build_portfolio_release_notes_markdown_summarizes_daily_increment_for_pages() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_release_notes_markdown(
+        date="2026-07-04",
+        shipped_items=[
+            "Added portfolio release-note renderer for daily Agentic RAG increments.",
+            "Kept hosted dashboard copy honest: current reporting assets are tested locally.",
+        ],
+        validation_items=["Focused RED/GREEN pytest", "Full pytest suite"],
+        next_steps=["Use the release notes in the GitHub Pages project status section."],
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Release Notes — 2026-07-04",
+            "",
+            "### Shipped today",
+            "- Added portfolio release-note renderer for daily Agentic RAG increments.",
+            "- Kept hosted dashboard copy honest: current reporting assets are tested locally.",
+            "",
+            "### Validation",
+            "- Focused RED/GREEN pytest",
+            "- Full pytest suite",
+            "",
+            "### Next steps",
+            "- Use the release notes in the GitHub Pages project status section.",
+            "",
+            "### Honest positioning",
+            "These notes describe completed, tested increments only; planned demo work is labeled separately.",
+        ]
+    )
