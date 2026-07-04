@@ -2685,3 +2685,39 @@ def test_build_portfolio_evidence_index_markdown_lists_artifacts_for_recruiters(
             "This index links portfolio claims to concrete artifacts and explicitly labels planned assets.",
         ]
     )
+
+
+
+def test_build_portfolio_next_step_plan_markdown_prioritizes_recruiter_facing_work() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_next_step_plan_markdown(
+        [
+            {
+                "priority": "P0",
+                "next_step": "Add hosted dashboard shell",
+                "why": "Makes trace reports easier for recruiters and interviewers to inspect.",
+                "status": "planned",
+            },
+            {
+                "priority": "P1",
+                "next_step": "Replace lexical retrieval with embeddings",
+                "why": "Improves recall beyond deterministic keyword overlap.",
+                "status": "planned",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Next-Step Plan",
+            "",
+            "| Priority | Next step | Why it matters | Status |",
+            "| --- | --- | --- | --- |",
+            "| P0 | Add hosted dashboard shell | Makes trace reports easier for recruiters and interviewers to inspect. | planned |",
+            "| P1 | Replace lexical retrieval with embeddings | Improves recall beyond deterministic keyword overlap. | planned |",
+            "",
+            "### Honest positioning",
+            "These are planned engineering steps, not claimed live features; they show the roadmap from tested local agent to public demo.",
+        ]
+    )

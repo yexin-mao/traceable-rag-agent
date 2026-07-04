@@ -195,8 +195,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format recruiter-facing portfolio progress snapshots from tested trace batches
 - [x] Format portfolio capability matrices that pair each claimed capability with evidence, status, and next steps
 - [x] Format portfolio evidence indexes that link recruiter-facing claims to concrete artifacts
+- [x] Format portfolio next-step plans that prioritize planned public-demo and retrieval improvements without overclaiming live features
 
 ## Development log
+
+### 2026-07-04
+
+- Added `build_portfolio_next_step_plan_markdown(...)` to render recruiter/interviewer-facing roadmap tables with priority, rationale, and honest planned status.
+- The roadmap connects tested local Agentic RAG capabilities to the next public-demo steps without claiming that a hosted dashboard is already live.
+- Verified strict RED/GREEN with the focused next-step-plan test before running the full suite and linter.
 
 ### 2026-07-03
 

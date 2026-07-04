@@ -1825,6 +1825,33 @@ def build_portfolio_evidence_index_markdown(artifacts: list[dict[str, str]]) -> 
 
 
 
+def build_portfolio_next_step_plan_markdown(next_steps: list[dict[str, str]]) -> str:
+    """Format a recruiter-facing roadmap from tested local agent to public demo."""
+
+    lines = [
+        "## Portfolio Next-Step Plan",
+        "",
+        "| Priority | Next step | Why it matters | Status |",
+        "| --- | --- | --- | --- |",
+    ]
+    for item in next_steps:
+        lines.append(
+            f"| {_escape_markdown_table_cell(item['priority'])} | "
+            f"{_escape_markdown_table_cell(item['next_step'])} | "
+            f"{_escape_markdown_table_cell(item['why'])} | "
+            f"{_escape_markdown_table_cell(item['status'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Honest positioning",
+            "These are planned engineering steps, not claimed live features; they show the roadmap from tested local agent to public demo.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 
