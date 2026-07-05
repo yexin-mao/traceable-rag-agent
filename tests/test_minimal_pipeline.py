@@ -2794,3 +2794,45 @@ def test_build_portfolio_interview_highlights_markdown_turns_trace_batch_into_re
             "These highlights come from deterministic local test traces; a hosted public demo remains planned, not claimed live.",
         ]
     )
+
+
+def test_build_portfolio_demo_readiness_checklist_markdown_marks_current_and_planned_assets() -> None:
+    from traceable_rag_agent import pipeline
+
+    ready_trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence?",
+        [
+            Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+            Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+        ],
+        top_k=1,
+    )
+    blocked_trace = answer_question(
+        "How does Agentic RAG handle missing evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+
+    markdown = pipeline.build_portfolio_demo_readiness_checklist_markdown(
+        [
+            {"label": "grounded multi-query demo", "trace": ready_trace},
+            {"label": "weak-evidence blocked demo", "trace": blocked_trace},
+        ],
+        hosted_demo_available=False,
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Demo Readiness Checklist",
+            "",
+            "| Demo criterion | Status | Evidence | Next action |",
+            "| --- | --- | --- | --- |",
+            "| Query planning | current | 3 planned retrieval queries across 2 traces. | Keep representative multi-query examples in the demo batch. |",
+            "| Evidence grounding | current | 2 retrieved evidence items and 3 checked claims. | Add embedding retrieval/reranking to improve recall beyond the lexical baseline. |",
+            "| Safety gate | current | 1 ready traces and 1 blocked/retry traces. | Keep blocked examples visible so reviewers can see weak-evidence handling. |",
+            "| Hosted public demo | planned | No hosted demo was marked available for this checklist. | Deploy FastAPI/dashboard before claiming a live demo URL. |",
+            "",
+            "### Honest positioning",
+            "This checklist distinguishes tested local/reporting capabilities from the still-planned hosted public demo.",
+        ]
+    )

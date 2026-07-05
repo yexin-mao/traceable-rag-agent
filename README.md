@@ -198,8 +198,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format portfolio next-step plans that prioritize planned public-demo and retrieval improvements without overclaiming live features
 - [x] Format portfolio release notes that summarize completed daily increments, validation, and next steps for GitHub Pages updates
 - [x] Format trace-backed portfolio interview highlights that explain Agentic RAG value in recruiter-friendly bullets
+- [x] Format portfolio demo-readiness checklists that separate tested Agentic RAG capabilities from planned hosted-demo work
 
 ## Development log
+
+### 2026-07-05
+
+- Added `build_portfolio_demo_readiness_checklist_markdown(...)` to summarize demo readiness across query planning, evidence grounding, answer safety gates, and hosted-demo status.
+- The checklist keeps portfolio claims honest by marking local/reporting capabilities as current while hosted public demo deployment remains planned unless explicitly available.
+- Verified strict RED/GREEN with the focused demo-readiness checklist test before running the full suite and linter.
 
 ### 2026-07-05
 

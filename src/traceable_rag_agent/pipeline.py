@@ -1904,6 +1904,51 @@ def build_portfolio_interview_highlights_markdown(trace_items: list[dict[str, ob
     )
 
 
+def build_portfolio_demo_readiness_checklist_markdown(
+    trace_items: list[dict[str, object]],
+    hosted_demo_available: bool,
+) -> str:
+    """Format an honest readiness checklist for portfolio demo claims."""
+
+    trace_count = len(trace_items)
+    planned_query_count = sum(len(item["trace"].planned_queries) for item in trace_items)
+    evidence_count = sum(len(item["trace"].evidence) for item in trace_items)
+    checked_claim_count = sum(len(item["trace"].claim_checks) for item in trace_items)
+    ready_count = sum(
+        item["trace"].evidence_sufficiency is not None
+        and item["trace"].evidence_sufficiency.status == "sufficient"
+        for item in trace_items
+    )
+    blocked_count = trace_count - ready_count
+    hosted_status = "current" if hosted_demo_available else "planned"
+    hosted_evidence = (
+        "Hosted demo was marked available for this checklist."
+        if hosted_demo_available
+        else "No hosted demo was marked available for this checklist."
+    )
+    hosted_action = (
+        "Keep the live URL, demo script, and evaluation examples in sync."
+        if hosted_demo_available
+        else "Deploy FastAPI/dashboard before claiming a live demo URL."
+    )
+
+    return "\n".join(
+        [
+            "## Portfolio Demo Readiness Checklist",
+            "",
+            "| Demo criterion | Status | Evidence | Next action |",
+            "| --- | --- | --- | --- |",
+            f"| Query planning | current | {planned_query_count} planned retrieval queries across {trace_count} traces. | Keep representative multi-query examples in the demo batch. |",
+            f"| Evidence grounding | current | {evidence_count} retrieved evidence items and {checked_claim_count} checked claims. | Add embedding retrieval/reranking to improve recall beyond the lexical baseline. |",
+            f"| Safety gate | current | {ready_count} ready traces and {blocked_count} blocked/retry traces. | Keep blocked examples visible so reviewers can see weak-evidence handling. |",
+            f"| Hosted public demo | {hosted_status} | {hosted_evidence} | {hosted_action} |",
+            "",
+            "### Honest positioning",
+            "This checklist distinguishes tested local/reporting capabilities from the still-planned hosted public demo.",
+        ]
+    )
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 
