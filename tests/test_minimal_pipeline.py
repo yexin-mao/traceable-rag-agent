@@ -2756,3 +2756,41 @@ def test_build_portfolio_release_notes_markdown_summarizes_daily_increment_for_p
             "These notes describe completed, tested increments only; planned demo work is labeled separately.",
         ]
     )
+
+
+def test_build_portfolio_interview_highlights_markdown_turns_trace_batch_into_recruiter_bullets() -> None:
+    from traceable_rag_agent import pipeline
+
+    ready_trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence?",
+        [
+            Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+            Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+        ],
+        top_k=1,
+    )
+    blocked_trace = answer_question(
+        "How does Agentic RAG handle missing evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+
+    markdown = pipeline.build_portfolio_interview_highlights_markdown(
+        [
+            {"label": "multi-query ready", "trace": ready_trace},
+            {"label": "blocked weak evidence", "trace": blocked_trace},
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Interview Highlights",
+            "",
+            "- Beyond ChatPDF: planned 3 focused retrieval queries across 2 tested traces instead of one opaque prompt.",
+            "- Evidence grounding: selected 2 evidence items and checked 3 answer claims before delivery.",
+            "- Safety gate: 1 traces are ready for demo and 1 traces are routed to review/retry when evidence is weak.",
+            "",
+            "### Honest positioning",
+            "These highlights come from deterministic local test traces; a hosted public demo remains planned, not claimed live.",
+        ]
+    )

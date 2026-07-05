@@ -197,8 +197,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format portfolio evidence indexes that link recruiter-facing claims to concrete artifacts
 - [x] Format portfolio next-step plans that prioritize planned public-demo and retrieval improvements without overclaiming live features
 - [x] Format portfolio release notes that summarize completed daily increments, validation, and next steps for GitHub Pages updates
+- [x] Format trace-backed portfolio interview highlights that explain Agentic RAG value in recruiter-friendly bullets
 
 ## Development log
+
+### 2026-07-05
+
+- Added `build_portfolio_interview_highlights_markdown(...)` to turn tested trace batches into concise recruiter/interviewer bullets.
+- The highlight renderer explains why the project is beyond ChatPDF, counts evidence/claim checks, and keeps hosted-demo status honest as planned rather than live.
+- Verified strict RED/GREEN with the focused interview-highlights test before running broader validation.
 
 ### 2026-07-04
 

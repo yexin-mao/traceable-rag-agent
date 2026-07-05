@@ -1876,6 +1876,33 @@ def build_portfolio_release_notes_markdown(
     return "\n".join(lines)
 
 
+def build_portfolio_interview_highlights_markdown(trace_items: list[dict[str, object]]) -> str:
+    """Format trace-backed recruiter bullets that explain why this is Agentic RAG."""
+
+    trace_count = len(trace_items)
+    planned_query_count = sum(len(item["trace"].planned_queries) for item in trace_items)
+    evidence_count = sum(len(item["trace"].evidence) for item in trace_items)
+    checked_claim_count = sum(len(item["trace"].claim_checks) for item in trace_items)
+    ready_count = sum(
+        item["trace"].evidence_sufficiency is not None
+        and item["trace"].evidence_sufficiency.status == "sufficient"
+        for item in trace_items
+    )
+    needs_review_count = trace_count - ready_count
+
+    return "\n".join(
+        [
+            "## Portfolio Interview Highlights",
+            "",
+            f"- Beyond ChatPDF: planned {planned_query_count} focused retrieval queries across {trace_count} tested traces instead of one opaque prompt.",
+            f"- Evidence grounding: selected {evidence_count} evidence items and checked {checked_claim_count} answer claims before delivery.",
+            f"- Safety gate: {ready_count} traces are ready for demo and {needs_review_count} traces are routed to review/retry when evidence is weak.",
+            "",
+            "### Honest positioning",
+            "These highlights come from deterministic local test traces; a hosted public demo remains planned, not claimed live.",
+        ]
+    )
+
 
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
