@@ -202,6 +202,12 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 
 ## Development log
 
+### 2026-07-06
+
+- Added `build_portfolio_recruiter_summary_markdown(...)` to turn tested trace batches into a concise recruiter-facing status block.
+- The summary reports trace/query/evidence/claim counts, links the GitHub repo, and explicitly marks the hosted demo as planned unless a verified URL is provided.
+- Verified strict RED/GREEN with the focused recruiter-summary test before running the full suite and linter.
+
 ### 2026-07-05
 
 - Added `build_portfolio_demo_readiness_checklist_markdown(...)` to summarize demo readiness across query planning, evidence grounding, answer safety gates, and hosted-demo status.

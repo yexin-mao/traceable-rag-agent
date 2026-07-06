@@ -1949,6 +1949,46 @@ def build_portfolio_demo_readiness_checklist_markdown(
     )
 
 
+def build_portfolio_recruiter_summary_markdown(
+    trace_items: list[dict[str, object]],
+    repo_url: str,
+    hosted_demo_url: str | None = None,
+) -> str:
+    """Format a concise recruiter-facing project status summary without overclaiming."""
+
+    trace_count = len(trace_items)
+    planned_query_count = sum(len(item["trace"].planned_queries) for item in trace_items)
+    evidence_count = sum(len(item["trace"].evidence) for item in trace_items)
+    checked_claim_count = sum(len(item["trace"].claim_checks) for item in trace_items)
+    ready_count = sum(
+        item["trace"].evidence_sufficiency is not None
+        and item["trace"].evidence_sufficiency.status == "sufficient"
+        for item in trace_items
+    )
+    review_count = trace_count - ready_count
+    project_status = (
+        "current tested local Agentic RAG backend/reporting assets; hosted public demo is live."
+        if hosted_demo_url
+        else "current tested local Agentic RAG backend/reporting assets; hosted public demo is planned, not live."
+    )
+    hosted_demo = hosted_demo_url if hosted_demo_url else "planned / not claimed live"
+
+    return "\n".join(
+        [
+            "## Portfolio Recruiter Summary",
+            "",
+            f"- Project status: {project_status}",
+            f"- Proof points: {trace_count} traces, {planned_query_count} planned retrieval queries, {evidence_count} evidence items, {checked_claim_count} checked claims.",
+            f"- Safety signal: {ready_count} ready traces and {review_count} review/retry traces from the evidence gate.",
+            f"- GitHub repo: {repo_url}",
+            f"- Hosted demo: {hosted_demo}",
+            "",
+            "### Interview angle",
+            "This summary gives recruiters a concise, evidence-backed status block while avoiding any claim that a hosted demo exists before it is verified.",
+        ]
+    )
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 

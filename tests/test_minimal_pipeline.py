@@ -2836,3 +2836,45 @@ def test_build_portfolio_demo_readiness_checklist_markdown_marks_current_and_pla
             "This checklist distinguishes tested local/reporting capabilities from the still-planned hosted public demo.",
         ]
     )
+
+
+def test_build_portfolio_recruiter_summary_markdown_summarizes_status_without_overclaiming() -> None:
+    from traceable_rag_agent import pipeline
+
+    ready_trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence?",
+        [
+            Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+            Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+        ],
+        top_k=1,
+    )
+    blocked_trace = answer_question(
+        "How does Agentic RAG handle missing evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+
+    markdown = pipeline.build_portfolio_recruiter_summary_markdown(
+        [
+            {"label": "grounded multi-query demo", "trace": ready_trace},
+            {"label": "weak-evidence blocked demo", "trace": blocked_trace},
+        ],
+        repo_url="https://github.com/yexin-mao/traceable-rag-agent",
+        hosted_demo_url=None,
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Recruiter Summary",
+            "",
+            "- Project status: current tested local Agentic RAG backend/reporting assets; hosted public demo is planned, not live.",
+            "- Proof points: 2 traces, 3 planned retrieval queries, 2 evidence items, 3 checked claims.",
+            "- Safety signal: 1 ready traces and 1 review/retry traces from the evidence gate.",
+            "- GitHub repo: https://github.com/yexin-mao/traceable-rag-agent",
+            "- Hosted demo: planned / not claimed live",
+            "",
+            "### Interview angle",
+            "This summary gives recruiters a concise, evidence-backed status block while avoiding any claim that a hosted demo exists before it is verified.",
+        ]
+    )
