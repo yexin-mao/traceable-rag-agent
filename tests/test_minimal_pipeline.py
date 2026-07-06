@@ -2878,3 +2878,36 @@ def test_build_portfolio_recruiter_summary_markdown_summarizes_status_without_ov
             "This summary gives recruiters a concise, evidence-backed status block while avoiding any claim that a hosted demo exists before it is verified.",
         ]
     )
+
+
+def test_build_portfolio_interview_talking_points_markdown_answers_common_reviewer_prompts() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_interview_talking_points_markdown(
+        [
+            {
+                "prompt": "How is this different from ChatPDF?",
+                "answer": "It decomposes questions, retrieves multiple evidence sets, and checks answer support before delivery.",
+                "proof": "Trace reports show planned queries, cited evidence, and unsupported-claim checks.",
+            },
+            {
+                "prompt": "What happens when evidence is weak?",
+                "answer": "The answer is blocked for retry or human review instead of being presented as grounded.",
+                "proof": "Approval-gate reports separate ready traces from review/retry traces.",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Interview Talking Points",
+            "",
+            "| Reviewer prompt | Concise answer | Trace-backed proof |",
+            "| --- | --- | --- |",
+            "| How is this different from ChatPDF? | It decomposes questions, retrieves multiple evidence sets, and checks answer support before delivery. | Trace reports show planned queries, cited evidence, and unsupported-claim checks. |",
+            "| What happens when evidence is weak? | The answer is blocked for retry or human review instead of being presented as grounded. | Approval-gate reports separate ready traces from review/retry traces. |",
+            "",
+            "### Honest positioning",
+            "Use these as interview talking points backed by deterministic local traces; do not claim hosted-demo behavior until it is deployed and verified.",
+        ]
+    )

@@ -199,8 +199,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format portfolio release notes that summarize completed daily increments, validation, and next steps for GitHub Pages updates
 - [x] Format trace-backed portfolio interview highlights that explain Agentic RAG value in recruiter-friendly bullets
 - [x] Format portfolio demo-readiness checklists that separate tested Agentic RAG capabilities from planned hosted-demo work
+- [x] Format portfolio interview talking points that answer common reviewer prompts with trace-backed proof
 
 ## Development log
+
+### 2026-07-06
+
+- Added `build_portfolio_interview_talking_points_markdown(...)` to turn common reviewer prompts into concise answer/proof rows for portfolio and interview prep.
+- The talking-points renderer keeps claims anchored to deterministic local traces and explicitly avoids claiming hosted-demo behavior before deployment.
+- Verified strict RED/GREEN with the focused talking-points test before running the full suite and linter.
 
 ### 2026-07-06
 

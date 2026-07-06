@@ -1989,6 +1989,31 @@ def build_portfolio_recruiter_summary_markdown(
     )
 
 
+def build_portfolio_interview_talking_points_markdown(talking_points: list[dict[str, str]]) -> str:
+    """Format common reviewer prompts with concise, trace-backed answers."""
+
+    lines = [
+        "## Portfolio Interview Talking Points",
+        "",
+        "| Reviewer prompt | Concise answer | Trace-backed proof |",
+        "| --- | --- | --- |",
+    ]
+    for point in talking_points:
+        lines.append(
+            f"| {_escape_markdown_table_cell(point['prompt'])} | "
+            f"{_escape_markdown_table_cell(point['answer'])} | "
+            f"{_escape_markdown_table_cell(point['proof'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Honest positioning",
+            "Use these as interview talking points backed by deterministic local traces; do not claim hosted-demo behavior until it is deployed and verified.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 
