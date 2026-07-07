@@ -2039,6 +2039,33 @@ def build_portfolio_demo_faq_markdown(faq_items: list[dict[str, str]]) -> str:
     return "\n".join(lines)
 
 
+
+def build_portfolio_review_links_markdown(review_links: list[dict[str, str]]) -> str:
+    """Format current and planned review links without overclaiming live demo assets."""
+
+    lines = [
+        "## Portfolio Review Links",
+        "",
+        "| Artifact | Link or location | Status | Reviewer note |",
+        "| --- | --- | --- | --- |",
+    ]
+    for link in review_links:
+        lines.append(
+            f"| {_escape_markdown_table_cell(link['artifact'])} | "
+            f"{_escape_markdown_table_cell(link['url'])} | "
+            f"{_escape_markdown_table_cell(link['status'])} | "
+            f"{_escape_markdown_table_cell(link['review_note'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Honest positioning",
+            "Current links are reviewable today; planned links are placeholders and must not be described as live demos.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 

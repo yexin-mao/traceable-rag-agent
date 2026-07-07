@@ -201,8 +201,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format portfolio demo-readiness checklists that separate tested Agentic RAG capabilities from planned hosted-demo work
 - [x] Format portfolio interview talking points that answer common reviewer prompts with trace-backed proof
 - [x] Format honest portfolio demo FAQs that answer recruiter questions without claiming unverified live features
+- [x] Format portfolio review links that separate current reviewable artifacts from planned demo links
 
 ## Development log
+
+### 2026-07-07
+
+- Added `build_portfolio_review_links_markdown(...)` to render recruiter/interviewer-facing links for current reviewable artifacts and planned demo placeholders.
+- The review-links renderer keeps the portfolio honest by labeling the GitHub repo as current while marking hosted dashboard/demo links as planned until deployment is verified.
+- Verified strict RED/GREEN with the focused review-links test before running broader validation.
 
 ### 2026-07-07
 

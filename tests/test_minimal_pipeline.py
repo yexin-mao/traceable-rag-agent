@@ -2944,3 +2944,39 @@ def test_build_portfolio_demo_faq_markdown_formats_honest_recruiter_questions() 
             "Use this FAQ on portfolio/project pages to answer demo-availability questions without implying unverified live features.",
         ]
     )
+
+
+
+def test_build_portfolio_review_links_markdown_lists_current_and_planned_artifacts() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_review_links_markdown(
+        [
+            {
+                "artifact": "GitHub repo",
+                "url": "https://github.com/yexin-mao/traceable-rag-agent",
+                "status": "current",
+                "review_note": "Tests show query decomposition, evidence traces, and citation checks.",
+            },
+            {
+                "artifact": "Hosted dashboard | demo",
+                "url": "planned / not live",
+                "status": "planned",
+                "review_note": "Do not claim a public demo until deployment is verified.",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Review Links",
+            "",
+            "| Artifact | Link or location | Status | Reviewer note |",
+            "| --- | --- | --- | --- |",
+            "| GitHub repo | https://github.com/yexin-mao/traceable-rag-agent | current | Tests show query decomposition, evidence traces, and citation checks. |",
+            "| Hosted dashboard \\| demo | planned / not live | planned | Do not claim a public demo until deployment is verified. |",
+            "",
+            "### Honest positioning",
+            "Current links are reviewable today; planned links are placeholders and must not be described as live demos.",
+        ]
+    )
