@@ -200,8 +200,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format trace-backed portfolio interview highlights that explain Agentic RAG value in recruiter-friendly bullets
 - [x] Format portfolio demo-readiness checklists that separate tested Agentic RAG capabilities from planned hosted-demo work
 - [x] Format portfolio interview talking points that answer common reviewer prompts with trace-backed proof
+- [x] Format honest portfolio demo FAQs that answer recruiter questions without claiming unverified live features
 
 ## Development log
+
+### 2026-07-07
+
+- Added `build_portfolio_demo_faq_markdown(...)` to render concise recruiter-facing FAQ rows about demo availability and current reviewable proof.
+- The FAQ renderer keeps portfolio language honest by marking hosted demo work as planned while pointing reviewers to tested local traces and report helpers.
+- Verified strict RED/GREEN with the focused FAQ test before running the full suite and linter.
 
 ### 2026-07-06
 

@@ -2911,3 +2911,36 @@ def test_build_portfolio_interview_talking_points_markdown_answers_common_review
             "Use these as interview talking points backed by deterministic local traces; do not claim hosted-demo behavior until it is deployed and verified.",
         ]
     )
+
+
+def test_build_portfolio_demo_faq_markdown_formats_honest_recruiter_questions() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_demo_faq_markdown(
+        [
+            {
+                "question": "Is there a hosted demo?",
+                "answer": "Not yet; current proof is deterministic local traces and Markdown reports.",
+                "status": "planned",
+            },
+            {
+                "question": "What can be reviewed today?",
+                "answer": "The repo contains tested query decomposition, retrieval traces, citation checks, and portfolio report helpers.",
+                "status": "current",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Demo FAQ",
+            "",
+            "| Recruiter question | Honest answer | Status |",
+            "| --- | --- | --- |",
+            "| Is there a hosted demo? | Not yet; current proof is deterministic local traces and Markdown reports. | planned |",
+            "| What can be reviewed today? | The repo contains tested query decomposition, retrieval traces, citation checks, and portfolio report helpers. | current |",
+            "",
+            "### Usage note",
+            "Use this FAQ on portfolio/project pages to answer demo-availability questions without implying unverified live features.",
+        ]
+    )

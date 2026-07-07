@@ -2014,6 +2014,31 @@ def build_portfolio_interview_talking_points_markdown(talking_points: list[dict[
     return "\n".join(lines)
 
 
+def build_portfolio_demo_faq_markdown(faq_items: list[dict[str, str]]) -> str:
+    """Format honest recruiter-facing demo FAQ rows for portfolio pages."""
+
+    lines = [
+        "## Portfolio Demo FAQ",
+        "",
+        "| Recruiter question | Honest answer | Status |",
+        "| --- | --- | --- |",
+    ]
+    for item in faq_items:
+        lines.append(
+            f"| {_escape_markdown_table_cell(item['question'])} | "
+            f"{_escape_markdown_table_cell(item['answer'])} | "
+            f"{_escape_markdown_table_cell(item['status'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Usage note",
+            "Use this FAQ on portfolio/project pages to answer demo-availability questions without implying unverified live features.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 
