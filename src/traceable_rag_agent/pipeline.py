@@ -2066,6 +2066,56 @@ def build_portfolio_project_status_markdown(status_items: list[dict[str, str]]) 
     return "\n".join(lines)
 
 
+def build_portfolio_evaluation_snapshot_markdown(quality_report: dict[str, object]) -> str:
+    """Format benchmark quality metrics as an honest recruiter-facing portfolio snapshot."""
+
+    results = quality_report.get("results", [])
+    retrieval_gap_count = sum(
+        bool(result["retrieval_coverage"].get("missing_source_ids", [])) for result in results
+    )
+    unsupported_citation_count = sum(
+        bool(result["citation_support"].get("unsupported_cited_source_ids", [])) for result in results
+    )
+
+    lines = [
+        "## Portfolio Evaluation Snapshot",
+        "",
+        f"- Benchmark questions: {quality_report['question_count']}",
+        f"- Average retrieval coverage: {_format_percent(quality_report['average_retrieval_coverage_ratio'])}",
+        f"- Average citation support: {_format_percent(quality_report['average_citation_support_ratio'])}",
+        f"- Questions needing retrieval improvement: {retrieval_gap_count}",
+        f"- Questions with unsupported citations: {unsupported_citation_count}",
+        "",
+        "| Question | Retrieval coverage | Citation support | Recruiter-facing status |",
+        "| --- | ---: | ---: | --- |",
+    ]
+    for result in results:
+        retrieval_coverage = result["retrieval_coverage"]
+        citation_support = result["citation_support"]
+        has_retrieval_gap = bool(retrieval_coverage.get("missing_source_ids", []))
+        has_unsupported_citations = bool(citation_support.get("unsupported_cited_source_ids", []))
+        if has_retrieval_gap:
+            status = "in progress: improve retrieval coverage"
+        elif has_unsupported_citations:
+            status = "in progress: fix unsupported citations"
+        else:
+            status = "current: evaluation passed"
+        lines.append(
+            f"| {_escape_markdown_table_cell(result['question'])} | "
+            f"{_format_percent(retrieval_coverage['coverage_ratio'])} | "
+            f"{_format_percent(citation_support['citation_support_ratio'])} | "
+            f"{status} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Portfolio usage note",
+            "Use this snapshot to show measurable RAG quality without claiming that every retrieval case is solved or that a hosted demo is live.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def build_portfolio_review_links_markdown(review_links: list[dict[str, str]]) -> str:
     """Format current and planned review links without overclaiming live demo assets."""
 

@@ -3015,3 +3015,47 @@ def test_build_portfolio_review_links_markdown_lists_current_and_planned_artifac
             "Current links are reviewable today; planned links are placeholders and must not be described as live demos.",
         ]
     )
+
+
+def test_build_portfolio_evaluation_snapshot_markdown_summarizes_quality_metrics_for_recruiters() -> None:
+    from traceable_rag_agent import pipeline
+
+    quality_report = {
+        "question_count": 2,
+        "average_retrieval_coverage_ratio": 0.75,
+        "average_citation_support_ratio": 1.0,
+        "results": [
+            {
+                "question": "How does Agentic RAG decompose questions?",
+                "retrieval_coverage": {"coverage_ratio": 1.0, "missing_source_ids": []},
+                "citation_support": {"citation_support_ratio": 1.0, "unsupported_cited_source_ids": []},
+            },
+            {
+                "question": "How does Agentic RAG check evidence | citations?",
+                "retrieval_coverage": {"coverage_ratio": 0.5, "missing_source_ids": ["citations"]},
+                "citation_support": {"citation_support_ratio": 1.0, "unsupported_cited_source_ids": []},
+            },
+        ],
+    }
+
+    markdown = pipeline.build_portfolio_evaluation_snapshot_markdown(quality_report)
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Evaluation Snapshot",
+            "",
+            "- Benchmark questions: 2",
+            "- Average retrieval coverage: 75%",
+            "- Average citation support: 100%",
+            "- Questions needing retrieval improvement: 1",
+            "- Questions with unsupported citations: 0",
+            "",
+            "| Question | Retrieval coverage | Citation support | Recruiter-facing status |",
+            "| --- | ---: | ---: | --- |",
+            "| How does Agentic RAG decompose questions? | 100% | 100% | current: evaluation passed |",
+            "| How does Agentic RAG check evidence \\| citations? | 50% | 100% | in progress: improve retrieval coverage |",
+            "",
+            "### Portfolio usage note",
+            "Use this snapshot to show measurable RAG quality without claiming that every retrieval case is solved or that a hosted demo is live.",
+        ]
+    )

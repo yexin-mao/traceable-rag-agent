@@ -203,8 +203,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format honest portfolio demo FAQs that answer recruiter questions without claiming unverified live features
 - [x] Format portfolio project-status tables that separate current proof from planned demo work for GitHub Pages updates
 - [x] Format portfolio review links that separate current reviewable artifacts from planned demo links
+- [x] Format portfolio evaluation snapshots that summarize benchmark coverage and citation-support metrics for recruiters
 
 ## Development log
+
+### 2026-07-08
+
+- Added `build_portfolio_evaluation_snapshot_markdown(...)` to turn RAG quality benchmark output into a recruiter-facing evaluation snapshot.
+- The snapshot reports benchmark count, average retrieval coverage, citation support, retrieval gaps, and per-question status while explicitly avoiding hosted-demo overclaims.
+- Verified strict RED/GREEN with the focused evaluation-snapshot test before running the full suite.
 
 ### 2026-07-08
 
