@@ -2947,6 +2947,41 @@ def test_build_portfolio_demo_faq_markdown_formats_honest_recruiter_questions() 
 
 
 
+def test_build_portfolio_project_status_markdown_formats_current_vs_planned_page_updates() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_project_status_markdown(
+        [
+            {
+                "area": "Traceable Agentic RAG",
+                "current_status": "current: tested local reporting helpers",
+                "proof": "83 pytest checks cover retrieval traces, citation checks, and portfolio renderers.",
+                "next_step": "planned: hosted dashboard after FastAPI demo is ready.",
+            },
+            {
+                "area": "Hosted dashboard | demo",
+                "current_status": "planned / not live",
+                "proof": "No verified public demo URL is claimed yet.",
+                "next_step": "deploy and verify before adding a live link.",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Project Status",
+            "",
+            "| Area | Current status | Proof | Next step |",
+            "| --- | --- | --- | --- |",
+            "| Traceable Agentic RAG | current: tested local reporting helpers | 83 pytest checks cover retrieval traces, citation checks, and portfolio renderers. | planned: hosted dashboard after FastAPI demo is ready. |",
+            "| Hosted dashboard \\| demo | planned / not live | No verified public demo URL is claimed yet. | deploy and verify before adding a live link. |",
+            "",
+            "### Portfolio usage note",
+            "Use this block for GitHub Pages project updates so current proof and planned demo work stay clearly separated.",
+        ]
+    )
+
+
 def test_build_portfolio_review_links_markdown_lists_current_and_planned_artifacts() -> None:
     from traceable_rag_agent import pipeline
 

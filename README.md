@@ -201,9 +201,16 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format portfolio demo-readiness checklists that separate tested Agentic RAG capabilities from planned hosted-demo work
 - [x] Format portfolio interview talking points that answer common reviewer prompts with trace-backed proof
 - [x] Format honest portfolio demo FAQs that answer recruiter questions without claiming unverified live features
+- [x] Format portfolio project-status tables that separate current proof from planned demo work for GitHub Pages updates
 - [x] Format portfolio review links that separate current reviewable artifacts from planned demo links
 
 ## Development log
+
+### 2026-07-08
+
+- Added `build_portfolio_project_status_markdown(...)` to render current-vs-planned project status tables for GitHub Pages portfolio updates.
+- The status renderer keeps recruiter-facing copy honest by pairing each project area with current proof and a separate planned next step, including Markdown table escaping for labels such as hosted dashboard/demo.
+- Verified strict RED/GREEN with the focused project-status test before running the full suite.
 
 ### 2026-07-07
 

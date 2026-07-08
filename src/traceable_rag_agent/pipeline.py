@@ -2040,6 +2040,32 @@ def build_portfolio_demo_faq_markdown(faq_items: list[dict[str, str]]) -> str:
 
 
 
+def build_portfolio_project_status_markdown(status_items: list[dict[str, str]]) -> str:
+    """Format current-vs-planned project status rows for portfolio pages."""
+
+    lines = [
+        "## Portfolio Project Status",
+        "",
+        "| Area | Current status | Proof | Next step |",
+        "| --- | --- | --- | --- |",
+    ]
+    for item in status_items:
+        lines.append(
+            f"| {_escape_markdown_table_cell(item['area'])} | "
+            f"{_escape_markdown_table_cell(item['current_status'])} | "
+            f"{_escape_markdown_table_cell(item['proof'])} | "
+            f"{_escape_markdown_table_cell(item['next_step'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Portfolio usage note",
+            "Use this block for GitHub Pages project updates so current proof and planned demo work stay clearly separated.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def build_portfolio_review_links_markdown(review_links: list[dict[str, str]]) -> str:
     """Format current and planned review links without overclaiming live demo assets."""
 
