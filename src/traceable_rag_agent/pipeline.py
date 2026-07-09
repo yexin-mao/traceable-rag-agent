@@ -2218,6 +2218,32 @@ def build_portfolio_review_links_markdown(review_links: list[dict[str, str]]) ->
     return "\n".join(lines)
 
 
+def build_portfolio_agentic_rag_comparison_markdown(comparison_rows: list[dict[str, str]]) -> str:
+    """Format a recruiter-facing contrast between simple ChatPDF and Agentic RAG."""
+
+    lines = [
+        "## Agentic RAG vs Simple ChatPDF",
+        "",
+        "| Dimension | Simple ChatPDF baseline | Traceable Agentic RAG | Current proof |",
+        "| --- | --- | --- | --- |",
+    ]
+    for row in comparison_rows:
+        lines.append(
+            f"| {_escape_markdown_table_cell(row['dimension'])} | "
+            f"{_escape_markdown_table_cell(row['simple_rag'])} | "
+            f"{_escape_markdown_table_cell(row['traceable_agent'])} | "
+            f"{_escape_markdown_table_cell(row['proof'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Portfolio usage note",
+            "Use this comparison to explain the project as an evidence-debuggable RAG agent, not a generic ChatPDF clone; keep hosted-demo claims separate until verified live.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 

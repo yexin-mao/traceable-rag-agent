@@ -205,11 +205,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format portfolio review links that separate current reviewable artifacts from planned demo links
 - [x] Format portfolio evaluation snapshots that summarize benchmark coverage and citation-support metrics for recruiters
 - [x] Format compact portfolio metric badges that summarize tests, benchmark quality, retrieval gaps, citation support, and hosted-demo status
+- [x] Format a recruiter-facing Agentic RAG vs simple ChatPDF comparison with concrete proof points
 
 ## Development log
 
 ### 2026-07-09
 
+- Added `build_portfolio_agentic_rag_comparison_markdown(...)` to explain why the project is an evidence-debuggable Agentic RAG system rather than a generic ChatPDF clone.
+- The comparison renderer contrasts single-search PDF chat with query decomposition, traceable retrieval steps, evidence gates, and honest hosted-demo status.
+- Verified strict RED/GREEN with the focused comparison test before running the full suite.
 - Added `build_portfolio_metric_badges_markdown(...)` to render compact recruiter-facing proof badges for GitHub Pages portfolio updates.
 - The badge renderer summarizes passing tests, benchmark count, average retrieval coverage, citation support, retrieval gaps, unsupported citations, and hosted-demo status without implying a live demo exists.
 - Verified strict RED/GREEN with the focused metric-badges test before running the full suite.

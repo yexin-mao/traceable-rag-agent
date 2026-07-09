@@ -3110,3 +3110,38 @@ def test_build_portfolio_metric_badges_markdown_formats_compact_project_proof() 
             "Use these badges as compact GitHub Pages proof points; they summarize current tested capability without implying a hosted public demo exists.",
         ]
     )
+
+
+def test_build_portfolio_agentic_rag_comparison_markdown_contrasts_chatpdf_and_traceable_agent() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_agentic_rag_comparison_markdown(
+        [
+            {
+                "dimension": "Question handling",
+                "simple_rag": "Single search over uploaded files",
+                "traceable_agent": "Decomposes complex questions into focused retrieval queries",
+                "proof": "planned_queries and retrieval_steps are stored per trace",
+            },
+            {
+                "dimension": "Answer safety | grounding",
+                "simple_rag": "Returns a plausible answer",
+                "traceable_agent": "Blocks or escalates answers when evidence is weak",
+                "proof": "approval gate reports sufficient vs insufficient evidence",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Agentic RAG vs Simple ChatPDF",
+            "",
+            "| Dimension | Simple ChatPDF baseline | Traceable Agentic RAG | Current proof |",
+            "| --- | --- | --- | --- |",
+            "| Question handling | Single search over uploaded files | Decomposes complex questions into focused retrieval queries | planned_queries and retrieval_steps are stored per trace |",
+            "| Answer safety \\| grounding | Returns a plausible answer | Blocks or escalates answers when evidence is weak | approval gate reports sufficient vs insufficient evidence |",
+            "",
+            "### Portfolio usage note",
+            "Use this comparison to explain the project as an evidence-debuggable RAG agent, not a generic ChatPDF clone; keep hosted-demo claims separate until verified live.",
+        ]
+    )
