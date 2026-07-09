@@ -204,8 +204,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format portfolio project-status tables that separate current proof from planned demo work for GitHub Pages updates
 - [x] Format portfolio review links that separate current reviewable artifacts from planned demo links
 - [x] Format portfolio evaluation snapshots that summarize benchmark coverage and citation-support metrics for recruiters
+- [x] Format compact portfolio metric badges that summarize tests, benchmark quality, retrieval gaps, citation support, and hosted-demo status
 
 ## Development log
+
+### 2026-07-09
+
+- Added `build_portfolio_metric_badges_markdown(...)` to render compact recruiter-facing proof badges for GitHub Pages portfolio updates.
+- The badge renderer summarizes passing tests, benchmark count, average retrieval coverage, citation support, retrieval gaps, unsupported citations, and hosted-demo status without implying a live demo exists.
+- Verified strict RED/GREEN with the focused metric-badges test before running the full suite.
 
 ### 2026-07-08
 

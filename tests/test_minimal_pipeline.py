@@ -46,6 +46,7 @@ from traceable_rag_agent.pipeline import (
     build_latency_metric_cards,
     build_observability_dashboard_markdown,
     build_observability_dashboard_sections,
+    build_portfolio_metric_badges_markdown,
     build_trace_health_metric_cards,
     build_trace_interview_summary_markdown,
     check_answer_claims,
@@ -3057,5 +3058,55 @@ def test_build_portfolio_evaluation_snapshot_markdown_summarizes_quality_metrics
             "",
             "### Portfolio usage note",
             "Use this snapshot to show measurable RAG quality without claiming that every retrieval case is solved or that a hosted demo is live.",
+        ]
+    )
+
+
+def test_build_portfolio_metric_badges_markdown_formats_compact_project_proof() -> None:
+    quality_report = {
+        "question_count": 3,
+        "average_retrieval_coverage_ratio": 2 / 3,
+        "average_citation_support_ratio": 1.0,
+        "results": [
+            {
+                "question": "covered",
+                "retrieval_coverage": {"missing_source_ids": []},
+                "citation_support": {"unsupported_cited_source_ids": []},
+            },
+            {
+                "question": "gap | case",
+                "retrieval_coverage": {"missing_source_ids": ["missing"]},
+                "citation_support": {"unsupported_cited_source_ids": []},
+            },
+            {
+                "question": "unsupported citation",
+                "retrieval_coverage": {"missing_source_ids": []},
+                "citation_support": {"unsupported_cited_source_ids": ["bad-source"]},
+            },
+        ],
+    }
+
+    markdown = build_portfolio_metric_badges_markdown(
+        quality_report,
+        test_count=86,
+        hosted_demo_status="planned / not live",
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Metric Badges",
+            "",
+            "| Badge | Value | Recruiter note |",
+            "| --- | ---: | --- |",
+            "| Automated tests | 86 passing | Regression coverage for traceability, citations, and portfolio report renderers. |",
+            "| Benchmark questions | 3 | Evaluation cases used for retrieval and citation quality checks. |",
+            "| Avg retrieval coverage | 67% | Measures whether expected sources were retrieved. |",
+            "| Avg citation support | 100% | Measures whether cited sources are backed by retrieved evidence. |",
+            "| Retrieval gaps | 1 | Current improvement queue; not hidden as a solved problem. |",
+            "| Unsupported citations | 1 | Faithfulness issues are visible instead of silently shipped. |",
+            "| Hosted demo | planned / not live | Do not present as live until a deployed URL is verified. |",
+            "",
+            "### Usage note",
+            "Use these badges as compact GitHub Pages proof points; they summarize current tested capability without implying a hosted public demo exists.",
         ]
     )

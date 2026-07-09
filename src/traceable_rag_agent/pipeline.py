@@ -2066,8 +2066,8 @@ def build_portfolio_project_status_markdown(status_items: list[dict[str, str]]) 
     return "\n".join(lines)
 
 
-def build_portfolio_evaluation_snapshot_markdown(quality_report: dict[str, object]) -> str:
-    """Format benchmark quality metrics as an honest recruiter-facing portfolio snapshot."""
+def _portfolio_quality_issue_counts(quality_report: dict[str, object]) -> tuple[int, int]:
+    """Count retrieval gaps and unsupported citations from benchmark report rows."""
 
     results = quality_report.get("results", [])
     retrieval_gap_count = sum(
@@ -2076,6 +2076,14 @@ def build_portfolio_evaluation_snapshot_markdown(quality_report: dict[str, objec
     unsupported_citation_count = sum(
         bool(result["citation_support"].get("unsupported_cited_source_ids", [])) for result in results
     )
+    return retrieval_gap_count, unsupported_citation_count
+
+
+def build_portfolio_evaluation_snapshot_markdown(quality_report: dict[str, object]) -> str:
+    """Format benchmark quality metrics as an honest recruiter-facing portfolio snapshot."""
+
+    results = quality_report.get("results", [])
+    retrieval_gap_count, unsupported_citation_count = _portfolio_quality_issue_counts(quality_report)
 
     lines = [
         "## Portfolio Evaluation Snapshot",
@@ -2111,6 +2119,74 @@ def build_portfolio_evaluation_snapshot_markdown(quality_report: dict[str, objec
             "",
             "### Portfolio usage note",
             "Use this snapshot to show measurable RAG quality without claiming that every retrieval case is solved or that a hosted demo is live.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def build_portfolio_metric_badges_markdown(
+    quality_report: dict[str, object],
+    *,
+    test_count: int,
+    hosted_demo_status: str = "planned / not live",
+) -> str:
+    """Format compact, honest metric badges for recruiter-facing portfolio pages."""
+
+    retrieval_gap_count, unsupported_citation_count = _portfolio_quality_issue_counts(quality_report)
+    badge_rows = [
+        (
+            "Automated tests",
+            f"{test_count} passing",
+            "Regression coverage for traceability, citations, and portfolio report renderers.",
+        ),
+        (
+            "Benchmark questions",
+            str(quality_report["question_count"]),
+            "Evaluation cases used for retrieval and citation quality checks.",
+        ),
+        (
+            "Avg retrieval coverage",
+            _format_percent(quality_report["average_retrieval_coverage_ratio"]),
+            "Measures whether expected sources were retrieved.",
+        ),
+        (
+            "Avg citation support",
+            _format_percent(quality_report["average_citation_support_ratio"]),
+            "Measures whether cited sources are backed by retrieved evidence.",
+        ),
+        (
+            "Retrieval gaps",
+            str(retrieval_gap_count),
+            "Current improvement queue; not hidden as a solved problem.",
+        ),
+        (
+            "Unsupported citations",
+            str(unsupported_citation_count),
+            "Faithfulness issues are visible instead of silently shipped.",
+        ),
+        (
+            "Hosted demo",
+            hosted_demo_status,
+            "Do not present as live until a deployed URL is verified.",
+        ),
+    ]
+
+    lines = [
+        "## Portfolio Metric Badges",
+        "",
+        "| Badge | Value | Recruiter note |",
+        "| --- | ---: | --- |",
+    ]
+    for badge, value, note in badge_rows:
+        lines.append(
+            f"| {_escape_markdown_table_cell(badge)} | {_escape_markdown_table_cell(value)} | "
+            f"{_escape_markdown_table_cell(note)} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Usage note",
+            "Use these badges as compact GitHub Pages proof points; they summarize current tested capability without implying a hosted public demo exists.",
         ]
     )
     return "\n".join(lines)
