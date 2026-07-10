@@ -2282,6 +2282,32 @@ def build_portfolio_hiring_pitch_markdown(
     )
 
 
+def build_portfolio_public_demo_launch_checklist_markdown(checklist_items: list[dict[str, str]]) -> str:
+    """Format current-vs-planned public demo launch status without overclaiming deployment."""
+
+    lines = [
+        "## Public Demo Launch Checklist",
+        "",
+        "| Launch item | Status | Current proof | Next step |",
+        "| --- | --- | --- | --- |",
+    ]
+    for item in checklist_items:
+        lines.append(
+            f"| {_escape_markdown_table_cell(item['item'])} | "
+            f"{_escape_markdown_table_cell(item['status'])} | "
+            f"{_escape_markdown_table_cell(item['proof'])} | "
+            f"{_escape_markdown_table_cell(item['next_step'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Portfolio usage note",
+            "Use this checklist to show launch progress honestly: tested local/report assets are current, while public-demo items remain planned until a live URL is verified.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 

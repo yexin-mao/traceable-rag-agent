@@ -3188,3 +3188,38 @@ def test_build_portfolio_hiring_pitch_markdown_summarizes_role_fit_from_trace_pr
             "Use this as a concise recruiter-facing bridge from technical traceability to role fit: the project demonstrates agent planning, evidence grounding, faithfulness evaluation, and safe handoff when evidence is weak.",
         ]
     )
+
+
+def test_build_portfolio_public_demo_launch_checklist_markdown_tracks_current_and_blocked_items() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_public_demo_launch_checklist_markdown(
+        [
+            {
+                "item": "Trace/report assets",
+                "status": "current",
+                "proof": "89 pytest checks cover trace renderers and portfolio summaries.",
+                "next_step": "Reuse in the hosted dashboard copy.",
+            },
+            {
+                "item": "Hosted dashboard | demo",
+                "status": "planned / not live",
+                "proof": "No verified public URL is claimed yet.",
+                "next_step": "Deploy FastAPI or static demo and verify before linking.",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Public Demo Launch Checklist",
+            "",
+            "| Launch item | Status | Current proof | Next step |",
+            "| --- | --- | --- | --- |",
+            "| Trace/report assets | current | 89 pytest checks cover trace renderers and portfolio summaries. | Reuse in the hosted dashboard copy. |",
+            "| Hosted dashboard \\| demo | planned / not live | No verified public URL is claimed yet. | Deploy FastAPI or static demo and verify before linking. |",
+            "",
+            "### Portfolio usage note",
+            "Use this checklist to show launch progress honestly: tested local/report assets are current, while public-demo items remain planned until a live URL is verified.",
+        ]
+    )

@@ -207,8 +207,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format compact portfolio metric badges that summarize tests, benchmark quality, retrieval gaps, citation support, and hosted-demo status
 - [x] Format a recruiter-facing Agentic RAG vs simple ChatPDF comparison with concrete proof points
 - [x] Format a recruiter-facing hiring pitch that connects tested trace proof to AI Agent Engineer role fit
+- [x] Format public-demo launch checklists that separate current tested assets from planned hosted-demo work
 
 ## Development log
+
+### 2026-07-10
+
+- Added `build_portfolio_public_demo_launch_checklist_markdown(...)` to track launch readiness for recruiter-facing GitHub Pages updates without claiming an unverified live demo.
+- The checklist renderer marks trace/report assets as current while keeping hosted dashboard/demo deployment explicitly planned until a live URL is verified.
+- Verified strict RED/GREEN with the focused public-demo launch checklist test before running the full 89-test suite and linter.
 
 ### 2026-07-10
 
