@@ -2244,6 +2244,44 @@ def build_portfolio_agentic_rag_comparison_markdown(comparison_rows: list[dict[s
     return "\n".join(lines)
 
 
+def build_portfolio_hiring_pitch_markdown(
+    trace_items: list[dict[str, object]], *, target_role: str
+) -> str:
+    """Format a concise role-fit pitch from tested trace proof for portfolio pages."""
+
+    total_traces = len(trace_items)
+    planned_query_count = 0
+    evidence_count = 0
+    checked_claim_count = 0
+    ready_trace_count = 0
+    for item in trace_items:
+        trace = item["trace"]
+        planned_query_count += len(trace.planned_queries)
+        evidence_count += len(trace.evidence)
+        checked_claim_count += len(trace.claim_checks)
+        sufficiency = trace.evidence_sufficiency
+        if sufficiency is not None and sufficiency.status == "sufficient":
+            ready_trace_count += 1
+
+    review_trace_count = total_traces - ready_trace_count
+    return "\n".join(
+        [
+            "## Portfolio Hiring Pitch",
+            "",
+            f"**Target role:** {target_role}",
+            "**One-line pitch:** Built a traceable Agentic RAG system that plans retrieval, grounds answers in evidence, and blocks weak outputs before delivery.",
+            "",
+            "### Proof from tested traces",
+            f"- {total_traces} demo traces cover {planned_query_count} planned retrieval queries, {evidence_count} evidence items, and {checked_claim_count} checked claims.",
+            f"- {ready_trace_count} traces are ready for demo; {review_trace_count} traces show evidence-gate retry/review behavior.",
+            "- Current proof is deterministic tests and Markdown trace/report renderers; hosted public demo remains planned until verified live.",
+            "",
+            "### Interview angle",
+            "Use this as a concise recruiter-facing bridge from technical traceability to role fit: the project demonstrates agent planning, evidence grounding, faithfulness evaluation, and safe handoff when evidence is weak.",
+        ]
+    )
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 

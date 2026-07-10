@@ -3145,3 +3145,46 @@ def test_build_portfolio_agentic_rag_comparison_markdown_contrasts_chatpdf_and_t
             "Use this comparison to explain the project as an evidence-debuggable RAG agent, not a generic ChatPDF clone; keep hosted-demo claims separate until verified live.",
         ]
     )
+
+
+def test_build_portfolio_hiring_pitch_markdown_summarizes_role_fit_from_trace_proof() -> None:
+    from traceable_rag_agent import pipeline
+
+    ready_trace = answer_question(
+        "How does Agentic RAG decompose questions and check evidence?",
+        [
+            Document(source_id="decomposition", text="Agentic RAG decomposes questions into focused retrieval queries."),
+            Document(source_id="sufficiency", text="Agentic RAG checks evidence sufficiency before final synthesis."),
+        ],
+        top_k=1,
+    )
+    blocked_trace = answer_question(
+        "How does Agentic RAG handle missing evidence?",
+        [Document(source_id="unrelated", text="Workflow agents inspect tool results before continuing.")],
+        top_k=1,
+    )
+
+    markdown = pipeline.build_portfolio_hiring_pitch_markdown(
+        [
+            {"label": "multi-query ready", "trace": ready_trace},
+            {"label": "weak-evidence blocked", "trace": blocked_trace},
+        ],
+        target_role="AI Agent Engineer",
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Hiring Pitch",
+            "",
+            "**Target role:** AI Agent Engineer",
+            "**One-line pitch:** Built a traceable Agentic RAG system that plans retrieval, grounds answers in evidence, and blocks weak outputs before delivery.",
+            "",
+            "### Proof from tested traces",
+            "- 2 demo traces cover 3 planned retrieval queries, 2 evidence items, and 3 checked claims.",
+            "- 1 traces are ready for demo; 1 traces show evidence-gate retry/review behavior.",
+            "- Current proof is deterministic tests and Markdown trace/report renderers; hosted public demo remains planned until verified live.",
+            "",
+            "### Interview angle",
+            "Use this as a concise recruiter-facing bridge from technical traceability to role fit: the project demonstrates agent planning, evidence grounding, faithfulness evaluation, and safe handoff when evidence is weak.",
+        ]
+    )

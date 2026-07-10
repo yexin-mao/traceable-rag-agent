@@ -206,8 +206,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format portfolio evaluation snapshots that summarize benchmark coverage and citation-support metrics for recruiters
 - [x] Format compact portfolio metric badges that summarize tests, benchmark quality, retrieval gaps, citation support, and hosted-demo status
 - [x] Format a recruiter-facing Agentic RAG vs simple ChatPDF comparison with concrete proof points
+- [x] Format a recruiter-facing hiring pitch that connects tested trace proof to AI Agent Engineer role fit
 
 ## Development log
+
+### 2026-07-10
+
+- Added `build_portfolio_hiring_pitch_markdown(...)` to summarize Traceable Agentic RAG as an AI Agent Engineer hiring pitch grounded in tested trace metrics.
+- The pitch renderer counts demo traces, planned retrieval queries, evidence items, checked claims, and ready-vs-review traces while keeping hosted public demo status explicit as planned.
+- Verified strict RED/GREEN with the focused hiring-pitch test before running the full suite and linter.
 
 ### 2026-07-09
 
