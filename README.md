@@ -208,8 +208,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format a recruiter-facing Agentic RAG vs simple ChatPDF comparison with concrete proof points
 - [x] Format a recruiter-facing hiring pitch that connects tested trace proof to AI Agent Engineer role fit
 - [x] Format public-demo launch checklists that separate current tested assets from planned hosted-demo work
+- [x] Format portfolio trace artifact galleries that list current reviewable assets separately from planned hosted demo links
 
 ## Development log
+
+### 2026-07-11
+
+- Added `build_portfolio_trace_artifact_gallery_markdown(...)` to show recruiters which trace/report artifacts are reviewable now and which demo links are still planned.
+- The gallery renderer escapes Markdown table separators, so assets like `Hosted dashboard | demo` can be displayed safely on GitHub Pages without breaking tables.
+- Verified strict RED/GREEN with the focused artifact-gallery test before running the full suite and linter.
 
 ### 2026-07-10
 

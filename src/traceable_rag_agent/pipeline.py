@@ -2308,6 +2308,33 @@ def build_portfolio_public_demo_launch_checklist_markdown(checklist_items: list[
     return "\n".join(lines)
 
 
+def build_portfolio_trace_artifact_gallery_markdown(artifacts: list[dict[str, str]]) -> str:
+    """Format current and planned trace artifacts for recruiter-facing portfolio pages."""
+
+    lines = [
+        "## Portfolio Trace Artifact Gallery",
+        "",
+        "| Artifact | Status | Link | Interview value | Next step |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for artifact in artifacts:
+        lines.append(
+            f"| {_escape_markdown_table_cell(artifact['artifact'])} | "
+            f"{_escape_markdown_table_cell(artifact['status'])} | "
+            f"{_escape_markdown_table_cell(artifact['link'])} | "
+            f"{_escape_markdown_table_cell(artifact['interview_value'])} | "
+            f"{_escape_markdown_table_cell(artifact['next_step'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Honesty guardrail",
+            "List only verified links as current; mark undeployed demos as planned until the public URL works.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 

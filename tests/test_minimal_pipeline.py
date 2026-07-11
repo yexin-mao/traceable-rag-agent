@@ -3223,3 +3223,40 @@ def test_build_portfolio_public_demo_launch_checklist_markdown_tracks_current_an
             "Use this checklist to show launch progress honestly: tested local/report assets are current, while public-demo items remain planned until a live URL is verified.",
         ]
     )
+
+
+def test_build_portfolio_trace_artifact_gallery_markdown_lists_reviewable_and_planned_assets() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_trace_artifact_gallery_markdown(
+        [
+            {
+                "artifact": "Trace report Markdown",
+                "status": "current",
+                "link": "README development log",
+                "interview_value": "Shows query planning, retrieval, synthesis, and evaluation in one replayable report.",
+                "next_step": "Use as the first static portfolio artifact.",
+            },
+            {
+                "artifact": "Hosted dashboard | demo",
+                "status": "planned / not live",
+                "link": "not available yet",
+                "interview_value": "Will let reviewers inspect evidence traces in a browser once deployed.",
+                "next_step": "Deploy only after a public URL is verified.",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Trace Artifact Gallery",
+            "",
+            "| Artifact | Status | Link | Interview value | Next step |",
+            "| --- | --- | --- | --- | --- |",
+            "| Trace report Markdown | current | README development log | Shows query planning, retrieval, synthesis, and evaluation in one replayable report. | Use as the first static portfolio artifact. |",
+            "| Hosted dashboard \\| demo | planned / not live | not available yet | Will let reviewers inspect evidence traces in a browser once deployed. | Deploy only after a public URL is verified. |",
+            "",
+            "### Honesty guardrail",
+            "List only verified links as current; mark undeployed demos as planned until the public URL works.",
+        ]
+    )
