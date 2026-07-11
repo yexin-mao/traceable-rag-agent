@@ -209,8 +209,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format a recruiter-facing hiring pitch that connects tested trace proof to AI Agent Engineer role fit
 - [x] Format public-demo launch checklists that separate current tested assets from planned hosted-demo work
 - [x] Format portfolio trace artifact galleries that list current reviewable assets separately from planned hosted demo links
+- [x] Format portfolio demo-verification checks that record which public links are verified versus still planned
 
 ## Development log
+
+### 2026-07-11
+
+- Added `build_portfolio_demo_verification_markdown(...)` to record public-demo verification checks without overclaiming unverified links.
+- The verification renderer escapes Markdown table separators and adds a publishing rule: only mark demo links current after the public URL is actually verified.
+- Verified strict RED/GREEN with the focused demo-verification test before running broader validation.
 
 ### 2026-07-11
 

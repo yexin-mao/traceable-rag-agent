@@ -3260,3 +3260,38 @@ def test_build_portfolio_trace_artifact_gallery_markdown_lists_reviewable_and_pl
             "List only verified links as current; mark undeployed demos as planned until the public URL works.",
         ]
     )
+
+
+def test_build_portfolio_demo_verification_markdown_records_live_checks_without_overclaiming() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_demo_verification_markdown(
+        [
+            {
+                "check": "GitHub repo",
+                "status": "verified",
+                "evidence": "https://github.com/yexin-mao/traceable-rag-agent",
+                "portfolio_note": "Current code and tests are reviewable.",
+            },
+            {
+                "check": "Hosted dashboard | demo",
+                "status": "not verified",
+                "evidence": "No public URL has been confirmed yet.",
+                "portfolio_note": "Keep listed as planned until deployment succeeds.",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Portfolio Demo Verification",
+            "",
+            "| Check | Status | Evidence | Portfolio note |",
+            "| --- | --- | --- | --- |",
+            "| GitHub repo | verified | https://github.com/yexin-mao/traceable-rag-agent | Current code and tests are reviewable. |",
+            "| Hosted dashboard \\| demo | not verified | No public URL has been confirmed yet. | Keep listed as planned until deployment succeeds. |",
+            "",
+            "### Publishing rule",
+            "Only mark a demo link as current after the public URL has been verified; otherwise keep it planned/in progress.",
+        ]
+    )

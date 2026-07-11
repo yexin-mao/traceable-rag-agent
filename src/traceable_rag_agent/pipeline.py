@@ -2335,6 +2335,32 @@ def build_portfolio_trace_artifact_gallery_markdown(artifacts: list[dict[str, st
     return "\n".join(lines)
 
 
+def build_portfolio_demo_verification_markdown(checks: list[dict[str, str]]) -> str:
+    """Format public-demo verification checks without overclaiming live assets."""
+
+    lines = [
+        "## Portfolio Demo Verification",
+        "",
+        "| Check | Status | Evidence | Portfolio note |",
+        "| --- | --- | --- | --- |",
+    ]
+    for check in checks:
+        lines.append(
+            f"| {_escape_markdown_table_cell(check['check'])} | "
+            f"{_escape_markdown_table_cell(check['status'])} | "
+            f"{_escape_markdown_table_cell(check['evidence'])} | "
+            f"{_escape_markdown_table_cell(check['portfolio_note'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Publishing rule",
+            "Only mark a demo link as current after the public URL has been verified; otherwise keep it planned/in progress.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 
