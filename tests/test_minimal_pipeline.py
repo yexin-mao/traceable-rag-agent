@@ -3330,3 +3330,40 @@ def test_build_portfolio_public_demo_gap_markdown_lists_remaining_launch_blocker
             "Publish current proof and remaining gaps together so the portfolio shows progress without implying an unverified hosted demo exists.",
         ]
     )
+
+
+def test_build_portfolio_public_demo_publish_plan_markdown_sequences_launch_steps() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_public_demo_publish_plan_markdown(
+        [
+            {
+                "step": "1",
+                "task": "Static trace report | artifact",
+                "status": "ready locally",
+                "verification": "93 pytest checks after this renderer is added.",
+                "portfolio_copy": "Current: deterministic report asset is reviewable in repo.",
+            },
+            {
+                "step": "2",
+                "task": "Hosted dashboard URL",
+                "status": "planned / not live",
+                "verification": "No public URL probe has passed yet.",
+                "portfolio_copy": "Planned: browser demo will be linked only after verification.",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Public Demo Publish Plan",
+            "",
+            "| Step | Task | Status | Verification signal | Portfolio copy |",
+            "| --- | --- | --- | --- | --- |",
+            "| 1 | Static trace report \\| artifact | ready locally | 93 pytest checks after this renderer is added. | Current: deterministic report asset is reviewable in repo. |",
+            "| 2 | Hosted dashboard URL | planned / not live | No public URL probe has passed yet. | Planned: browser demo will be linked only after verification. |",
+            "",
+            "### Launch rule",
+            "Promote a demo item from planned to current only after its verification signal has been observed, such as a passing live URL probe or reviewable committed artifact.",
+        ]
+    )

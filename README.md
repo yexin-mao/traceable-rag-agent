@@ -211,8 +211,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format portfolio trace artifact galleries that list current reviewable assets separately from planned hosted demo links
 - [x] Format portfolio demo-verification checks that record which public links are verified versus still planned
 - [x] Format public-demo gap reports that list remaining launch blockers beside current tested proof
+- [x] Format public-demo publish plans that sequence launch tasks with explicit verification signals
 
 ## Development log
+
+### 2026-07-12
+
+- Added `build_portfolio_public_demo_publish_plan_markdown(...)` to sequence public-demo launch tasks with explicit verification signals and recruiter-safe portfolio copy.
+- The publish-plan renderer escapes Markdown table separators and adds a launch rule: move demo items from planned to current only after a live probe or committed artifact verifies them.
+- Verified strict RED/GREEN with the focused public-demo publish-plan test before running the full 93-test suite and linter.
 
 ### 2026-07-12
 

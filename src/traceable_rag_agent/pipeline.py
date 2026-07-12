@@ -2387,6 +2387,33 @@ def build_portfolio_public_demo_gap_markdown(gaps: list[dict[str, str]]) -> str:
     return "\n".join(lines)
 
 
+def build_portfolio_public_demo_publish_plan_markdown(steps: list[dict[str, str]]) -> str:
+    """Format sequenced public-demo publishing steps with explicit verification signals."""
+
+    lines = [
+        "## Public Demo Publish Plan",
+        "",
+        "| Step | Task | Status | Verification signal | Portfolio copy |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for step in steps:
+        lines.append(
+            f"| {_escape_markdown_table_cell(step['step'])} | "
+            f"{_escape_markdown_table_cell(step['task'])} | "
+            f"{_escape_markdown_table_cell(step['status'])} | "
+            f"{_escape_markdown_table_cell(step['verification'])} | "
+            f"{_escape_markdown_table_cell(step['portfolio_copy'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Launch rule",
+            "Promote a demo item from planned to current only after its verification signal has been observed, such as a passing live URL probe or reviewable committed artifact.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 
