@@ -210,8 +210,15 @@ Together they show two sides of AI Agent engineering: trustworthy answers from e
 - [x] Format public-demo launch checklists that separate current tested assets from planned hosted-demo work
 - [x] Format portfolio trace artifact galleries that list current reviewable assets separately from planned hosted demo links
 - [x] Format portfolio demo-verification checks that record which public links are verified versus still planned
+- [x] Format public-demo gap reports that list remaining launch blockers beside current tested proof
 
 ## Development log
+
+### 2026-07-12
+
+- Added `build_portfolio_public_demo_gap_markdown(...)` to keep public-demo launch blockers visible alongside current tested evidence.
+- The gap report renderer escapes Markdown table separators and adds a recruiter-facing rule: publish current proof and remaining gaps together without implying an unverified hosted demo exists.
+- Verified strict RED/GREEN with the focused public-demo gap test before running the full 92-test suite and linter.
 
 ### 2026-07-11
 

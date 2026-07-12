@@ -3295,3 +3295,38 @@ def test_build_portfolio_demo_verification_markdown_records_live_checks_without_
             "Only mark a demo link as current after the public URL has been verified; otherwise keep it planned/in progress.",
         ]
     )
+
+
+def test_build_portfolio_public_demo_gap_markdown_lists_remaining_launch_blockers() -> None:
+    from traceable_rag_agent import pipeline
+
+    markdown = pipeline.build_portfolio_public_demo_gap_markdown(
+        [
+            {
+                "gap": "Hosted dashboard | demo",
+                "current_status": "planned / not live",
+                "proof": "No public URL has been verified yet.",
+                "action": "Deploy a static trace report or FastAPI demo before claiming a live demo.",
+            },
+            {
+                "gap": "Evaluation artifact refresh",
+                "current_status": "current: local renderer tested",
+                "proof": "92 pytest checks cover trace reports and portfolio packaging.",
+                "action": "Reuse the report in GitHub Pages copy while keeping deployment status honest.",
+            },
+        ]
+    )
+
+    assert markdown == "\n".join(
+        [
+            "## Public Demo Gap Report",
+            "",
+            "| Gap | Current status | Proof | Next action |",
+            "| --- | --- | --- | --- |",
+            "| Hosted dashboard \\| demo | planned / not live | No public URL has been verified yet. | Deploy a static trace report or FastAPI demo before claiming a live demo. |",
+            "| Evaluation artifact refresh | current: local renderer tested | 92 pytest checks cover trace reports and portfolio packaging. | Reuse the report in GitHub Pages copy while keeping deployment status honest. |",
+            "",
+            "### Recruiter-facing rule",
+            "Publish current proof and remaining gaps together so the portfolio shows progress without implying an unverified hosted demo exists.",
+        ]
+    )

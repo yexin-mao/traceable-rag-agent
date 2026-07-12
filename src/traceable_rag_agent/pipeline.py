@@ -2361,6 +2361,32 @@ def build_portfolio_demo_verification_markdown(checks: list[dict[str, str]]) -> 
     return "\n".join(lines)
 
 
+def build_portfolio_public_demo_gap_markdown(gaps: list[dict[str, str]]) -> str:
+    """Format remaining public-demo launch gaps without overclaiming deployment."""
+
+    lines = [
+        "## Public Demo Gap Report",
+        "",
+        "| Gap | Current status | Proof | Next action |",
+        "| --- | --- | --- | --- |",
+    ]
+    for gap in gaps:
+        lines.append(
+            f"| {_escape_markdown_table_cell(gap['gap'])} | "
+            f"{_escape_markdown_table_cell(gap['current_status'])} | "
+            f"{_escape_markdown_table_cell(gap['proof'])} | "
+            f"{_escape_markdown_table_cell(gap['action'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Recruiter-facing rule",
+            "Publish current proof and remaining gaps together so the portfolio shows progress without implying an unverified hosted demo exists.",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def build_interview_risk_register_markdown(trace_items: list[dict[str, object]]) -> str:
     """Format demo traces as an interview risk register with mitigation talking points."""
 
